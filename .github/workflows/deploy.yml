@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: Deployment
     container: mcr.microsoft.com/dotnet/sdk:6.0
     steps:
     - uses: actions/checkout@v2
@@ -19,12 +20,10 @@ jobs:
       run: dotnet build -c Release
 
     - name: Publish on NuGet
-      uses: brandedoutcast/publish-nuget@v2.5.5
+      uses: myci-actions/publish-nuget@5
       with:
-          PACKAGE_NAME: SMTS-Protocol
-          PROJECT_FILE_PATH: src/SMTSP/SMTSP.csproj
-          NUGET_KEY: ${{ secrets.NUGET_API_KEY }}
-          VERSION_STATIC: ${{ github.event.inputs.version }}
+          filename: '*.nupkg'
+          api-key: ${{ secrets.NUGET_API_KEY }}
 
     - name: Create Release strings
       id: release_strings
