@@ -20,10 +20,12 @@ jobs:
       run: dotnet build -c Release
 
     - name: Publish on NuGet
-      uses: myci-actions/publish-nuget@5
+      uses: brandedoutcast/publish-nuget@v2.5.5
       with:
-          filename: '*.nupkg'
-          api-key: ${{ secrets.NUGET_API_KEY }}
+          PACKAGE_NAME: SMTS-Protocol
+          PROJECT_FILE_PATH: src/SMTSP/SMTSP.csproj
+          NUGET_KEY: ${{ secrets.NUGET_API_KEY }}
+          VERSION_STATIC: ${{ github.event.inputs.version }}
 
     - name: Create Release strings
       id: release_strings
