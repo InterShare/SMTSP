@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMTSP", "src\SMTSP\SMTSP.csproj", "{7FA39534-8F88-4174-9FAD-CF1CF6527671}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7FA39534-8F88-4174-9FAD-CF1CF6527671}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FA39534-8F88-4174-9FAD-CF1CF6527671}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FA39534-8F88-4174-9FAD-CF1CF6527671}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FA39534-8F88-4174-9FAD-CF1CF6527671}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
