@@ -10,7 +10,7 @@ internal static class StreamExtension
 
             while (true)
             {
-                if (stream.Position >= stream.Length)
+                if (stream.CanSeek && stream.Position >= stream.Length)
                 {
                     return result.ToArray();
                 }

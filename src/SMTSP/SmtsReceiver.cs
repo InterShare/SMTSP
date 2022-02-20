@@ -22,7 +22,7 @@ public class SmtsReceiver
 
     public event EventHandler<SmtsFile> OnFileReceive = delegate { };
 
-    private async void ListenForConnections()
+    private void ListenForConnections()
     {
         try
         {
@@ -61,7 +61,10 @@ public class SmtsReceiver
 
                     if (_onTransferRequestCallback != null)
                     {
-                        result = await _onTransferRequestCallback.Invoke(transferRequest);
+                        lock (_listeningThreadLock)
+                        {
+                            result = _onTransferRequestCallback.Invoke(transferRequest).Result;
+                        }
                     }
 
                     if (result)
@@ -190,6 +193,9 @@ public class SmtsReceiver
     /// <param name="callbackFunction">Return <c>true</c> to accept the data transfer, <c>false</c> to decline it.</param>
     public void RegisterTransferRequestCallback(Func<TransferRequest, Task<bool>> callbackFunction)
     {
-        _onTransferRequestCallback = callbackFunction;
+        lock (_listeningThreadLock)
+        {
+            _onTransferRequestCallback = callbackFunction;
+        }
     }
 }
