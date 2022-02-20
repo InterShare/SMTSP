@@ -87,6 +87,8 @@ public class SmtsDiscovery
     {
         try
         {
+            bool answerToLookupBroadcasts;
+
             while (_receiving)
             {
                 lock (_listeningThreadLock)
@@ -95,6 +97,8 @@ public class SmtsDiscovery
                     {
                         break;
                     }
+
+                    answerToLookupBroadcasts = _answerToLookupBroadcasts;
                 }
 
                 if (_udpSocket == null)
@@ -119,7 +123,7 @@ public class SmtsDiscovery
                             AddNewDevice(receivedDevice);
                         }
                     }
-                    else if (messageTypeResult.Type == MessageTypes.DeviceLookupRequest && _answerToLookupBroadcasts)
+                    else if (messageTypeResult.Type == MessageTypes.DeviceLookupRequest && answerToLookupBroadcasts)
                     {
                         string deviceId = stream.GetStringTillEndByte(0x00);
 

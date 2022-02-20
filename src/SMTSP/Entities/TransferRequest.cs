@@ -11,7 +11,7 @@ public class TransferRequest
     public long FileSize { get; set; }
     public string FileName { get; set; }
 
-    public byte[] ToBinary()
+    internal byte[] ToBinary()
     {
         var messageInBytes = new List<byte>();
 
@@ -40,7 +40,7 @@ public class TransferRequest
         return messageInBytes.ToArray();
     }
 
-    public void FromStream(Stream stream)
+    internal void FromStream(Stream stream)
     {
         Id = stream.GetStringTillEndByte(0x00);
         SenderId = stream.GetStringTillEndByte(0x00);
