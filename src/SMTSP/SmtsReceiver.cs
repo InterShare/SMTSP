@@ -22,7 +22,7 @@ public class SmtsReceiver
 
     public event EventHandler<SmtsFile> OnFileReceive = delegate { };
 
-    private void ListenForConnections()
+    private async void ListenForConnections()
     {
         try
         {
@@ -61,7 +61,7 @@ public class SmtsReceiver
 
                     if (_onTransferRequestCallback != null)
                     {
-                        result = _onTransferRequestCallback(transferRequest).Result;
+                        result = await _onTransferRequestCallback.Invoke(transferRequest);
                     }
 
                     if (result)
