@@ -3,9 +3,9 @@ using SMTSP.Extensions;
 
 namespace SMTSP.Helpers;
 
-public class MessageTransformer
+internal class MessageTransformer
 {
-    public static GetMessageTypeResponse GetMessageType(Stream stream)
+    internal static GetMessageTypeResponse GetMessageType(Stream stream)
     {
         var result = new GetMessageTypeResponse
         {

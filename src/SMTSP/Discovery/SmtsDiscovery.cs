@@ -1,31 +1,41 @@
 using System.Net;
 using System.Net.Sockets;
 using SMTSP.Core;
-using SMTSP.Discovery.Entities;
 using SMTSP.Entities;
 using SMTSP.Extensions;
 using SMTSP.Helpers;
 
 namespace SMTSP.Discovery;
 
+/// <summary>
+/// Used to discover devices in the current network.
+/// </summary>
 public class SmtsDiscovery
 {
     private readonly int[] _discoveryPorts = { 4240, 4241, 4242 };
     private readonly object _listeningThreadLock = new object();
-    private readonly DiscoveryDeviceInfo _myDeviceInfo;
+    private readonly DeviceInfo _myDeviceInfo;
 
     private bool _answerToLookupBroadcasts = false;
-    private Timer? _discoveringInterval;
     private bool _receiving;
     private int _port;
-    private UdpClient? _udpSocket;
+    private Timer? _discoveringInterval;
     private Thread? _listeningThread;
+    private UdpClient? _udpSocket;
 
-    public readonly List<DiscoveryDeviceInfo> DiscoveredDevices = new List<DiscoveryDeviceInfo>();
-    public event EventHandler<DiscoveryDeviceInfo> OnNewDeviceDiscovered = delegate { };
+    /// <summary>
+    /// Holds the list of discovered devices.
+    /// </summary>
+    public readonly List<DeviceInfo> DiscoveredDevices = new List<DeviceInfo>();
+
+    /// <summary>
+    /// Triggered when a new device is detected.
+    /// </summary>
+    public event EventHandler<DeviceInfo> OnNewDeviceDiscovered = delegate { };
 
 
-    public SmtsDiscovery(DiscoveryDeviceInfo myDevice)
+    /// <param name="myDevice"></param>
+    public SmtsDiscovery(DeviceInfo myDevice)
     {
         _myDeviceInfo = myDevice;
 
@@ -60,7 +70,7 @@ public class SmtsDiscovery
         }
     }
 
-    private void AddNewDevice(DiscoveryDeviceInfo deviceInfo)
+    private void AddNewDevice(DeviceInfo deviceInfo)
     {
         if (deviceInfo.TransferPort == -1)
         {
@@ -69,7 +79,7 @@ public class SmtsDiscovery
 
         lock (DiscoveredDevices)
         {
-            DiscoveryDeviceInfo existingDeviceInfo = DiscoveredDevices.Find(element =>
+            DeviceInfo? existingDeviceInfo = DiscoveredDevices.Find(element =>
                 element.DeviceId == deviceInfo.DeviceId &&
                 element.IpAddress == deviceInfo.IpAddress &&
                 element.DiscoveryPort == deviceInfo.DiscoveryPort);
@@ -87,10 +97,10 @@ public class SmtsDiscovery
     {
         try
         {
-            bool answerToLookupBroadcasts;
-
             while (_receiving)
             {
+                bool answerToLookupBroadcasts;
+
                 lock (_listeningThreadLock)
                 {
                     if (!_receiving)
@@ -114,7 +124,7 @@ public class SmtsDiscovery
 
                     if (messageTypeResult.Type == MessageTypes.DeviceInfo)
                     {
-                        var receivedDevice = new DiscoveryDeviceInfo();
+                        var receivedDevice = new DeviceInfo();
                         receivedDevice.FromStream(stream);
                         receivedDevice.IpAddress = receivedMessage.RemoteEndPoint.Address.ToString();
 
@@ -187,6 +197,21 @@ public class SmtsDiscovery
         }
     }
 
+    private void StartReceiveLoop()
+    {
+        if (!_receiving)
+        {
+            _listeningThread?.Interrupt();
+            _listeningThread = new Thread(Receive)
+            {
+                IsBackground = true
+            };
+
+            _listeningThread.Start();
+            _receiving = true;
+        }
+    }
+
     /// <summary>
     /// Broadcast my device in the network once
     /// </summary>
@@ -220,19 +245,7 @@ public class SmtsDiscovery
     public void AllowToBeDiscovered()
     {
         _answerToLookupBroadcasts = true;
-
-        if (!_receiving)
-        {
-            _listeningThread?.Interrupt();
-            _listeningThread = new Thread(Receive)
-            {
-                IsBackground = true
-            };
-
-            _listeningThread.Start();
-            _receiving = true;
-        }
-
+        StartReceiveLoop();
         BroadcastMyDevice();
     }
 
@@ -248,7 +261,7 @@ public class SmtsDiscovery
     /// Start searching for available devices.
     /// This sends out a lookup request every 5 seconds till stopped with the <c>StopDiscovering()</c> method.
     /// </summary>
-    public void StartDiscovering()
+    public void StartSearchingForDevices()
     {
         lock (DiscoveredDevices)
         {
@@ -257,18 +270,7 @@ public class SmtsDiscovery
 
         if (_discoveringInterval == null)
         {
-            if (!_receiving)
-            {
-                _listeningThread?.Interrupt();
-                _listeningThread = new Thread(Receive)
-                {
-                    IsBackground = true
-                };
-
-                _listeningThread.Start();
-                _receiving = true;
-            }
-
+            StartReceiveLoop();
             SendOutLookup();
 
             _discoveringInterval = new Timer(SendOutLookup, null, 5000, 5000);
@@ -276,13 +278,17 @@ public class SmtsDiscovery
     }
 
     /// <summary>
-    /// Stop sending out lookup requests every 5 seconds
+    /// Stop sending lookup requests every 5 seconds
     /// </summary>
-    public void StopDiscovering()
+    public void StopSearchingForDevices()
     {
-        _receiving = false;
-        _listeningThread?.Join();
-        _listeningThread?.Interrupt();
+        if (!_answerToLookupBroadcasts)
+        {
+            _listeningThread?.Join();
+            _listeningThread?.Interrupt();
+            _receiving = false;
+        }
+
         _discoveringInterval?.Dispose();
         _discoveringInterval = null;
     }

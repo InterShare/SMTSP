@@ -3,8 +3,13 @@ using SMTSP.Extensions;
 
 namespace SMTSP.Entities;
 
+/// <summary>
+/// </summary>
 public class TransferRequest
 {
+    /// <summary>
+    ///
+    /// </summary>
     public string Id { get; set; }
     public string SenderId { get; set; }
     public string SenderName { get; set; }
