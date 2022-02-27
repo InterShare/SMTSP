@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <LangVersion>10</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Common.Logging" Version="3.4.1" />
+        <PackageReference Include="IPNetwork2" Version="2.1.2" />
+        <PackageReference Include="Makaretu.Dns" Version="2.0.1" />
+    </ItemGroup>
+</Project>

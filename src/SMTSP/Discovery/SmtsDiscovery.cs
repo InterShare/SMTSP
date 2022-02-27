@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
 using SMTSP.Core;
@@ -95,9 +96,9 @@ public class SmtsDiscovery
 
     private async void Receive()
     {
-        try
+        while (_receiving)
         {
-            while (_receiving)
+            try
             {
                 bool answerToLookupBroadcasts;
 
@@ -116,56 +117,41 @@ public class SmtsDiscovery
                     continue;
                 }
 
-                try
+                UdpReceiveResult receivedMessage = await _udpSocket.ReceiveAsync();
+                using var stream = new MemoryStream(receivedMessage.Buffer);
+                GetMessageTypeResponse messageTypeResult = MessageTransformer.GetMessageType(stream);
+
+                if (messageTypeResult.Type == MessageTypes.DeviceInfo)
                 {
-                    UdpReceiveResult receivedMessage = await _udpSocket.ReceiveAsync();
-                    using var stream = new MemoryStream(receivedMessage.Buffer);
-                    GetMessageTypeResponse messageTypeResult = MessageTransformer.GetMessageType(stream);
+                    var receivedDevice = new DeviceInfo();
+                    receivedDevice.FromStream(stream);
+                    receivedDevice.IpAddress = receivedMessage.RemoteEndPoint.Address.ToString();
 
-                    if (messageTypeResult.Type == MessageTypes.DeviceInfo)
+                    if (receivedDevice.DeviceId != _myDeviceInfo.DeviceId)
                     {
-                        var receivedDevice = new DeviceInfo();
-                        receivedDevice.FromStream(stream);
-                        receivedDevice.IpAddress = receivedMessage.RemoteEndPoint.Address.ToString();
-
-                        if (receivedDevice.DeviceId != _myDeviceInfo.DeviceId)
-                        {
-                            AddNewDevice(receivedDevice);
-                        }
-                    }
-                    else if (messageTypeResult.Type == MessageTypes.DeviceLookupRequest && answerToLookupBroadcasts)
-                    {
-                        string deviceId = stream.GetStringTillEndByte(0x00);
-
-                        if (!string.IsNullOrEmpty(deviceId) && deviceId != _myDeviceInfo.DeviceId)
-                        {
-                            byte[] myDeviceAsBytes = _myDeviceInfo.ToBinary();
-
-                            try
-                            {
-                                await _udpSocket.SendAsync(myDeviceAsBytes, myDeviceAsBytes.Length, receivedMessage.RemoteEndPoint.Address.ToString(), receivedMessage.RemoteEndPoint.Port);
-                            }
-                            catch (Exception exception)
-                            {
-                                Logger.Exception(exception);
-                            }
-                        }
+                        AddNewDevice(receivedDevice);
                     }
                 }
-                catch (Exception)
+                else if (messageTypeResult.Type == MessageTypes.DeviceLookupRequest)
                 {
-                    // Error while trying to read message. Do nothing and move on to the next
+                    // string deviceId = stream.GetStringTillEndByte(0x00);
+
+                    // if (!string.IsNullOrEmpty(deviceId) && deviceId != _myDeviceInfo.DeviceId)
+                    // {
+                    byte[] myDeviceAsBytes = _myDeviceInfo.ToBinary();
+                    await _udpSocket.SendAsync(myDeviceAsBytes, myDeviceAsBytes.Length, receivedMessage.RemoteEndPoint.Address.ToString(), receivedMessage.RemoteEndPoint.Port);
+                    // }
                 }
             }
-        }
-        catch (Exception exception)
-        {
-            Logger.Exception(exception);
-        }
-        finally
-        {
-            Logger.Info("Closing udp socket");
-            _udpSocket?.Close();
+            catch (Exception exception)
+            {
+                Logger.Exception(exception);
+            }
+            // finally
+            // {
+            //     Logger.Info("Closing udp socket");
+            //     _udpSocket?.Close();
+            // }
         }
     }
 
@@ -183,8 +169,8 @@ public class SmtsDiscovery
             var messageInBytes = new List<byte>();
 
             messageInBytes.AddSmtsHeader(MessageTypes.DeviceLookupRequest);
-            messageInBytes.AddRange(_myDeviceInfo.DeviceId.GetBytes()!);
-            messageInBytes.Add(0x00);
+            // messageInBytes.AddRange(_myDeviceInfo.DeviceId.GetBytes()!);
+            // messageInBytes.Add(0x00);
 
             try
             {
@@ -201,6 +187,7 @@ public class SmtsDiscovery
     {
         if (!_receiving)
         {
+            _receiving = true;
             _listeningThread?.Interrupt();
             _listeningThread = new Thread(Receive)
             {
@@ -208,7 +195,6 @@ public class SmtsDiscovery
             };
 
             _listeningThread.Start();
-            _receiving = true;
         }
     }
 
@@ -246,7 +232,6 @@ public class SmtsDiscovery
     {
         _answerToLookupBroadcasts = true;
         StartReceiveLoop();
-        BroadcastMyDevice();
     }
 
     /// <summary>
@@ -282,12 +267,12 @@ public class SmtsDiscovery
     /// </summary>
     public void StopSearchingForDevices()
     {
-        if (!_answerToLookupBroadcasts)
-        {
-            _listeningThread?.Join();
-            _listeningThread?.Interrupt();
-            _receiving = false;
-        }
+        // if (!_answerToLookupBroadcasts)
+        // {
+        //     _listeningThread?.Join();
+        //     _listeningThread?.Interrupt();
+        //     _receiving = false;
+        // }
 
         _discoveringInterval?.Dispose();
         _discoveringInterval = null;
