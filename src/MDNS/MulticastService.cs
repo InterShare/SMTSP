@@ -375,7 +375,7 @@ namespace MDNS
         /// <param name="name">
         ///   A domain name that should end with ".local", e.g. "myservice.local".
         /// </param>
-        /// <param name="klass">
+        /// <param name="dnsClass">
         ///   The class, defaults to <see cref="DnsClass.IN"/>.
         /// </param>
         /// <param name="type">
@@ -388,7 +388,7 @@ namespace MDNS
         /// <exception cref="InvalidOperationException">
         ///   When the service has not started.
         /// </exception>
-        public void SendQuery(DomainName name, DnsClass klass = DnsClass.IN, DnsType type = DnsType.ANY)
+        public void SendQuery(DomainName name, DnsClass dnsClass = DnsClass.IN, DnsType type = DnsType.ANY)
         {
             var msg = new Message
             {
@@ -398,7 +398,7 @@ namespace MDNS
             msg.Questions.Add(new Question
             {
                 Name = name,
-                Class = klass,
+                Class = dnsClass,
                 Type = type
             });
 
@@ -662,11 +662,13 @@ namespace MDNS
             {
                 if (msg.IsQuery && msg.Questions.Count > 0)
                 {
-                    QueryReceived?.Invoke(this, new MessageEventArgs { Message = msg, RemoteEndPoint = result.RemoteEndPoint });
+                    var test = new MessageEventArgs {Message = msg, RemoteEndPoint = result.RemoteEndPoint};
+                    QueryReceived?.Invoke(this, test);
                 }
                 else if (msg.IsResponse && msg.Answers.Count > 0)
                 {
-                    AnswerReceived?.Invoke(this, new MessageEventArgs { Message = msg, RemoteEndPoint = result.RemoteEndPoint });
+                    var test = new MessageEventArgs {Message = msg, RemoteEndPoint = result.RemoteEndPoint};
+                    AnswerReceived?.Invoke(this, test);
                 }
             }
             catch (Exception e)

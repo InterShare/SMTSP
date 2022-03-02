@@ -5,7 +5,8 @@ namespace SMTSP.Core;
 /// </summary>
 public class SmtsConfig
 {
-    internal static string ProtocolVersion => "0.2.0";
+    internal const string ServiceName = "_smtsp._tcp";
+    internal static ushort ProtocolVersion => 1;
 
     /// <summary>
     /// Enables logger output in console

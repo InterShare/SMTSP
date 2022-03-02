@@ -10,7 +10,7 @@ namespace SMTSP;
 /// <summary>
 /// Used to receive files.
 /// </summary>
-public class SmtsReceiver
+public class SmtspReceiver
 {
     private const int DefaultPort = 42420;
 

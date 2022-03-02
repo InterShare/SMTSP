@@ -8,7 +8,6 @@ namespace SMTSP.Entities;
 /// </summary>
 public class DeviceInfo
 {
-
     /// <summary>
     ///
     /// </summary>
@@ -22,12 +21,7 @@ public class DeviceInfo
     /// <summary>
     ///
     /// </summary>
-    public int DiscoveryPort { get; set; }
-
-    /// <summary>
-    ///
-    /// </summary>
-    public int TransferPort { get; set; }
+    public ushort Port { get; set; }
 
     /// <summary>
     ///
@@ -39,6 +33,11 @@ public class DeviceInfo
     /// </summary>
     public string IpAddress { get; set; }
 
+    /// <summary>
+    ///
+    /// </summary>
+    public bool ProtocolVersionIncompatible { get; set; } = false;
+
     public DeviceInfo()
     {
     }
@@ -48,16 +47,14 @@ public class DeviceInfo
     /// </summary>
     /// <param name="deviceId"></param>
     /// <param name="deviceName"></param>
-    /// <param name="discoveryPort"></param>
-    /// <param name="transferPort"></param>
+    /// <param name="port"></param>
     /// <param name="deviceType"></param>
     /// <param name="ipAddress"></param>
-    public DeviceInfo(string deviceId, string deviceName, int discoveryPort, int transferPort, string deviceType, string ipAddress)
+    public DeviceInfo(string deviceId, string deviceName, ushort port, string deviceType, string ipAddress)
     {
         DeviceId = deviceId;
         DeviceName = deviceName;
-        DiscoveryPort = discoveryPort;
-        TransferPort = transferPort;
+        Port = port;
         DeviceType = deviceType;
         IpAddress = ipAddress;
     }
@@ -76,12 +73,8 @@ public class DeviceInfo
         messageInBytes.AddRange(DeviceName.GetBytes());
         messageInBytes.Add(0x00);
 
-        Logger.Info($"DiscoveryPort: {DiscoveryPort}");
-        messageInBytes.AddRange(DiscoveryPort.ToString().GetBytes());
-        messageInBytes.Add(0x00);
-
-        Logger.Info($"TransferPort: {TransferPort}");
-        messageInBytes.AddRange(TransferPort.ToString().GetBytes());
+        Logger.Info($"TransferPort: {Port}");
+        messageInBytes.AddRange(Port.ToString().GetBytes());
         messageInBytes.Add(0x00);
 
         Logger.Info($"DeviceType: {DeviceType}");
@@ -97,8 +90,7 @@ public class DeviceInfo
         {
             DeviceId = stream.GetStringTillEndByte(0x00);
             DeviceName = stream.GetStringTillEndByte(0x00);
-            DiscoveryPort = int.Parse(stream.GetStringTillEndByte(0x00));
-            TransferPort = int.Parse(stream.GetStringTillEndByte(0x00));
+            Port = ushort.Parse(stream.GetStringTillEndByte(0x00));
             DeviceType = stream.GetStringTillEndByte(0x00);
         }
         catch (Exception exception)

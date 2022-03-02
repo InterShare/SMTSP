@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
 using SMTSP.Core;
@@ -11,7 +10,7 @@ namespace SMTSP.Discovery;
 /// <summary>
 /// Used to discover devices in the current network.
 /// </summary>
-public class SmtsDiscovery
+internal class SmtsUdpDiscovery
 {
     private readonly int[] _discoveryPorts = { 4240, 4241, 4242 };
     private readonly object _listeningThreadLock = new object();
@@ -36,7 +35,7 @@ public class SmtsDiscovery
 
 
     /// <param name="myDevice"></param>
-    public SmtsDiscovery(DeviceInfo myDevice)
+    public SmtsUdpDiscovery(DeviceInfo myDevice)
     {
         _myDeviceInfo = myDevice;
 
@@ -61,8 +60,6 @@ public class SmtsDiscovery
                 }
             }
 
-            _myDeviceInfo.DiscoveryPort = _port;
-
             Logger.Info($"Device Discoverer running at port: {_port}");
         }
         catch (SocketException exception)
@@ -73,7 +70,7 @@ public class SmtsDiscovery
 
     private void AddNewDevice(DeviceInfo deviceInfo)
     {
-        if (deviceInfo.TransferPort == -1)
+        if (deviceInfo.Port == -1)
         {
             return;
         }
@@ -82,8 +79,7 @@ public class SmtsDiscovery
         {
             DeviceInfo? existingDeviceInfo = DiscoveredDevices.Find(element =>
                 element.DeviceId == deviceInfo.DeviceId &&
-                element.IpAddress == deviceInfo.IpAddress &&
-                element.DiscoveryPort == deviceInfo.DiscoveryPort);
+                element.IpAddress == deviceInfo.IpAddress);
 
             if (existingDeviceInfo == null)
             {

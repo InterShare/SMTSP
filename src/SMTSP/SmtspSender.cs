@@ -6,7 +6,7 @@ using SMTSP.Extensions;
 namespace SMTSP;
 
 /// <summary>Class <c>SmtsSender</c> can be used to send data to other devices</summary>
-public class SmtsSender
+public class SmtspSender
 {
     /// <summary>
     /// Send data to a peripheral
@@ -20,7 +20,7 @@ public class SmtsSender
     {
         try
         {
-            var client = new TcpClient(receiver.IpAddress, receiver.TransferPort);
+            var client = new TcpClient(receiver.IpAddress, receiver.Port);
 
             using NetworkStream tcpStream = client.GetStream();
 
