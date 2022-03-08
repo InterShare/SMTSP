@@ -5,10 +5,10 @@ namespace SMTSP.Extensions;
 
 internal static class ByteListExtension
 {
-    public static void AddSmtsHeader(this List<byte> bytes, MessageTypes messageType)
+    internal static void AddSmtsHeader(this List<byte> bytes, MessageTypes messageType)
     {
         Logger.Info($"Protocol Version: {SmtsConfig.ProtocolVersion}");
-        bytes.AddRange(SmtsConfig.ProtocolVersion.GetBytes());
+        bytes.AddRange(SmtsConfig.ProtocolVersion.ToString().GetBytes());
         bytes.Add(0x00);
 
         string messageTypeString = messageType.ToLowerCamelCaseString();
@@ -18,7 +18,7 @@ internal static class ByteListExtension
         bytes.Add(0x00);
     }
 
-    public static string GetStringTillEndByte(this IEnumerable<byte> bytes, byte endByte, ref int startPosition)
+    internal static string GetStringTillEndByte(this IEnumerable<byte> bytes, byte endByte, ref int startPosition)
     {
         IEnumerable<byte> skipped = bytes.Skip(startPosition);
         byte[] result = skipped.TakeWhile(bytePart => bytePart != endByte).ToArray();

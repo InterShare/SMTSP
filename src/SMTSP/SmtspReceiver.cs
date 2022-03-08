@@ -7,8 +7,13 @@ using SMTSP.Helpers;
 
 namespace SMTSP;
 
-public class SmtsReceiver
+/// <summary>
+/// Used to receive files.
+/// </summary>
+public class SmtspReceiver
 {
+    private const int DefaultPort = 42420;
+
     private bool _running;
     private CancellationTokenSource? _cancellationTokenSource;
     private CancellationToken _cancellationToken;
@@ -18,8 +23,14 @@ public class SmtsReceiver
 
     private Func<TransferRequest, Task<bool>>? _onTransferRequestCallback;
 
-    public int Port;
+    /// <summary>
+    /// The port on which the receive server runs.
+    /// </summary>
+    public int Port { get; private set; }
 
+    /// <summary>
+    /// Invokes, when a new device is being discovered.
+    /// </summary>
     public event EventHandler<SmtsFile> OnFileReceive = delegate { };
 
     private void ListenForConnections()
@@ -69,10 +80,10 @@ public class SmtsReceiver
 
                     if (result)
                     {
-                        byte[] resultInBytes = TransferRequestAnswers.Accept.ToLowerCamelCaseString().GetBytes().ToArray();
+                        byte[] resultInBytes = TransferRequestAnswers.Accept.ToLowerCamelCaseString().GetBytes()!.ToArray();
                         stream.Write(resultInBytes, 0, resultInBytes.Length);
 
-                        var file = new SmtsFile()
+                        var file = new SmtsFile
                         {
                             Name = transferRequest.FileName,
                             DataStream = stream,
@@ -83,7 +94,7 @@ public class SmtsReceiver
                     }
                     else
                     {
-                        byte[] resultInBytes = TransferRequestAnswers.Decline.ToString().GetBytes().ToArray();
+                        byte[] resultInBytes = TransferRequestAnswers.Decline.ToString().GetBytes()!.ToArray();
                         stream.Write(resultInBytes, 0, resultInBytes.Length);
 
                         stream.Close();
@@ -113,8 +124,8 @@ public class SmtsReceiver
 
             try
             {
-                Logger.Info($"Starting TCP Server with port {SmtsConfig.DefaultPort}");
-                _tcpListener = new TcpListener(IPAddress.Any, SmtsConfig.DefaultPort);
+                Logger.Info($"Starting TCP Server with port {DefaultPort}");
+                _tcpListener = new TcpListener(IPAddress.Any, DefaultPort);
                 _tcpListener.Start();
             }
             catch (SocketException exception)

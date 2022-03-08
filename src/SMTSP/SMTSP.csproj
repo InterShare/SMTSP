@@ -20,4 +20,8 @@
       <DocumentationFile>bin\Release\SMTSP.xml</DocumentationFile>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\MDNS\MDNS.csproj" />
+    </ItemGroup>
+
 </Project>

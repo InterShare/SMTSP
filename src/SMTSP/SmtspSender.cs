@@ -1,13 +1,12 @@
 using System.Net.Sockets;
 using SMTSP.Core;
-using SMTSP.Discovery.Entities;
 using SMTSP.Entities;
 using SMTSP.Extensions;
 
 namespace SMTSP;
 
 /// <summary>Class <c>SmtsSender</c> can be used to send data to other devices</summary>
-public class SmtsSender
+public class SmtspSender
 {
     /// <summary>
     /// Send data to a peripheral
@@ -17,11 +16,11 @@ public class SmtsSender
     /// <param name="myDeviceInfo"></param>
     /// <param name="progress"></param>
     /// <param name="cancellationToken"></param>
-    public static async Task<SendFileResponses> SendFile(DeviceInfo receiver, SmtsFile file, DiscoveryDeviceInfo myDeviceInfo, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
+    public static async Task<SendFileResponses> SendFile(DeviceInfo receiver, SmtsFile file, DeviceInfo myDeviceInfo, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            var client = new TcpClient(receiver.LanInfo.Ip, receiver.LanInfo.FileServerPort);
+            var client = new TcpClient(receiver.IpAddress, receiver.Port);
 
             using NetworkStream tcpStream = client.GetStream();
 
@@ -36,7 +35,7 @@ public class SmtsSender
 
             byte[] binaryTransferRequest = transferRequest.ToBinary();
 
-            tcpStream.Write(binaryTransferRequest, 0, binaryTransferRequest.Length);
+            await tcpStream.WriteAsync(binaryTransferRequest, 0, binaryTransferRequest.Length, cancellationToken);
 
             var response = new byte[7];
             await tcpStream.ReadAsync(response, 0, response.Length, cancellationToken);
