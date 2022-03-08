@@ -37,6 +37,7 @@ public class Advertiser : IDisposable
         serviceProfile.AddProperty("deviceName", _myDevice.DeviceName);
         serviceProfile.AddProperty("type", _myDevice.DeviceType);
         serviceProfile.AddProperty("smtspVersion", SmtsConfig.ProtocolVersion.ToString());
+        serviceProfile.AddProperty("port", _myDevice.Port.ToString());
 
         _serviceDiscovery.Advertise(serviceProfile);
         _serviceDiscovery.Announce(serviceProfile);

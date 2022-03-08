@@ -15,9 +15,9 @@ var smtsAdvertisement = new Advertiser(device);
 smtsDiscovery.DiscoveredDevices.CollectionChanged += delegate
     {
         Console.WriteLine("============");
-        foreach (DeviceInfo device in smtsDiscovery.DiscoveredDevices)
+        foreach (DeviceInfo discoveredDevice in smtsDiscovery.DiscoveredDevices)
         {
-            Console.WriteLine($"- {device.DeviceName}");
+            Console.WriteLine($"- {discoveredDevice.DeviceName} ({discoveredDevice.IpAddress})");
         }
         Console.WriteLine("============");
     };

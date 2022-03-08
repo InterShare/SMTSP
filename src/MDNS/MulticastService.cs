@@ -692,6 +692,8 @@ namespace MDNS
         /// <inheritdoc />
         public void Dispose()
         {
+            unicastClientIp4?.Dispose();
+            unicastClientIp6?.Dispose();
             Dispose(true);
         }
 
