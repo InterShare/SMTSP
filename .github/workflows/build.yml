@@ -16,7 +16,7 @@ jobs:
       run: dotnet build -c Release
 
     - name: Pack
-      run: dotnet pack src/SMTSP/SMTSP.csproj -c Release --output packages
+      run: dotnet pack src/SMTSP/SMTSP.csproj -c Release --output packages -IncludeReferencedProjects
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
