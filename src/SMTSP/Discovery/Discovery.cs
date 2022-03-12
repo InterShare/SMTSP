@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using Makaretu.Dns;
 using MDNS;
 using SMTSP.Core;
@@ -33,11 +35,53 @@ public class Discovery : IDisposable
         NetworkChange.NetworkAddressChanged += OnNetworkAddressChanged;
     }
 
+    private void OnServiceInstanceDiscovered(object? sender, ServiceInstanceDiscoveryEventArgs eventArgs)
+    {
+        try
+        {
+            if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfig.ServiceName) && !eventArgs.ServiceInstanceName.ToString().StartsWith(_myDevice.DeviceId))
+            {
+                TXTRecord? txtRecord = eventArgs.Message.Answers.OfType<TXTRecord>().FirstOrDefault();
+
+                if (txtRecord == null)
+                {
+                    var service = eventArgs.ServiceInstanceName.ToString();
+                    var query = new Message();
+                    query.Questions.Add(new Question { Name = service, Type = DnsType.TXT });
+                    _serviceDiscovery.Mdns.SendQuery(query);
+
+                    return;
+                }
+
+                GetDeviceFromRecords(txtRecord, eventArgs.RemoteEndPoint?.Address?.ToString() ?? "");
+            }
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception);
+        }
+    }
+
+    private void OnServiceInstanceShutdown(object? sender, ServiceInstanceShutdownEventArgs eventArgs)
+    {
+        if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfig.ServiceName))
+        {
+            DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(element => element.DeviceId == eventArgs.ServiceInstanceName.Labels[0]);
+
+            if (existingDevice != null)
+            {
+                lock (DiscoveredDevices)
+                {
+                    DiscoveredDevices.Remove(existingDevice);
+                }
+            }
+        }
+    }
+
     private void OnAnswerReceived(object? sender, MessageEventArgs args)
     {
         TXTRecord? txtRecord = args.Message.Answers.OfType<TXTRecord>().FirstOrDefault();
 
-        // if (txtRecord != null && txtRecord.Name.ToString().Contains(SmtsConfig.ServiceName))
         if (txtRecord != null && txtRecord.Name.ToString().Contains(SmtsConfig.ServiceName) && !txtRecord.Name.ToString().StartsWith(_myDevice.DeviceId))
         {
             GetDeviceFromRecords(txtRecord, args.RemoteEndPoint?.Address?.ToString() ?? "");
@@ -89,7 +133,14 @@ public class Discovery : IDisposable
 
             ushort protocolVersion = ushort.Parse(protocolVersionString);
 
-            var localAddress = $"{deviceId}.smtsp.local";
+            // var localAddress = $"{deviceId}.smtsp.local";
+
+            // IPAddress? address = Dns.GetHostAddresses(localAddress).FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork);
+            //
+            // if (address == null)
+            // {
+            //     return;
+            // }
 
             lock (DiscoveredDevices)
             {
@@ -102,7 +153,7 @@ public class Discovery : IDisposable
                         DeviceId = deviceId,
                         DeviceName = deviceName,
                         DeviceType = deviceType,
-                        IpAddress = localAddress,
+                        IpAddress = ipAddress,
                         Port = ushort.Parse(portString),
                         ProtocolVersionIncompatible = protocolVersion != SmtsConfig.ProtocolVersion
                     });
@@ -112,49 +163,6 @@ public class Discovery : IDisposable
         catch (Exception exception)
         {
             Console.WriteLine(exception);
-        }
-    }
-
-    private void OnServiceInstanceDiscovered(object? sender, ServiceInstanceDiscoveryEventArgs eventArgs)
-    {
-        try
-        {
-            if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfig.ServiceName) && !eventArgs.ServiceInstanceName.ToString().StartsWith(_myDevice.DeviceId))
-            {
-                TXTRecord? txtRecord = eventArgs.Message.Answers.OfType<TXTRecord>().FirstOrDefault();
-
-                if (txtRecord == null)
-                {
-                    var service = eventArgs.ServiceInstanceName.ToString();
-                    var query = new Message();
-                    query.Questions.Add(new Question { Name = service, Type = DnsType.TXT });
-                    _serviceDiscovery.Mdns.SendQuery(query);
-
-                    return;
-                }
-
-                GetDeviceFromRecords(txtRecord, eventArgs.RemoteEndPoint?.Address?.ToString() ?? "");
-            }
-        }
-        catch (Exception exception)
-        {
-            Console.WriteLine(exception);
-        }
-    }
-
-    private void OnServiceInstanceShutdown(object? sender, ServiceInstanceShutdownEventArgs eventArgs)
-    {
-        if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfig.ServiceName))
-        {
-            DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(element => element.DeviceId == eventArgs.ServiceInstanceName.Labels[0]);
-
-            if (existingDevice != null)
-            {
-                lock (DiscoveredDevices)
-                {
-                    DiscoveredDevices.Remove(existingDevice);
-                }
-            }
         }
     }
 

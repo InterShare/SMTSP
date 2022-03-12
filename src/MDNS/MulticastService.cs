@@ -216,6 +216,7 @@ namespace MDNS
         public static IEnumerable<IPAddress> GetIPAddresses()
         {
             return GetNetworkInterfaces()
+                .Where(element => element.NetworkInterfaceType is NetworkInterfaceType.Ethernet or NetworkInterfaceType.Wireless80211)
                 .SelectMany(nic => nic.GetIPProperties().UnicastAddresses)
                 .Select(u => u.Address);
         }

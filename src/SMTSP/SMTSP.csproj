@@ -21,7 +21,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MDNS\MDNS.csproj" PrivateAssets="All" />
+      <ProjectReference Include="..\MDNS\MDNS.csproj" />
     </ItemGroup>
 
 
@@ -30,10 +30,10 @@
     </PropertyGroup>
 
     <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
-        <ItemGroup>
-            <!-- Filter out unnecessary files -->
-            <_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')->WithMetadataValue('PrivateAssets', 'All'))"/>
-        </ItemGroup>
+<!--        <ItemGroup>-->
+<!--            &lt;!&ndash; Filter out unnecessary files &ndash;&gt;-->
+<!--            <_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')->WithMetadataValue('PrivateAssets', 'All'))"/>-->
+<!--        </ItemGroup>-->
 
         <ItemGroup>
             <!-- Add file to package with consideration of sub folder. If empty, the root folder is chosen. -->
