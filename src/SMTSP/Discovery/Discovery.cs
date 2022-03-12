@@ -53,7 +53,7 @@ public class Discovery : IDisposable
                     return;
                 }
 
-                GetDeviceFromRecords(txtRecord, eventArgs.RemoteEndPoint?.Address?.ToString() ?? "");
+                GetDeviceFromRecords(txtRecord);
             }
         }
         catch (Exception exception)
@@ -84,7 +84,7 @@ public class Discovery : IDisposable
 
         if (txtRecord != null && txtRecord.Name.ToString().Contains(SmtsConfig.ServiceName) && !txtRecord.Name.ToString().StartsWith(_myDevice.DeviceId))
         {
-            GetDeviceFromRecords(txtRecord, args.RemoteEndPoint?.Address?.ToString() ?? "");
+            GetDeviceFromRecords(txtRecord);
         }
     }
 
@@ -110,7 +110,7 @@ public class Discovery : IDisposable
         return property?.Remove(0, propertyName.Length + 1);
     }
 
-    private void GetDeviceFromRecords(TXTRecord record, string ipAddress)
+    private void GetDeviceFromRecords(TXTRecord record)
     {
         try
         {
@@ -133,15 +133,6 @@ public class Discovery : IDisposable
 
             ushort protocolVersion = ushort.Parse(protocolVersionString);
 
-            // var localAddress = $"{deviceId}.smtsp.local";
-
-            // IPAddress? address = Dns.GetHostAddresses(localAddress).FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork);
-            //
-            // if (address == null)
-            // {
-            //     return;
-            // }
-
             lock (DiscoveredDevices)
             {
                 DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(element => element.DeviceId == deviceId);
@@ -153,7 +144,7 @@ public class Discovery : IDisposable
                         DeviceId = deviceId,
                         DeviceName = deviceName,
                         DeviceType = deviceType,
-                        IpAddress = ipAddress,
+                        IpAddress = $"{deviceId}.smtsp.local",
                         Port = ushort.Parse(portString),
                         ProtocolVersionIncompatible = protocolVersion != SmtsConfig.ProtocolVersion
                     });
