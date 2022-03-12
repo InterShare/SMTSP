@@ -21,7 +21,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MDNS\MDNS.csproj" />
+        <PackageReference Include="Common.Logging" Version="3.4.1" />
+        <PackageReference Include="IPNetwork2" Version="2.1.2" />
+        <PackageReference Include="Makaretu.Dns" Version="2.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MDNS\MDNS.csproj" PrivateAssets="All" />
     </ItemGroup>
 
 
@@ -30,10 +36,10 @@
     </PropertyGroup>
 
     <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
-<!--        <ItemGroup>-->
-<!--            &lt;!&ndash; Filter out unnecessary files &ndash;&gt;-->
-<!--            <_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')->WithMetadataValue('PrivateAssets', 'All'))"/>-->
-<!--        </ItemGroup>-->
+        <ItemGroup>
+            <!-- Filter out unnecessary files -->
+            <_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')->WithMetadataValue('PrivateAssets', 'All'))"/>
+        </ItemGroup>
 
         <ItemGroup>
             <!-- Add file to package with consideration of sub folder. If empty, the root folder is chosen. -->
