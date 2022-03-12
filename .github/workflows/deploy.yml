@@ -24,7 +24,7 @@ jobs:
       run: dotnet build -c Release
 
     - name: Pack
-      run: dotnet pack src/SMTSP/SMTSP.csproj -c Release -p:PackageVersion='${{ github.event.inputs.version }}' --output packages
+      run: dotnet pack src/SMTSP/SMTSP.csproj -c Release -IncludeReferencedProjects -p:PackageVersion='${{ github.event.inputs.version }}' --output packages
 
     - name: Publish Package on NuGet
       run: nuget push **\*.nupkg -NoSymbols -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{ secrets.NUGET_API_KEY }}
