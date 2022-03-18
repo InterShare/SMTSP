@@ -26,7 +26,7 @@ public class SmtspReceiver
     /// <summary>
     /// The port on which the receive server runs.
     /// </summary>
-    public int Port { get; private set; }
+    public ushort Port { get; private set; }
 
     /// <summary>
     /// Invokes, when a new device is being discovered.
@@ -151,7 +151,7 @@ public class SmtspReceiver
                 return false;
             }
 
-            Port = ((IPEndPoint)_tcpListener.LocalEndpoint).Port;
+            Port = ushort.Parse(((IPEndPoint)_tcpListener.LocalEndpoint).Port.ToString());
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;

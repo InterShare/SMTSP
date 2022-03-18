@@ -9,5 +9,6 @@ public enum MessageTypes
     TransferRequestResponse,
     DataTransfer,
     DeviceInfo,
-    DeviceLookupRequest
+    DeviceLookupRequest,
+    RemoveDeviceFromDiscovery
 }

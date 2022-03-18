@@ -3,18 +3,17 @@ using MDNS;
 using SMTSP.Core;
 using SMTSP.Entities;
 
-namespace SMTSP.Discovery;
+namespace SMTSP.Advertisement;
 
 /// <summary>
 ///
 /// </summary>
-public class Advertiser : IDisposable
+internal class MdnsAdvertiser : IAdvertiser
 {
-    private readonly DeviceInfo _myDevice;
-    private readonly ServiceDiscovery _serviceDiscovery;
+    private DeviceInfo _myDevice;
+    private ServiceDiscovery _serviceDiscovery;
 
-    /// <param name="myDevice"></param>
-    public Advertiser(DeviceInfo myDevice)
+    public void SetMyDevice(DeviceInfo myDevice)
     {
         _myDevice = myDevice;
         _serviceDiscovery = new ServiceDiscovery();
