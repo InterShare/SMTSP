@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Net;
 using System.Net.NetworkInformation;
 using Makaretu.Dns;
 using MDNS;
@@ -44,7 +45,7 @@ internal class MdnsDiscovery : IDiscovery
                     return;
                 }
 
-                GetDeviceFromRecords(txtRecord);
+                GetDeviceFromRecords(txtRecord, eventArgs.RemoteEndPoint);
             }
         }
         catch (Exception exception)
@@ -75,7 +76,7 @@ internal class MdnsDiscovery : IDiscovery
 
         if (txtRecord != null && txtRecord.Name.ToString().Contains(SmtsConfig.ServiceName) && !txtRecord.Name.ToString().StartsWith(_myDevice.DeviceId))
         {
-            GetDeviceFromRecords(txtRecord);
+            GetDeviceFromRecords(txtRecord, args.RemoteEndPoint);
         }
     }
 
@@ -101,7 +102,7 @@ internal class MdnsDiscovery : IDiscovery
         return property?.Remove(0, propertyName.Length + 1);
     }
 
-    private void GetDeviceFromRecords(TXTRecord record)
+    private void GetDeviceFromRecords(TXTRecord record, IPEndPoint ipEndPoint)
     {
         try
         {
@@ -135,7 +136,7 @@ internal class MdnsDiscovery : IDiscovery
                         DeviceId = deviceId,
                         DeviceName = deviceName,
                         DeviceType = deviceType,
-                        IpAddress = $"{deviceId}.smtsp.local",
+                        IpAddress = ipEndPoint.Address.ToString(),
                         Port = ushort.Parse(portString),
                         ProtocolVersionIncompatible = protocolVersion != SmtsConfig.ProtocolVersion
                     });
