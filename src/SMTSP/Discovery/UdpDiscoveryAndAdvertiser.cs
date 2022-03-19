@@ -274,6 +274,12 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 
     public void Dispose()
     {
+        if (_discoveringInterval != null)
+        {
+            _discoveringInterval.Enabled = false;
+            _discoveringInterval.Dispose();
+        }
+
         lock (_listeningThreadLock)
         {
             _receiving = false;
@@ -281,5 +287,6 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 
         _udpSocket?.Close();
         _udpSocket?.Dispose();
+        _udpSocket = null;
     }
 }
