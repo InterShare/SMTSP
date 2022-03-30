@@ -9,11 +9,13 @@ namespace SMTSP.Advertisement;
 public class Advertiser : IDisposable
 {
     private readonly IAdvertiser _advertiser;
+    private readonly DiscoveryTypes _discoveryTypes;
 
     /// <param name="myDevice"></param>
     /// <param name="discoveryType">Select which system should be used for discovery</param>
     public Advertiser(DeviceInfo myDevice, DiscoveryTypes discoveryType = DiscoveryTypes.UdpBroadcasts)
     {
+        _discoveryTypes = discoveryType;
         _advertiser = discoveryType == DiscoveryTypes.Mdns ? new MdnsAdvertiser() : UdpDiscoveryAndAdvertiser.Instance;
         _advertiser.SetMyDevice(myDevice);
     }
@@ -39,6 +41,13 @@ public class Advertiser : IDisposable
     /// </summary>
     public void Dispose()
     {
+
+        if (_discoveryTypes == DiscoveryTypes.UdpBroadcasts)
+        {
+            (_advertiser as UdpDiscoveryAndAdvertiser)?.DisposeAdvertiser();
+            return;
+        }
+
         _advertiser.Dispose();
     }
 }

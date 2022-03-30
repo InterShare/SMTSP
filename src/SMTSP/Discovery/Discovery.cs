@@ -9,6 +9,7 @@ namespace SMTSP.Discovery;
 public class Discovery : IDisposable
 {
     private readonly IDiscovery _discovery;
+    private readonly DiscoveryTypes _discoveryTypes;
 
     /// <summary>
     /// Holds the list of discovered devices.
@@ -19,6 +20,7 @@ public class Discovery : IDisposable
     /// <param name="discoveryType">Select which system should be used for discovery</param>
     public Discovery(DeviceInfo myDevice, DiscoveryTypes discoveryType = DiscoveryTypes.UdpBroadcasts)
     {
+        _discoveryTypes = discoveryType;
         _discovery = discoveryType == DiscoveryTypes.Mdns ? new MdnsDiscovery() : UdpDiscoveryAndAdvertiser.Instance;
         _discovery.SetMyDevice(myDevice);
         DiscoveredDevices = _discovery.DiscoveredDevices;
@@ -38,6 +40,12 @@ public class Discovery : IDisposable
     /// </summary>
     public void Dispose()
     {
+        if (_discoveryTypes == DiscoveryTypes.UdpBroadcasts)
+        {
+            (_discovery as UdpDiscoveryAndAdvertiser)?.DisposeDiscovery();
+            return;
+        }
+
         _discovery.Dispose();
     }
 }

@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Sockets;
-using System.Timers;
 using SMTSP.Advertisement;
 using SMTSP.Core;
 using SMTSP.Entities;
@@ -21,9 +20,11 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
     private bool _answerToLookupBroadcasts = false;
     private bool _receiving;
     private int _port;
-    private System.Timers.Timer? _discoveringInterval;
+    private Timer? _discoveringInterval;
     private Thread? _listeningThread;
     private UdpClient? _udpSocket;
+    private bool _discoveryDisposed = false;
+    private bool _advertisingDisposed = false;
 
     public static UdpDiscoveryAndAdvertiser Instance => _instance ??= new UdpDiscoveryAndAdvertiser();
 
@@ -163,7 +164,7 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
         }
     }
 
-    private async void SendOutLookup(object? sender = null, ElapsedEventArgs? elapsedEventArgs = null)
+    private async void SendOutLookup(object? sender = null)
     {
         if (_udpSocket == null)
         {
@@ -211,7 +212,6 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 
         SetupUdpSocket();
         StartReceiveLoop();
-        SendOutLookup();
     }
 
     public void Advertise()
@@ -243,6 +243,11 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 
     public void StopAdvertising()
     {
+        if (_udpSocket == null)
+        {
+            return;
+        }
+
         _answerToLookupBroadcasts = false;
 
         var messageInBytes = new List<byte>();
@@ -254,7 +259,13 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
         {
             try
             {
-                _udpSocket?.Send(messageInBytes.ToArray(), messageInBytes.Count, IPAddress.Broadcast.ToString(), port);
+                if (_udpSocket != null)
+                {
+                    lock (_udpSocket)
+                    {
+                        _udpSocket?.Send(messageInBytes.ToArray(), messageInBytes.Count, IPAddress.Broadcast.ToString(), port);
+                    }
+                }
             }
             catch(Exception exception)
             {
@@ -265,28 +276,47 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 
     public void SendOutLookupSignal()
     {
-        SendOutLookup();
-        _discoveringInterval = new System.Timers.Timer();
-        _discoveringInterval.Elapsed += SendOutLookup;
-        _discoveringInterval.Interval = 4000;
-        _discoveringInterval.Start();
+        _discoveringInterval = new Timer(SendOutLookup, new AutoResetEvent(true), 0, 4000);
+    }
+
+    public void DisposeDiscovery()
+    {
+        _discoveryDisposed = true;
+
+        if (_discoveringInterval != null)
+        {
+            _discoveringInterval.Dispose();
+        }
+
+        Dispose();
+    }
+
+    public void DisposeAdvertiser()
+    {
+        _advertisingDisposed = true;
+        _answerToLookupBroadcasts = false;
+
+        Dispose();
     }
 
     public void Dispose()
     {
-        if (_discoveringInterval != null)
+        if (_advertisingDisposed && _discoveryDisposed)
         {
-            _discoveringInterval.Enabled = false;
-            _discoveringInterval.Dispose();
-        }
+            lock (_listeningThreadLock)
+            {
+                _receiving = false;
+            }
 
-        lock (_listeningThreadLock)
-        {
-            _receiving = false;
+            if (_udpSocket != null)
+            {
+                lock (_udpSocket)
+                {
+                    _udpSocket?.Close();
+                    _udpSocket?.Dispose();
+                    _udpSocket = null;
+                }
+            }
         }
-
-        _udpSocket?.Close();
-        _udpSocket?.Dispose();
-        _udpSocket = null;
     }
 }
