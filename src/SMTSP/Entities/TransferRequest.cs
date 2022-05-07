@@ -8,14 +8,9 @@ namespace SMTSP.Entities;
 /// </summary>
 public class TransferRequest
 {
-    /// <summary>
-    ///
-    /// </summary>
     public string Id { get; set; }
     public string SenderId { get; set; }
     public string SenderName { get; set; }
-    // public long FileSize { get; set; }
-    // public string FileName { get; set; }
     public SmtspContent Content { get; set; }
 
     internal byte[] ToBinary()
@@ -46,14 +41,6 @@ public class TransferRequest
         Logger.Info($"ContentType: {attributeName}");
         messageInBytes.AddRange(attributeName.GetBytes());
         messageInBytes.Add(0x00);
-
-        // Logger.Info($"FileName: {FileName}");
-        // messageInBytes.AddRange(FileName.GetBytes());
-        // messageInBytes.Add(0x00);
-        //
-        // Logger.Info($"FileSize: {FileSize}");
-        // messageInBytes.AddRange(FileSize.ToString().GetBytes());
-        // messageInBytes.Add(0x00);
 
         messageInBytes.AddRange(Content.ToBinary());
         messageInBytes.Add(0x00);
