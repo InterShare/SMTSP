@@ -7,14 +7,14 @@ namespace SMTSP.Entities.Content;
 /// <summary>
 /// Abstract representation of the content that will be transmitted.
 /// </summary>
-public abstract class SmtspContent
+public abstract class SmtspContent : IDisposable
 {
     /// <summary>
     /// The data stream.
     /// </summary>
-    public Stream DataStream { get; set; }
+    public Stream? DataStream { get; set; }
 
-    public IEnumerable<byte> ToBinary()
+    internal IEnumerable<byte> ToBinary()
     {
         var body = new List<byte>();
 
@@ -47,7 +47,7 @@ public abstract class SmtspContent
         return body;
     }
 
-    public void FromStream(Stream stream)
+    internal void FromStream(Stream stream)
     {
         try
         {
@@ -56,9 +56,17 @@ public abstract class SmtspContent
                 BindingFlags.NonPublic |
                 BindingFlags.Public);
 
-            foreach (PropertyInfo _ in properties)
+            while(true)
             {
-                string currentPropertyAndValue = stream.GetStringTillEndByte(0x00);
+                byte[] result = stream.GetBytesWhile(0x00);
+
+                if (result.FirstOrDefault() == 0x00)
+                {
+                    break;
+                }
+
+                string currentPropertyAndValue = result.Any() ? result.GetStringFromBytes() : "";
+
 
                 if (!currentPropertyAndValue.Contains("=")) { continue; }
 
@@ -91,5 +99,13 @@ public abstract class SmtspContent
         {
             Console.WriteLine(exception);
         }
+    }
+
+    /// <summary>
+    /// Dispose the stream
+    /// </summary>
+    public void Dispose()
+    {
+        DataStream?.Dispose();
     }
 }

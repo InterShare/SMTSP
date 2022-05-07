@@ -13,7 +13,7 @@ public class SmtspFileContent : SmtspContent
     /// File Name
     /// </summary>
     [IncludeInBody]
-    public string? Name { get; set; }
+    public string? FileName { get; set; }
 
     /// <summary>
     /// The size of the File

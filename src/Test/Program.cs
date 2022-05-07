@@ -1,4 +1,5 @@
-﻿using SMTSP;
+﻿using System.Text;
+using SMTSP;
 using SMTSP.Advertisement;
 using SMTSP.Core;
 using SMTSP.Discovery;
@@ -49,10 +50,10 @@ var test = new Test()
     Name = "Hello World",
     Size = 23,
     TypeEnum = TestEnum.TwoValue,
-    DataStream = new MemoryStream()
+    DataStream = new MemoryStream(Encoding.UTF8.GetBytes("hello universe!!!"))
 };
 
-var receiver = new SmtspReceiver();
+SmtspReceiver receiver = new SmtspReceiver();
 receiver.RegisterTransferRequestCallback(request =>
 {
     return Task.FromResult(true);
@@ -61,6 +62,16 @@ receiver.RegisterTransferRequestCallback(request =>
 receiver.OnFileReceive += (sender, content) =>
 {
     Console.WriteLine(((Test) content).Name);
+    Console.WriteLine(((Test) content).Size);
+    Console.WriteLine(((Test) content).TypeEnum);
+
+    // var stream = new MemoryStream();
+    //
+    // ?.CopyTo(stream);
+    StreamReader reader = new StreamReader(content.DataStream);
+
+    string text = reader.ReadToEnd();
+    Console.WriteLine(text);
 };
 receiver.StartReceiving();
 
@@ -94,7 +105,7 @@ enum TestEnum
     TwoValue
 }
 
-[SmtsContent("Test")]
+[SmtsContent(nameof(Test))]
 class Test : SmtspContent
 {
     [IncludeInBody]

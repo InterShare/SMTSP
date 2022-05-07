@@ -56,6 +56,7 @@ public class TransferRequest
         // messageInBytes.Add(0x00);
 
         messageInBytes.AddRange(Content.ToBinary());
+        messageInBytes.Add(0x00);
 
         return messageInBytes.ToArray();
     }
