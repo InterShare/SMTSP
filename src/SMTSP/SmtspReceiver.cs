@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using SMTSP.Core;
 using SMTSP.Entities;
+using SMTSP.Entities.Content;
 using SMTSP.Extensions;
 using SMTSP.Helpers;
 
@@ -31,7 +32,7 @@ public class SmtspReceiver
     /// <summary>
     /// Invokes, when a new device is being discovered.
     /// </summary>
-    public event EventHandler<SmtsFile> OnFileReceive = delegate { };
+    public event EventHandler<SmtspContent> OnFileReceive = delegate { };
 
     private void ListenForConnections()
     {
@@ -83,14 +84,9 @@ public class SmtspReceiver
                         byte[] resultInBytes = TransferRequestAnswers.Accept.ToLowerCamelCaseString().GetBytes()!.ToArray();
                         stream.Write(resultInBytes, 0, resultInBytes.Length);
 
-                        var file = new SmtsFile
-                        {
-                            Name = transferRequest.FileName,
-                            DataStream = stream,
-                            FileSize = transferRequest.FileSize
-                        };
+                        transferRequest.Content.DataStream = stream;
 
-                        OnFileReceive.Invoke(this, file);
+                        OnFileReceive.Invoke(this, transferRequest.Content);
                     }
                     else
                     {
