@@ -1,6 +1,7 @@
 using System.Net.Sockets;
 using SMTSP.Core;
 using SMTSP.Entities;
+using SMTSP.Entities.Content;
 using SMTSP.Extensions;
 
 namespace SMTSP;
@@ -12,11 +13,11 @@ public class SmtspSender
     /// Send data to a peripheral
     /// </summary>
     /// <param name="receiver"></param>
-    /// <param name="file"></param>
+    /// <param name="content"></param>
     /// <param name="myDeviceInfo"></param>
     /// <param name="progress"></param>
     /// <param name="cancellationToken"></param>
-    public static async Task<SendFileResponses> SendFile(DeviceInfo receiver, SmtsFile file, DeviceInfo myDeviceInfo, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
+    public static async Task<SendFileResponses> SendFile(DeviceInfo receiver, SmtspContent content, DeviceInfo myDeviceInfo, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -27,10 +28,9 @@ public class SmtspSender
             var transferRequest = new TransferRequest
             {
                 Id = Guid.NewGuid().ToString(),
-                FileName = file.Name,
                 SenderId = myDeviceInfo.DeviceId,
                 SenderName = myDeviceInfo.DeviceName,
-                FileSize = file.FileSize
+                Content = content
             };
 
             byte[] binaryTransferRequest = transferRequest.ToBinary();
@@ -45,7 +45,7 @@ public class SmtspSender
 
             if (responseAnswer == TransferRequestAnswers.Accept)
             {
-                await file.DataStream.CopyToAsyncWithProgress(tcpStream, progress, cancellationToken);
+                await content.DataStream.CopyToAsyncWithProgress(tcpStream, progress, cancellationToken);
 
                 Logger.Info("Done sending");
                 return SendFileResponses.Success;
