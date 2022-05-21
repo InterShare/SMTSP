@@ -1,8 +1,6 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 using SMTSP;
-using SMTSP.Advertisement;
-using SMTSP.Core;
-using SMTSP.Discovery;
 using SMTSP.Discovery.Entities;
 using SMTSP.Entities;
 using SMTSP.Entities.Content;
@@ -45,6 +43,8 @@ using SMTSP.Entities.Content;
 // Console.WriteLine("Unadvertise...");
 // smtsAdvertisement.StopAdvertising();
 
+return 0;
+
 var test = new Test()
 {
     Name = "Hello World",
@@ -53,13 +53,13 @@ var test = new Test()
     DataStream = new MemoryStream(Encoding.UTF8.GetBytes("hello universe!!!"))
 };
 
-SmtspReceiver receiver = new SmtspReceiver();
+var receiver = new SmtspReceiver();
 receiver.RegisterTransferRequestCallback(request =>
 {
     return Task.FromResult(true);
 });
 
-receiver.OnFileReceive += (sender, content) =>
+receiver.OnContentReceive += (sender, content) =>
 {
     Console.WriteLine(((Test) content).Name);
     Console.WriteLine(((Test) content).Size);
@@ -68,14 +68,14 @@ receiver.OnFileReceive += (sender, content) =>
     // var stream = new MemoryStream();
     //
     // ?.CopyTo(stream);
-    StreamReader reader = new StreamReader(content.DataStream);
+    var reader = new StreamReader(content.DataStream);
 
     string text = reader.ReadToEnd();
     Console.WriteLine(text);
 };
 receiver.StartReceiving();
 
-DeviceInfo device = new DeviceInfo
+var device = new DeviceInfo
 {
     DeviceId = Guid.NewGuid().ToString(),
     DeviceName = "SMTS Console Test",
@@ -105,8 +105,8 @@ enum TestEnum
     TwoValue
 }
 
-[SmtsContent(nameof(Test))]
-class Test : SmtspContent
+[SmtspContent(nameof(Test))]
+class Test : SmtspContentBase
 {
     [IncludeInBody]
     public string Name { get; set; }
