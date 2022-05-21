@@ -9,6 +9,10 @@ using SMTSP.Helpers;
 
 namespace SMTSP.Discovery;
 
+/*
+ * To reduce CPU load only a single UDP Client is opened and used for both; discovery and advertisement.
+ */
+
 internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 {
     private static UdpDiscoveryAndAdvertiser? _instance;
@@ -16,15 +20,15 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
     private readonly int[] _discoveryPorts = { 42400, 42410, 42420 };
     private readonly object _listeningThreadLock = new object();
 
-    private DeviceInfo _myDeviceInfo;
-    private bool _answerToLookupBroadcasts = false;
+    private DeviceInfo _myDeviceInfo = null!;
+    private bool _answerToLookupBroadcasts;
     private bool _receiving;
     private int _port;
     private Timer? _discoveringInterval;
     private Thread? _listeningThread;
     private UdpClient? _udpSocket;
-    private bool _discoveryDisposed = false;
-    private bool _advertisingDisposed = false;
+    private bool _discoveryDisposed;
+    private bool _advertisingDisposed;
 
     public static UdpDiscoveryAndAdvertiser Instance => _instance ??= new UdpDiscoveryAndAdvertiser();
 
@@ -120,6 +124,7 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
                 using var stream = new MemoryStream(receivedMessage.Buffer);
                 GetMessageTypeResponse messageTypeResult = MessageTransformer.GetMessageType(stream);
 
+                // ReSharper disable once ConvertIfStatementToSwitchStatement
                 if (messageTypeResult.Type == MessageTypes.DeviceInfo)
                 {
                     var receivedDevice = new DeviceInfo();
@@ -155,7 +160,7 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
                 }
 
                 stream.Close();
-                stream.Dispose();
+                await stream.DisposeAsync();
             }
             catch (Exception exception)
             {
@@ -282,11 +287,7 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
     public void DisposeDiscovery()
     {
         _discoveryDisposed = true;
-
-        if (_discoveringInterval != null)
-        {
-            _discoveringInterval.Dispose();
-        }
+        _discoveringInterval?.Dispose();
 
         Dispose();
     }

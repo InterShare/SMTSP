@@ -20,7 +20,7 @@ internal static class ByteListExtension
 
     internal static string GetStringTillEndByte(this IEnumerable<byte> bytes, byte endByte, ref int startPosition)
     {
-        IEnumerable<byte> skipped = bytes.Skip(startPosition);
+        var skipped = bytes.Skip(startPosition);
         byte[] result = skipped.TakeWhile(bytePart => bytePart != endByte).ToArray();
 
         startPosition += result.Length + 1;

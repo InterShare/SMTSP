@@ -1,13 +1,10 @@
-using SMTSP.Core;
-using SMTSP.Extensions;
-
 namespace SMTSP.Entities.Content;
 
 /// <summary>
 /// Data will be interpreted as file
 /// </summary>
-[SmtsContent("FileContent")]
-public class SmtspFileContent : SmtspContent
+[SmtspContent("FileContent")]
+public class SmtspFileContent : SmtspContentBase
 {
     /// <summary>
     /// File Name

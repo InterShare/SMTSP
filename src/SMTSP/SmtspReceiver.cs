@@ -9,7 +9,7 @@ using SMTSP.Helpers;
 namespace SMTSP;
 
 /// <summary>
-/// Used to receive files.
+/// Used to receive data.
 /// </summary>
 public class SmtspReceiver
 {
@@ -32,7 +32,7 @@ public class SmtspReceiver
     /// <summary>
     /// Invokes, when a new device is being discovered.
     /// </summary>
-    public event EventHandler<SmtspContent> OnFileReceive = delegate { };
+    public event EventHandler<SmtspContentBase> OnContentReceive = delegate { };
 
     private void ListenForConnections()
     {
@@ -69,7 +69,7 @@ public class SmtspReceiver
                     var transferRequest = new TransferRequest();
                     transferRequest.FromStream(stream);
 
-                    var result = false;
+                    bool result = false;
 
                     if (_onTransferRequestCallback != null)
                     {
@@ -84,9 +84,19 @@ public class SmtspReceiver
                         byte[] resultInBytes = TransferRequestAnswers.Accept.ToLowerCamelCaseString().GetBytes()!.ToArray();
                         stream.Write(resultInBytes, 0, resultInBytes.Length);
 
-                        transferRequest.Content.DataStream = stream;
+                        var encryption = new Encryption.Encryption();
+                        byte[] publicKey = encryption.GetMyPublicKey();
+                        byte[] publicKeyDecoded = TransferRequest.PublicKeyToBase64(publicKey).GetBytes().ToArray();
+                        stream.Write(publicKeyDecoded, 0, publicKeyDecoded.Length);
 
-                        OnFileReceive.Invoke(this, transferRequest.Content);
+                        byte[] iv = Convert.FromBase64String(stream.GetStringTillEndByte(0x00));
+                        byte[] aesKey = encryption.CalculateAesKey(transferRequest.PublicKey!);
+
+                        Stream decrypted = encryption.DecryptStream(stream, aesKey, iv);
+
+                        transferRequest.ContentBase.DataStream = decrypted;
+
+                        OnContentReceive.Invoke(this, transferRequest.ContentBase);
                     }
                     else
                     {
@@ -178,7 +188,7 @@ public class SmtspReceiver
     }
 
     /// <summary>
-    /// Stop looking for file requests
+    /// Stop looking for requests
     /// </summary>
     public void StopReceiving()
     {
@@ -194,7 +204,7 @@ public class SmtspReceiver
     }
 
     /// <summary>
-    /// Incoming file requests will be invoked on callbacks registered through this method.
+    /// Incoming requests will be invoked on callbacks registered through this method.
     /// It is necessary to at least register one callback or otherwise, no requests will be accepted.
     /// </summary>
     /// <param name="callbackFunction">Return <c>true</c> to accept the data transfer, <c>false</c> to decline it.</param>

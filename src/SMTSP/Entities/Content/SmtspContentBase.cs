@@ -7,7 +7,7 @@ namespace SMTSP.Entities.Content;
 /// <summary>
 /// Abstract representation of the content that will be transmitted.
 /// </summary>
-public abstract class SmtspContent : IDisposable
+public abstract class SmtspContentBase : IDisposable
 {
     /// <summary>
     /// The data stream.

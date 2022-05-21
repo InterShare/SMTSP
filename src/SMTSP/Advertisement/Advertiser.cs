@@ -8,16 +8,18 @@ namespace SMTSP.Advertisement;
 /// </summary>
 public class Advertiser : IDisposable
 {
-    private readonly IAdvertiser _advertiser;
-    private readonly DiscoveryTypes _discoveryTypes;
+    private readonly List<IAdvertiser> _advertiserImplementations = new();
 
     /// <param name="myDevice"></param>
-    /// <param name="discoveryType">Select which system should be used for discovery</param>
-    public Advertiser(DeviceInfo myDevice, DiscoveryTypes discoveryType = DiscoveryTypes.UdpBroadcasts)
+    public Advertiser(DeviceInfo myDevice)
     {
-        _discoveryTypes = discoveryType;
-        _advertiser = discoveryType == DiscoveryTypes.Mdns ? new MdnsAdvertiser() : UdpDiscoveryAndAdvertiser.Instance;
-        _advertiser.SetMyDevice(myDevice);
+        _advertiserImplementations.Add(new MdnsAdvertiser());
+        _advertiserImplementations.Add(UdpDiscoveryAndAdvertiser.Instance);
+
+        foreach (IAdvertiser advertiser in _advertiserImplementations)
+        {
+            advertiser.SetMyDevice(myDevice);
+        }
     }
 
     /// <summary>
@@ -25,7 +27,10 @@ public class Advertiser : IDisposable
     /// </summary>
     public void Advertise()
     {
-        _advertiser.Advertise();
+        foreach (IAdvertiser advertiserImplementation in _advertiserImplementations)
+        {
+            advertiserImplementation.Advertise();
+        }
     }
 
     /// <summary>
@@ -33,7 +38,10 @@ public class Advertiser : IDisposable
     /// </summary>
     public void StopAdvertising()
     {
-        _advertiser.StopAdvertising();
+        foreach (IAdvertiser advertiserImplementation in _advertiserImplementations)
+        {
+            advertiserImplementation.StopAdvertising();
+        }
     }
 
     /// <summary>
@@ -41,13 +49,16 @@ public class Advertiser : IDisposable
     /// </summary>
     public void Dispose()
     {
-
-        if (_discoveryTypes == DiscoveryTypes.UdpBroadcasts)
+        foreach (IAdvertiser advertiser in _advertiserImplementations)
         {
-            (_advertiser as UdpDiscoveryAndAdvertiser)?.DisposeAdvertiser();
-            return;
+            if (advertiser.GetType() == typeof(UdpDiscoveryAndAdvertiser))
+            {
+                (advertiser as UdpDiscoveryAndAdvertiser)?.DisposeDiscovery();
+            }
+            else
+            {
+                advertiser.Dispose();
+            }
         }
-
-        _advertiser.Dispose();
     }
 }

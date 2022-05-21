@@ -183,7 +183,7 @@ namespace MDNS
         /// <seealso cref="ServiceProfile.ServiceName"/>
         public void QueryServiceInstances(DomainName service, string subtype)
         {
-            var name = DomainName.Join(
+            DomainName? name = DomainName.Join(
                 new DomainName(subtype),
                 SubName,
                 service,
@@ -225,7 +225,7 @@ namespace MDNS
         {
             profiles.Add(service);
 
-            var catalog = NameServer.Catalog;
+            Catalog? catalog = NameServer.Catalog;
             catalog.Add(
                 new PTRRecord { Name = ServiceName, DomainName = service.QualifiedServiceName },
                 authoritative: true);
@@ -233,7 +233,7 @@ namespace MDNS
                 new PTRRecord { Name = service.QualifiedServiceName, DomainName = service.FullyQualifiedName },
                 authoritative: true);
 
-            foreach (var subtype in service.Subtypes)
+            foreach (string? subtype in service.Subtypes)
             {
                 var ptr = new PTRRecord
                 {
@@ -246,7 +246,7 @@ namespace MDNS
                 catalog.Add(ptr, authoritative: true);
             }
 
-            foreach (var r in service.Resources)
+            foreach (ResourceRecord? r in service.Resources)
             {
                 catalog.Add(r, authoritative: true);
             }
@@ -321,7 +321,7 @@ namespace MDNS
 
         void OnAnswer(object sender, MessageEventArgs e)
         {
-            var msg = e.Message;
+            Message? msg = e.Message;
             if (log.IsDebugEnabled)
             {
                 log.Debug($"Answer from {e.RemoteEndPoint}");
@@ -336,7 +336,7 @@ namespace MDNS
             var sd = msg.Answers
                 .OfType<PTRRecord>()
                 .Where(ptr => ptr.Name.IsSubdomainOf(LocalDomain));
-            foreach (var ptr in sd)
+            foreach (PTRRecord? ptr in sd)
             {
                 if (ptr.Name == ServiceName)
                 {
@@ -367,7 +367,7 @@ namespace MDNS
 
         void OnQuery(object sender, MessageEventArgs e)
         {
-            var request = e.Message;
+            Message? request = e.Message;
 
             if (log.IsDebugEnabled)
             {
@@ -380,8 +380,8 @@ namespace MDNS
 
             // Determine if this query is requesting a unicast response
             // and normalise the Class.
-            var QU = false; // unicast query response?
-            foreach (var r in request.Questions)
+            bool QU = false; // unicast query response?
+            foreach (Question? r in request.Questions)
             {
                 if (((ushort)r.Class & 0x8000) != 0)
                 {
@@ -390,7 +390,7 @@ namespace MDNS
                 }
             }
 
-            var response = NameServer.ResolveAsync(request).Result;
+            Message? response = NameServer.ResolveAsync(request).Result;
 
             if (response.Status != MessageStatus.NoError)
             {

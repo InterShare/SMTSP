@@ -37,7 +37,7 @@ internal class MdnsDiscovery : IDiscovery
 
                 if (txtRecord == null)
                 {
-                    var service = eventArgs.ServiceInstanceName.ToString();
+                    string? service = eventArgs.ServiceInstanceName.ToString();
                     var query = new Message();
                     query.Questions.Add(new Question { Name = service, Type = DnsType.TXT });
                     _serviceDiscovery.Mdns.SendQuery(query);

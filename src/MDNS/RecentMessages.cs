@@ -16,7 +16,7 @@ namespace MDNS
         ///   Recent messages.
         /// </summary>
         /// <value>
-        ///   The key is the Base64 encoding of the MD5 hash of 
+        ///   The key is the Base64 encoding of the MD5 hash of
         ///   a message and the value is when the message was seen.
         /// </value>
         public ConcurrentDictionary<string, DateTime> Messages = new ConcurrentDictionary<string, DateTime>();
@@ -53,8 +53,8 @@ namespace MDNS
         /// </remarks>
         public int Prune()
         {
-            var dead = DateTime.Now - Interval;
-            var count = 0;
+            DateTime dead = DateTime.Now - Interval;
+            int count = 0;
 
             foreach (var stale in Messages.Where(x => x.Value < dead))
             {

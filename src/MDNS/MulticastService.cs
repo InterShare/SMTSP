@@ -281,7 +281,7 @@ namespace MDNS
                 var newNics = new List<NetworkInterface>();
                 var oldNics = new List<NetworkInterface>();
 
-                foreach (var nic in knownNics.Where(k => !currentNics.Any(n => k.Id == n.Id)))
+                foreach (NetworkInterface? nic in knownNics.Where(k => !currentNics.Any(n => k.Id == n.Id)))
                 {
                     oldNics.Add(nic);
 
@@ -291,7 +291,7 @@ namespace MDNS
                     }
                 }
 
-                foreach (var nic in currentNics.Where(nic => !knownNics.Any(k => k.Id == nic.Id)))
+                foreach (NetworkInterface? nic in currentNics.Where(nic => !knownNics.Any(k => k.Id == nic.Id)))
                 {
                     newNics.Add(nic);
 
@@ -350,7 +350,7 @@ namespace MDNS
 
             void checkResponse(object s, MessageEventArgs e)
             {
-                var response = e.Message;
+                Message? response = e.Message;
                 if (request.Questions.All(q => response.Answers.Any(a => a.Name == q.Name)))
                 {
                     AnswerReceived -= checkResponse;
@@ -569,15 +569,15 @@ namespace MDNS
             answer.Questions.AddRange(query.Message.Questions);
             answer.Truncate(maxPacketSize);
 
-            foreach (var r in answer.Answers)
+            foreach (ResourceRecord? r in answer.Answers)
             {
                 r.TTL = (r.TTL > maxLegacyUnicastTTL) ? maxLegacyUnicastTTL : r.TTL;
             }
-            foreach (var r in answer.AdditionalRecords)
+            foreach (ResourceRecord? r in answer.AdditionalRecords)
             {
                 r.TTL = (r.TTL > maxLegacyUnicastTTL) ? maxLegacyUnicastTTL : r.TTL;
             }
-            foreach (var r in answer.AdditionalRecords)
+            foreach (ResourceRecord? r in answer.AdditionalRecords)
             {
                 r.TTL = (r.TTL > maxLegacyUnicastTTL) ? maxLegacyUnicastTTL : r.TTL;
             }
@@ -587,7 +587,7 @@ namespace MDNS
 
         void Send(Message msg, bool checkDuplicate, IPEndPoint remoteEndPoint = null)
         {
-            var packet = msg.ToByteArray();
+            byte[]? packet = msg.ToByteArray();
             if (packet.Length > maxPacketSize)
             {
                 throw new ArgumentOutOfRangeException($"Exceeds max packet size of {maxPacketSize}.");
@@ -606,7 +606,7 @@ namespace MDNS
             // Unicast response
             else
             {
-                var unicastClient = (remoteEndPoint.Address.AddressFamily == AddressFamily.InterNetwork)
+                UdpClient? unicastClient = (remoteEndPoint.Address.AddressFamily == AddressFamily.InterNetwork)
                     ? unicastClientIp4 : unicastClientIp6;
                 unicastClient.SendAsync(packet, packet.Length, remoteEndPoint).GetAwaiter().GetResult();
             }

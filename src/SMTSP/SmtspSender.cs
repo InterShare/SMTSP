@@ -13,39 +13,52 @@ public class SmtspSender
     /// Send data to a peripheral
     /// </summary>
     /// <param name="receiver"></param>
-    /// <param name="content"></param>
+    /// <param name="contentBase"></param>
     /// <param name="myDeviceInfo"></param>
     /// <param name="progress"></param>
     /// <param name="cancellationToken"></param>
-    public static async Task<SendFileResponses> SendFile(DeviceInfo receiver, SmtspContent content, DeviceInfo myDeviceInfo, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
+    public static async Task<SendFileResponses> SendFile(DeviceInfo receiver, SmtspContentBase contentBase, DeviceInfo myDeviceInfo, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
     {
         try
         {
             var client = new TcpClient(receiver.IpAddress, receiver.Port);
 
-            using NetworkStream tcpStream = client.GetStream();
+            await using NetworkStream tcpStream = client.GetStream();
+
+            var encryption = new Encryption.Encryption();
 
             var transferRequest = new TransferRequest
             {
                 Id = Guid.NewGuid().ToString(),
                 SenderId = myDeviceInfo.DeviceId,
                 SenderName = myDeviceInfo.DeviceName,
-                Content = content
+                ContentBase = contentBase,
+                PublicKey = encryption.GetMyPublicKey()
             };
 
             byte[] binaryTransferRequest = transferRequest.ToBinary();
 
-            await tcpStream.WriteAsync(binaryTransferRequest, 0, binaryTransferRequest.Length, cancellationToken);
+            await tcpStream.WriteAsync(binaryTransferRequest, cancellationToken);
 
-            var response = new byte[7];
-            await tcpStream.ReadAsync(response, 0, response.Length, cancellationToken);
+            byte[] response = new byte[7];
+            // ReSharper disable once MustUseReturnValue
+            await tcpStream.ReadAsync(response, cancellationToken);
 
-            Enum.TryParse(response.GetStringFromBytes(), true, out TransferRequestAnswers responseAnswer);
+            var responseAnswer = response.GetStringFromBytes().ToEnum<TransferRequestAnswers>();
             Logger.Info($"Received response answer: {responseAnswer}");
 
             if (responseAnswer == TransferRequestAnswers.Accept)
             {
-                await content.DataStream.CopyToAsyncWithProgress(tcpStream, progress, cancellationToken);
+                byte[] foreignPublicKeyBytes = TransferRequest.GetPublicKey(tcpStream);
+
+                byte[] aesKey = encryption.CalculateAesKey(foreignPublicKeyBytes);
+                byte[] iv = Encryption.Encryption.GenerateIvBytes();
+                byte[] ivBase64 = Convert.ToBase64String(iv).GetBytes().ToArray();
+                await tcpStream.WriteAsync(ivBase64, cancellationToken);
+
+                await encryption.EncryptStream(tcpStream, contentBase.DataStream!, aesKey, iv, progress, cancellationToken);
+
+                // await contentBase.DataStream!.CopyToAsyncWithProgress(tcpStream, progress, cancellationToken);
 
                 Logger.Info("Done sending");
                 return SendFileResponses.Success;
