@@ -4,7 +4,7 @@ namespace SMTSP.Entities.Content;
 /// Implement a custom smts content body
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-public class SmtsContentAttribute : Attribute
+public class SmtspContentAttribute : Attribute
 {
     /// <summary>
     /// This name will be used to identify the content type and automatically parse it to this implementation.
@@ -13,7 +13,7 @@ public class SmtsContentAttribute : Attribute
 
 
     /// <param name="name"></param>
-    public SmtsContentAttribute(string name)
+    public SmtspContentAttribute(string name)
     {
         Name = name;
     }

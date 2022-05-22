@@ -72,7 +72,7 @@ namespace MDNS
                 .SelectMany(GetNetworkInterfaceLocalAddresses)
                 .Where(a => (useIPv4 && a.AddressFamily == AddressFamily.InterNetwork)
                     || (useIpv6 && a.AddressFamily == AddressFamily.InterNetworkV6));
-            foreach (var address in addreses)
+            foreach (IPAddress? address in addreses)
             {
                 if (senders.Keys.Contains(address))
                 {
@@ -128,7 +128,7 @@ namespace MDNS
             }
 
             // Start listening for messages.
-            foreach (var r in receivers)
+            foreach (UdpClient? r in receivers)
             {
                 Listen(r);
             }
@@ -140,7 +140,7 @@ namespace MDNS
             {
                 try
                 {
-                    var endpoint = sender.Key.AddressFamily == AddressFamily.InterNetwork ? MdnsEndpointIp4 : MdnsEndpointIp6;
+                    IPEndPoint? endpoint = sender.Key.AddressFamily == AddressFamily.InterNetwork ? MdnsEndpointIp4 : MdnsEndpointIp6;
                     await sender.Value.SendAsync(
                         message, message.Length,
                         endpoint)
@@ -199,7 +199,7 @@ namespace MDNS
                 {
                     MessageReceived = null;
 
-                    foreach (var receiver in receivers)
+                    foreach (UdpClient? receiver in receivers)
                     {
                         try
                         {
@@ -212,9 +212,9 @@ namespace MDNS
                     }
                     receivers.Clear();
 
-                    foreach (var address in senders.Keys)
+                    foreach (IPAddress? address in senders.Keys)
                     {
-                        if (senders.TryRemove(address, out var sender))
+                        if (senders.TryRemove(address, out UdpClient? sender))
                         {
                             try
                             {

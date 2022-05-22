@@ -5,13 +5,15 @@ using SMTSP.Extensions;
 namespace SMTSP.Entities;
 
 /// <summary>
+/// Pretty self explaining, I think.
 /// </summary>
 public class TransferRequest
 {
     public string Id { get; set; }
     public string SenderId { get; set; }
     public string SenderName { get; set; }
-    public SmtspContent Content { get; set; }
+    public SmtspContentBase ContentBase { get; set; }
+    public byte[]? PublicKey { get; set; }
 
     internal byte[] ToBinary()
     {
@@ -33,7 +35,7 @@ public class TransferRequest
 
         string attributeName = "";
 
-        if (Content.GetType().GetCustomAttributes(typeof(SmtsContentAttribute), true).FirstOrDefault() is SmtsContentAttribute attribute)
+        if (ContentBase.GetType().GetCustomAttributes(typeof(SmtspContentAttribute), true).FirstOrDefault() is SmtspContentAttribute attribute)
         {
             attributeName = attribute.Name;
         }
@@ -42,7 +44,10 @@ public class TransferRequest
         messageInBytes.AddRange(attributeName.GetBytes());
         messageInBytes.Add(0x00);
 
-        messageInBytes.AddRange(Content.ToBinary());
+        Logger.Info($"Attaching PublicKey");
+        messageInBytes.AddRange(PublicKey!);
+
+        messageInBytes.AddRange(ContentBase.ToBinary());
         messageInBytes.Add(0x00);
 
         return messageInBytes.ToArray();
@@ -52,9 +57,9 @@ public class TransferRequest
     {
         var list = from assembly in AppDomain.CurrentDomain.GetAssemblies()
             from type in assembly.GetTypes()
-            let attributes = type.GetCustomAttributes(typeof(SmtsContentAttribute), true)
+            let attributes = type.GetCustomAttributes(typeof(SmtspContentAttribute), true)
             where attributes is { Length: > 0 }
-            where attributes.Cast<SmtsContentAttribute>().First().Name == contentType
+            where attributes.Cast<SmtspContentAttribute>().First().Name == contentType
             select type;
 
         return list?.FirstOrDefault();
@@ -67,14 +72,25 @@ public class TransferRequest
         SenderName = stream.GetStringTillEndByte(0x00);
         string contentType = stream.GetStringTillEndByte(0x00);
 
+        byte[] publicKey = new byte[67];
+        int read = stream.Read(publicKey, 0, publicKey.Length);
+
+        if (read != publicKey.Length)
+        {
+            throw new Exception("Fever bytes read than expected when trying to get public key.");
+        }
+
+        PublicKey = publicKey;
+
         Type? type = FindContentImplementation(contentType);
 
         if (type != null)
         {
-            SmtspContent content = (SmtspContent) Activator.CreateInstance(type);
-            content.FromStream(stream);
-
-            Content = content;
+            if (Activator.CreateInstance(type) is SmtspContentBase contentBase)
+            {
+                contentBase.FromStream(stream);
+                ContentBase = contentBase;
+            }
         }
     }
 }

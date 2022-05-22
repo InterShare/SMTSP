@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using SMTSP.Entities;
 
 namespace SMTSP.Discovery;
@@ -8,22 +9,68 @@ namespace SMTSP.Discovery;
 /// </summary>
 public class Discovery : IDisposable
 {
-    private readonly IDiscovery _discovery;
-    private readonly DiscoveryTypes _discoveryTypes;
+    private readonly List<IDiscovery> _discoveryImplementations = new List<IDiscovery>();
 
     /// <summary>
     /// Holds the list of discovered devices.
     /// </summary>
-    public readonly ObservableCollection<DeviceInfo> DiscoveredDevices;
+    public readonly ObservableCollection<DeviceInfo> DiscoveredDevices = new();
 
     /// <param name="myDevice">The current device, used to advertise on the network, so that other devices can find this one</param>
-    /// <param name="discoveryType">Select which system should be used for discovery</param>
-    public Discovery(DeviceInfo myDevice, DiscoveryTypes discoveryType = DiscoveryTypes.UdpBroadcasts)
+    public Discovery(DeviceInfo myDevice)
     {
-        _discoveryTypes = discoveryType;
-        _discovery = discoveryType == DiscoveryTypes.Mdns ? new MdnsDiscovery() : UdpDiscoveryAndAdvertiser.Instance;
-        _discovery.SetMyDevice(myDevice);
-        DiscoveredDevices = _discovery.DiscoveredDevices;
+        _discoveryImplementations.Add(new MdnsDiscovery());
+        _discoveryImplementations.Add(UdpDiscoveryAndAdvertiser.Instance);
+
+        foreach (IDiscovery discovery in _discoveryImplementations)
+        {
+            discovery.SetMyDevice(myDevice);
+
+            lock (DiscoveredDevices)
+            {
+                foreach (DeviceInfo discoveredDevice in discovery.DiscoveredDevices)
+                {
+                    if (DiscoveredDevices.FirstOrDefault(device => device.DeviceId == discoveredDevice.DeviceId) == null)
+                    {
+                        DiscoveredDevices.Add(discoveredDevice);
+                    }
+                }
+            }
+
+            discovery.DiscoveredDevices.CollectionChanged += DiscoveredDevicesOnCollectionChanged;
+        }
+    }
+
+    private void DiscoveredDevicesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        lock (DiscoveredDevices)
+        {
+            if (e.NewItems != null)
+            {
+                foreach (DeviceInfo newDeviceInfo in e.NewItems)
+                {
+                    DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(device => device.DeviceId == newDeviceInfo.DeviceId);
+
+                    if (existingDevice == null)
+                    {
+                        DiscoveredDevices.Add(newDeviceInfo);
+                    }
+                }
+            }
+
+            if (e.OldItems != null)
+            {
+                foreach (DeviceInfo newDeviceInfo in e.OldItems)
+                {
+                    DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(device => device.DeviceId == newDeviceInfo.DeviceId);
+
+                    if (existingDevice != null)
+                    {
+                        DiscoveredDevices.Remove(existingDevice);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -32,7 +79,10 @@ public class Discovery : IDisposable
     /// </summary>
     public void SendOutLookupSignal()
     {
-        _discovery.SendOutLookupSignal();
+        foreach (IDiscovery discovery in _discoveryImplementations)
+        {
+            discovery.SendOutLookupSignal();
+        }
     }
 
     /// <summary>
@@ -40,12 +90,16 @@ public class Discovery : IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (_discoveryTypes == DiscoveryTypes.UdpBroadcasts)
+        foreach (IDiscovery discoveryImplementation in _discoveryImplementations)
         {
-            (_discovery as UdpDiscoveryAndAdvertiser)?.DisposeDiscovery();
-            return;
+            if (discoveryImplementation.GetType() == typeof(UdpDiscoveryAndAdvertiser))
+            {
+                (discoveryImplementation as UdpDiscoveryAndAdvertiser)?.DisposeDiscovery();
+            }
+            else
+            {
+                discoveryImplementation?.Dispose();
+            }
         }
-
-        _discovery.Dispose();
     }
 }

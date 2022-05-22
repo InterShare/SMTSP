@@ -50,7 +50,7 @@ namespace MDNS
         {
             InstanceName = instanceName;
             ServiceName = serviceName;
-            var fqn = FullyQualifiedName;
+            DomainName? fqn = FullyQualifiedName;
 
             var simpleServiceName = new DomainName(ServiceName.ToString()
                 .Replace("._tcp", "")
@@ -70,7 +70,7 @@ namespace MDNS
                 Strings = { "txtvers=1" }
             });
 
-            foreach (var address in addresses ?? MulticastService.GetLinkLocalAddresses())
+            foreach (IPAddress? address in addresses ?? MulticastService.GetLinkLocalAddresses())
             {
                 Resources.Add(AddressRecord.Create(HostName, address));
             }
@@ -172,7 +172,7 @@ namespace MDNS
         /// </param>
         public void AddProperty(string key, string value)
         {
-            var txt = Resources.OfType<TXTRecord>().FirstOrDefault();
+            TXTRecord? txt = Resources.OfType<TXTRecord>().FirstOrDefault();
             if (txt == null)
             {
                 txt = new TXTRecord { Name = FullyQualifiedName };
