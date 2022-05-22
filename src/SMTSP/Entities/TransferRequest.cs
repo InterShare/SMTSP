@@ -55,6 +55,17 @@ public class TransferRequest
 
     internal static Type? FindContentImplementation(string contentType)
     {
+        // TODO: make this more robust
+        if (contentType == "FileContent")
+        {
+            return typeof(SmtspFileContent);
+        }
+
+        if (contentType == "RawContent")
+        {
+            return typeof(SmtspRawContent);
+        }
+
         var list = from assembly in AppDomain.CurrentDomain.GetAssemblies()
             from type in assembly.GetTypes()
             let attributes = type.GetCustomAttributes(typeof(SmtspContentAttribute), true)
