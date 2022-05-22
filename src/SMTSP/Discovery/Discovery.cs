@@ -25,29 +25,50 @@ public class Discovery : IDisposable
         foreach (IDiscovery discovery in _discoveryImplementations)
         {
             discovery.SetMyDevice(myDevice);
+
+            lock (DiscoveredDevices)
+            {
+                foreach (DeviceInfo discoveredDevice in discovery.DiscoveredDevices)
+                {
+                    if (DiscoveredDevices.FirstOrDefault(device => device.DeviceId == discoveredDevice.DeviceId) == null)
+                    {
+                        DiscoveredDevices.Add(discoveredDevice);
+                    }
+                }
+            }
+
             discovery.DiscoveredDevices.CollectionChanged += DiscoveredDevicesOnCollectionChanged;
         }
     }
 
     private void DiscoveredDevicesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        foreach (DeviceInfo newDeviceInfo in e.NewItems)
+        lock (DiscoveredDevices)
         {
-            DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(device => device.DeviceId == newDeviceInfo.DeviceId);
-
-            if (existingDevice == null)
+            if (e.NewItems != null)
             {
-                DiscoveredDevices.Add(newDeviceInfo);
+                foreach (DeviceInfo newDeviceInfo in e.NewItems)
+                {
+                    DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(device => device.DeviceId == newDeviceInfo.DeviceId);
+
+                    if (existingDevice == null)
+                    {
+                        DiscoveredDevices.Add(newDeviceInfo);
+                    }
+                }
             }
-        }
 
-        foreach (DeviceInfo newDeviceInfo in e.OldItems)
-        {
-            DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(device => device.DeviceId == newDeviceInfo.DeviceId);
-
-            if (existingDevice != null)
+            if (e.OldItems != null)
             {
-                DiscoveredDevices.Remove(existingDevice);
+                foreach (DeviceInfo newDeviceInfo in e.OldItems)
+                {
+                    DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(device => device.DeviceId == newDeviceInfo.DeviceId);
+
+                    if (existingDevice != null)
+                    {
+                        DiscoveredDevices.Remove(existingDevice);
+                    }
+                }
             }
         }
     }
@@ -77,7 +98,7 @@ public class Discovery : IDisposable
             }
             else
             {
-                discoveryImplementation.Dispose();
+                discoveryImplementation?.Dispose();
             }
         }
     }

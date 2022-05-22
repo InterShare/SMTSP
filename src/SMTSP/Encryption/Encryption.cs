@@ -35,12 +35,13 @@ internal class Encryption
     {
         using var aes = Aes.Create();
         await using var encryptedStream = new CryptoStream(inputStream, aes.CreateEncryptor(aesKey, iv), CryptoStreamMode.Write);
-        await dataToEncrypt.CopyToAsyncWithProgress(encryptedStream, progress, cancellationToken);
+        await using StreamWriter encryptWriter = new(encryptedStream);
+        await dataToEncrypt.CopyToAsyncWithProgress(encryptWriter.BaseStream, progress, cancellationToken);
 
         encryptedStream.Close();
     }
 
-    public Stream DecryptStream(Stream inputStream, byte[] aesKey, byte[] iv)
+    public Stream CreateDecryptedStream(Stream inputStream, byte[] aesKey, byte[] iv)
     {
         using var aliceAes = Aes.Create();
         var decryptedStream = new CryptoStream(inputStream, aliceAes.CreateDecryptor(aesKey, iv), CryptoStreamMode.Read);

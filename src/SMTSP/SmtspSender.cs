@@ -49,12 +49,15 @@ public class SmtspSender
 
             if (responseAnswer == TransferRequestAnswers.Accept)
             {
-                byte[] foreignPublicKeyBytes = TransferRequest.GetPublicKey(tcpStream);
+                byte[] foreignPublicKey = new byte[67];
+                // ReSharper disable once MustUseReturnValue
+                await tcpStream.ReadAsync(foreignPublicKey, cancellationToken);
 
-                byte[] aesKey = encryption.CalculateAesKey(foreignPublicKeyBytes);
+                byte[] aesKey = encryption.CalculateAesKey(foreignPublicKey);
                 byte[] iv = Encryption.Encryption.GenerateIvBytes();
-                byte[] ivBase64 = Convert.ToBase64String(iv).GetBytes().ToArray();
-                await tcpStream.WriteAsync(ivBase64, cancellationToken);
+                var ivBase64 = Convert.ToBase64String(iv).GetBytes().ToList();
+                ivBase64.Add(0x00);
+                await tcpStream.WriteAsync(ivBase64.ToArray(), cancellationToken);
 
                 await encryption.EncryptStream(tcpStream, contentBase.DataStream!, aesKey, iv, progress, cancellationToken);
 

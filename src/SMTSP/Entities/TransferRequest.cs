@@ -1,3 +1,4 @@
+using System.Text;
 using SMTSP.Core;
 using SMTSP.Entities.Content;
 using SMTSP.Extensions;
@@ -47,8 +48,8 @@ public class TransferRequest
         string publicKeyInBase64 = PublicKeyToBase64(PublicKey!);
 
         Logger.Info($"PublicKey: {publicKeyInBase64}");
-        messageInBytes.AddRange(publicKeyInBase64.GetBytes());
-        messageInBytes.Add(0x00);
+        messageInBytes.AddRange(PublicKey!);
+        // messageInBytes.Add(0x00);
 
         messageInBytes.AddRange(ContentBase.ToBinary());
         messageInBytes.Add(0x00);
@@ -70,11 +71,13 @@ public class TransferRequest
 
     internal static byte[] GetPublicKey(Stream stream)
     {
+        return stream.GetStringTillEndByte(0x00).GetBytes().ToArray();
         return Convert.FromBase64String(stream.GetStringTillEndByte(0x00));
     }
 
     internal static string PublicKeyToBase64(byte[] key)
     {
+        return key.GetStringFromBytes();
         return Convert.ToBase64String(key);
     }
 
@@ -84,7 +87,11 @@ public class TransferRequest
         SenderId = stream.GetStringTillEndByte(0x00);
         SenderName = stream.GetStringTillEndByte(0x00);
         string contentType = stream.GetStringTillEndByte(0x00);
-        PublicKey = GetPublicKey(stream);
+        // PublicKey = GetPublicKey(stream);
+
+        byte[] publicKey = new byte[67];
+        stream.Read(publicKey, 0, publicKey.Length);
+        PublicKey = publicKey;
 
         Type? type = FindContentImplementation(contentType);
 

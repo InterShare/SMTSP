@@ -81,18 +81,18 @@ public class SmtspReceiver
 
                     if (result)
                     {
-                        byte[] resultInBytes = TransferRequestAnswers.Accept.ToLowerCamelCaseString().GetBytes()!.ToArray();
-                        stream.Write(resultInBytes, 0, resultInBytes.Length);
-
                         var encryption = new Encryption.Encryption();
                         byte[] publicKey = encryption.GetMyPublicKey();
-                        byte[] publicKeyDecoded = TransferRequest.PublicKeyToBase64(publicKey).GetBytes().ToArray();
-                        stream.Write(publicKeyDecoded, 0, publicKeyDecoded.Length);
+
+                        byte[] resultInBytes = TransferRequestAnswers.Accept.ToLowerCamelCaseString().GetBytes().ToArray();
+                        stream.Write(resultInBytes, 0, resultInBytes.Length);
+
+                        stream.Write(publicKey, 0, publicKey.Length);
 
                         byte[] iv = Convert.FromBase64String(stream.GetStringTillEndByte(0x00));
                         byte[] aesKey = encryption.CalculateAesKey(transferRequest.PublicKey!);
 
-                        Stream decrypted = encryption.DecryptStream(stream, aesKey, iv);
+                        Stream decrypted = encryption.CreateDecryptedStream(stream, aesKey, iv);
 
                         transferRequest.ContentBase.DataStream = decrypted;
 
