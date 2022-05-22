@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using SMTSP.Advertisement;
 using SMTSP.Discovery.Entities;
 using SMTSP.Entities;
