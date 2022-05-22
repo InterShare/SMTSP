@@ -1,4 +1,3 @@
-using System.Text;
 using SMTSP.Core;
 using SMTSP.Entities.Content;
 using SMTSP.Extensions;
@@ -45,11 +44,8 @@ public class TransferRequest
         messageInBytes.AddRange(attributeName.GetBytes());
         messageInBytes.Add(0x00);
 
-        string publicKeyInBase64 = PublicKeyToBase64(PublicKey!);
-
-        Logger.Info($"PublicKey: {publicKeyInBase64}");
+        Logger.Info($"Attaching PublicKey");
         messageInBytes.AddRange(PublicKey!);
-        // messageInBytes.Add(0x00);
 
         messageInBytes.AddRange(ContentBase.ToBinary());
         messageInBytes.Add(0x00);
@@ -69,38 +65,32 @@ public class TransferRequest
         return list?.FirstOrDefault();
     }
 
-    internal static byte[] GetPublicKey(Stream stream)
-    {
-        return stream.GetStringTillEndByte(0x00).GetBytes().ToArray();
-        return Convert.FromBase64String(stream.GetStringTillEndByte(0x00));
-    }
-
-    internal static string PublicKeyToBase64(byte[] key)
-    {
-        return key.GetStringFromBytes();
-        return Convert.ToBase64String(key);
-    }
-
     internal void FromStream(Stream stream)
     {
         Id = stream.GetStringTillEndByte(0x00);
         SenderId = stream.GetStringTillEndByte(0x00);
         SenderName = stream.GetStringTillEndByte(0x00);
         string contentType = stream.GetStringTillEndByte(0x00);
-        // PublicKey = GetPublicKey(stream);
 
         byte[] publicKey = new byte[67];
-        stream.Read(publicKey, 0, publicKey.Length);
+        int read = stream.Read(publicKey, 0, publicKey.Length);
+
+        if (read != publicKey.Length)
+        {
+            throw new Exception("Fever bytes read than expected when trying to get public key.");
+        }
+
         PublicKey = publicKey;
 
         Type? type = FindContentImplementation(contentType);
 
         if (type != null)
         {
-            var contentBase = (SmtspContentBase) Activator.CreateInstance(type);
-            contentBase.FromStream(stream);
-
-            ContentBase = contentBase;
+            if (Activator.CreateInstance(type) is SmtspContentBase contentBase)
+            {
+                contentBase.FromStream(stream);
+                ContentBase = contentBase;
+            }
         }
     }
 }

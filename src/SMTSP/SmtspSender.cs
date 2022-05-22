@@ -61,8 +61,6 @@ public class SmtspSender
 
                 await encryption.EncryptStream(tcpStream, contentBase.DataStream!, aesKey, iv, progress, cancellationToken);
 
-                // await contentBase.DataStream!.CopyToAsyncWithProgress(tcpStream, progress, cancellationToken);
-
                 Logger.Info("Done sending");
                 return SendFileResponses.Success;
             }

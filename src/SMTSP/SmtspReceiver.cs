@@ -100,7 +100,7 @@ public class SmtspReceiver
                     }
                     else
                     {
-                        byte[] resultInBytes = TransferRequestAnswers.Decline.ToString().GetBytes()!.ToArray();
+                        byte[] resultInBytes = TransferRequestAnswers.Decline.ToString().GetBytes().ToArray();
                         stream.Write(resultInBytes, 0, resultInBytes.Length);
 
                         stream.Close();
