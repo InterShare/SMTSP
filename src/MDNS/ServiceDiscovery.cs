@@ -11,9 +11,9 @@ namespace MDNS
     /// <seealso href="https://tools.ietf.org/html/rfc6763">RFC 6763 DNS-Based Service Discovery</seealso>
     public class ServiceDiscovery : IDisposable
     {
-        static readonly ILog log = LogManager.GetLogger(typeof(ServiceDiscovery));
-        static readonly DomainName LocalDomain = new DomainName("local");
-        static readonly DomainName SubName = new DomainName("_sub");
+        private static readonly ILog _log = LogManager.GetLogger(typeof(ServiceDiscovery));
+        private static readonly DomainName _localDomain = new DomainName("local");
+        private static readonly DomainName _subName = new DomainName("_sub");
 
         /// <summary>
         ///   The service discovery service name.
@@ -165,7 +165,7 @@ namespace MDNS
         /// <seealso cref="ServiceProfile.ServiceName"/>
         public void QueryServiceInstances(DomainName service)
         {
-            Mdns.SendQuery(DomainName.Join(service, LocalDomain), type: DnsType.PTR);
+            Mdns.SendQuery(DomainName.Join(service, _localDomain), type: DnsType.PTR);
         }
 
         /// <summary>
@@ -185,9 +185,9 @@ namespace MDNS
         {
             DomainName? name = DomainName.Join(
                 new DomainName(subtype),
-                SubName,
+                _subName,
                 service,
-                LocalDomain);
+                _localDomain);
             Mdns.SendQuery(name, type: DnsType.PTR);
         }
 
@@ -204,7 +204,7 @@ namespace MDNS
         /// <seealso cref="ServiceProfile.ServiceName"/>
         public void QueryUnicastServiceInstances(DomainName service)
         {
-            Mdns.SendUnicastQuery(DomainName.Join(service, LocalDomain), type: DnsType.PTR);
+            Mdns.SendUnicastQuery(DomainName.Join(service, _localDomain), type: DnsType.PTR);
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace MDNS
                 {
                     Name = DomainName.Join(
                         new DomainName(subtype),
-                        SubName,
+                        _subName,
                         service.QualifiedServiceName),
                     DomainName = service.FullyQualifiedName
                 };
@@ -322,20 +322,20 @@ namespace MDNS
         void OnAnswer(object sender, MessageEventArgs e)
         {
             Message? msg = e.Message;
-            if (log.IsDebugEnabled)
+            if (_log.IsDebugEnabled)
             {
-                log.Debug($"Answer from {e.RemoteEndPoint}");
+                _log.Debug($"Answer from {e.RemoteEndPoint}");
             }
-            if (log.IsTraceEnabled)
+            if (_log.IsTraceEnabled)
             {
-                log.Trace(msg);
+                _log.Trace(msg);
             }
 
             // Any DNS-SD answers?
 
             var sd = msg.Answers
                 .OfType<PTRRecord>()
-                .Where(ptr => ptr.Name.IsSubdomainOf(LocalDomain));
+                .Where(ptr => ptr.Name.IsSubdomainOf(_localDomain));
             foreach (PTRRecord? ptr in sd)
             {
                 if (ptr.Name == ServiceName)
@@ -369,13 +369,13 @@ namespace MDNS
         {
             Message? request = e.Message;
 
-            if (log.IsDebugEnabled)
+            if (_log.IsDebugEnabled)
             {
-                log.Debug($"Query from {e.RemoteEndPoint}");
+                _log.Debug($"Query from {e.RemoteEndPoint}");
             }
-            if (log.IsTraceEnabled)
+            if (_log.IsTraceEnabled)
             {
-                log.Trace(request);
+                _log.Trace(request);
             }
 
             // Determine if this query is requesting a unicast response
@@ -410,7 +410,7 @@ namespace MDNS
                 response.AdditionalRecords.Clear();
             }
 
-            if (!response.Answers.Any(a => a.Name == ServiceName))
+            if (response.Answers.All(a => a.Name != ServiceName))
             {
                 ;
             }
@@ -425,13 +425,13 @@ namespace MDNS
                 Mdns.SendAnswer(response, e);
             }
 
-            if (log.IsDebugEnabled)
+            if (_log.IsDebugEnabled)
             {
-                log.Debug($"Sending answer");
+                _log.Debug($"Sending answer");
             }
-            if (log.IsTraceEnabled)
+            if (_log.IsTraceEnabled)
             {
-                log.Trace(response);
+                _log.Trace(response);
             }
             //Console.WriteLine($"Response time {(DateTime.Now - request.CreationTime).TotalMilliseconds}ms");
         }

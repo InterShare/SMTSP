@@ -9,11 +9,50 @@ namespace SMTSP.Entities;
 /// </summary>
 public class TransferRequest
 {
-    public string Id { get; set; }
-    public string SenderId { get; set; }
-    public string SenderName { get; set; }
-    public SmtspContentBase ContentBase { get; set; }
-    public byte[]? PublicKey { get; set; }
+    /// <summary>
+    /// The identifier associated with the request.
+    /// </summary>
+    public string Id { get; set; } = null!;
+
+    /// <summary>
+    /// Identifier of the one, who requested a file transfer.
+    /// </summary>
+    public string SenderId { get; set; } = null!;
+
+
+    /// <summary>
+    /// The name of the one, who requested a file transfer.
+    /// </summary>
+    public string SenderName { get; set; } = null!;
+
+    /// <summary>
+    ///
+    /// </summary>
+    public SmtspContentBase ContentBase { get; set; } = null!;
+
+    /// <summary>
+    /// The session public key for this transfer.
+    /// </summary>
+    public byte[]? SessionPublicKey { get; set; }
+
+    /// <param name="id"></param>
+    /// <param name="senderId"></param>
+    /// <param name="senderName"></param>
+    /// <param name="contentBase"></param>
+    /// <param name="sessionPublicKey"></param>
+    public TransferRequest(string id, string senderId, string senderName, SmtspContentBase contentBase, byte[]? sessionPublicKey)
+    {
+        Id = id;
+        SenderId = senderId;
+        SenderName = senderName;
+        ContentBase = contentBase;
+        SessionPublicKey = sessionPublicKey;
+    }
+
+    internal TransferRequest(Stream stream)
+    {
+        FromStream(stream);
+    }
 
     internal byte[] ToBinary()
     {
@@ -45,7 +84,7 @@ public class TransferRequest
         messageInBytes.Add(0x00);
 
         Logger.Info($"Attaching PublicKey");
-        messageInBytes.AddRange(PublicKey!);
+        messageInBytes.AddRange(SessionPublicKey!);
 
         messageInBytes.AddRange(ContentBase.ToBinary());
         messageInBytes.Add(0x00);
@@ -55,25 +94,25 @@ public class TransferRequest
 
     internal static Type? FindContentImplementation(string contentType)
     {
-        // TODO: make this more robust
-        if (contentType == "FileContent")
+        switch (contentType)
         {
-            return typeof(SmtspFileContent);
+            // TODO: make this more robust
+            case "FileContent":
+                return typeof(SmtspFileContent);
+            case "RawContent":
+                return typeof(SmtspRawContent);
+            default:
+            {
+                var list = from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                    from type in assembly.GetTypes()
+                    let attributes = type.GetCustomAttributes(typeof(SmtspContentAttribute), true)
+                    where attributes is { Length: > 0 }
+                    where attributes.Cast<SmtspContentAttribute>().First().Name == contentType
+                    select type;
+
+                return list?.FirstOrDefault();
+            }
         }
-
-        if (contentType == "RawContent")
-        {
-            return typeof(SmtspRawContent);
-        }
-
-        var list = from assembly in AppDomain.CurrentDomain.GetAssemblies()
-            from type in assembly.GetTypes()
-            let attributes = type.GetCustomAttributes(typeof(SmtspContentAttribute), true)
-            where attributes is { Length: > 0 }
-            where attributes.Cast<SmtspContentAttribute>().First().Name == contentType
-            select type;
-
-        return list?.FirstOrDefault();
     }
 
     internal void FromStream(Stream stream)
@@ -91,7 +130,7 @@ public class TransferRequest
             throw new Exception("Fever bytes read than expected when trying to get public key.");
         }
 
-        PublicKey = publicKey;
+        SessionPublicKey = publicKey;
 
         Type? type = FindContentImplementation(contentType);
 

@@ -15,7 +15,7 @@ namespace MDNS
         /// <value>
         ///   The received message.
         /// </value>
-        public Message Message { get; set; }
+        public Message? Message { get; set; }
 
         /// <summary>
         ///   The DNS message sender endpoint.
@@ -23,7 +23,7 @@ namespace MDNS
         /// <value>
         ///   The endpoint from the message was received.
         /// </value>
-        public IPEndPoint RemoteEndPoint { get; set; }
+        public IPEndPoint? RemoteEndPoint { get; set; }
 
         /// <summary>
         ///   Determines if the sender is using legacy unicast DNS.
@@ -31,7 +31,7 @@ namespace MDNS
         /// <value>
         ///   <b>false</b> if the sender is using port 5353.
         /// </value>
-        public bool IsLegacyUnicast => RemoteEndPoint.Port != MulticastClient.MulticastPort;
+        public bool IsLegacyUnicast => RemoteEndPoint?.Port != MulticastClient.MulticastPort;
     }
 }
 

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using SMTSP.Core;
+using SMTSP.Encryption;
 using SMTSP.Entities;
 using SMTSP.Entities.Content;
 using SMTSP.Extensions;
@@ -53,21 +54,15 @@ public class SmtspReceiver
                     continue;
                 }
 
-                Logger.Info("Waiting for connections");
-
                 TcpClient client = _tcpListener.AcceptTcpClient();
-                Logger.Info("Connected!");
-
                 NetworkStream stream = client.GetStream();
-
                 GetMessageTypeResponse messageTypeResult = MessageTransformer.GetMessageType(stream);
 
                 Logger.Info($"Received Request v{messageTypeResult.Version} with type {messageTypeResult.Type}");
 
                 if (messageTypeResult.Type == MessageTypes.TransferRequest)
                 {
-                    var transferRequest = new TransferRequest();
-                    transferRequest.FromStream(stream);
+                    var transferRequest = new TransferRequest(stream);
 
                     bool result = false;
 
@@ -81,7 +76,7 @@ public class SmtspReceiver
 
                     if (result)
                     {
-                        var encryption = new Encryption.Encryption();
+                        var encryption = new SessionEncryption();
                         byte[] publicKey = encryption.GetMyPublicKey();
 
                         byte[] resultInBytes = TransferRequestAnswers.Accept.ToLowerCamelCaseString().GetBytes().ToArray();
@@ -90,9 +85,9 @@ public class SmtspReceiver
                         stream.Write(publicKey, 0, publicKey.Length);
 
                         byte[] iv = Convert.FromBase64String(stream.GetStringTillEndByte(0x00));
-                        byte[] aesKey = encryption.CalculateAesKey(transferRequest.PublicKey!);
+                        byte[] aesKey = encryption.CalculateAesKey(transferRequest.SessionPublicKey!);
 
-                        Stream decrypted = encryption.CreateDecryptedStream(stream, aesKey, iv);
+                        Stream decrypted = SessionEncryption.CreateDecryptedStream(stream, aesKey, iv);
 
                         transferRequest.ContentBase.DataStream = decrypted;
 
@@ -121,13 +116,11 @@ public class SmtspReceiver
     /// <summary>
     /// Begin looking for data transfer requests.
     /// </summary>
-    /// <returns>Returns a <c>bool</c> to indicate whether it started successful</returns>
+    /// <returns>Returns a <c>bool</c> to indicate whether the start succeeded.</returns>
     public bool StartReceiving()
     {
         try
         {
-            Logger.Info("Trying to start tcp server...");
-
             try
             {
                 Logger.Info($"Starting TCP Server with port {DefaultPort}");
@@ -176,6 +169,7 @@ public class SmtspReceiver
             {
                 IsBackground = true
             };
+
             _listeningThread.Start();
         }
         catch (Exception exception)

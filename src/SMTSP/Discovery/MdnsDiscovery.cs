@@ -33,7 +33,7 @@ internal class MdnsDiscovery : IDiscovery
         {
             if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfig.ServiceName) && !eventArgs.ServiceInstanceName.ToString().StartsWith(_myDevice.DeviceId))
             {
-                TXTRecord? txtRecord = eventArgs.Message.Answers.OfType<TXTRecord>().FirstOrDefault();
+                TXTRecord? txtRecord = eventArgs.Message?.Answers.OfType<TXTRecord>().FirstOrDefault();
 
                 if (txtRecord == null)
                 {
@@ -45,7 +45,7 @@ internal class MdnsDiscovery : IDiscovery
                     return;
                 }
 
-                GetDeviceFromRecords(txtRecord, eventArgs.RemoteEndPoint);
+                GetDeviceFromRecords(txtRecord, eventArgs.RemoteEndPoint!);
             }
         }
         catch (Exception exception)
@@ -131,13 +131,8 @@ internal class MdnsDiscovery : IDiscovery
 
                 if (existingDevice == null)
                 {
-                    DiscoveredDevices.Add(new DeviceInfo
+                    DiscoveredDevices.Add(new DeviceInfo(deviceId, deviceName, ushort.Parse(portString), deviceType, ipEndPoint.Address.ToString())
                     {
-                        DeviceId = deviceId,
-                        DeviceName = deviceName,
-                        DeviceType = deviceType,
-                        IpAddress = ipEndPoint.Address.ToString(),
-                        Port = ushort.Parse(portString),
                         ProtocolVersionIncompatible = protocolVersion != SmtsConfig.ProtocolVersion
                     });
                 }

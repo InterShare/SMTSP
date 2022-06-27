@@ -5,11 +5,11 @@ using SMTSP.Extensions;
 
 namespace SMTSP.Encryption;
 
-internal class Encryption
+internal class SessionEncryption
 {
     private readonly AsymmetricCipherKeyPair _keyPair;
 
-    public Encryption()
+    public SessionEncryption()
     {
         _keyPair = ECDiffieHellman.GenerateKeyPair();
     }
@@ -31,7 +31,7 @@ internal class Encryption
         return aes.IV;
     }
 
-    public async Task EncryptStream(Stream inputStream, Stream dataToEncrypt, byte[] aesKey, byte[] iv, IProgress<long>? progress, CancellationToken cancellationToken)
+    public static async Task EncryptStream(Stream inputStream, Stream dataToEncrypt, byte[] aesKey, byte[] iv, IProgress<long>? progress, CancellationToken cancellationToken)
     {
         using var aes = Aes.Create();
         await using var encryptedStream = new CryptoStream(inputStream, aes.CreateEncryptor(aesKey, iv), CryptoStreamMode.Write);
@@ -41,7 +41,7 @@ internal class Encryption
         encryptedStream.Close();
     }
 
-    public Stream CreateDecryptedStream(Stream inputStream, byte[] aesKey, byte[] iv)
+    public static Stream CreateDecryptedStream(Stream inputStream, byte[] aesKey, byte[] iv)
     {
         using var aliceAes = Aes.Create();
         var decryptedStream = new CryptoStream(inputStream, aliceAes.CreateDecryptor(aesKey, iv), CryptoStreamMode.Read);

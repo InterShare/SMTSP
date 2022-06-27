@@ -16,7 +16,8 @@ public class DiscoveryTest
     [SetUp]
     public void Setup()
     {
-        new Thread(RunAdvertiser);
+        var thread = new Thread(RunAdvertiser);
+        thread.Start();
 
         _secondDevice = new DeviceInfo("EE27A6ED-6F30-4299-A35F-AC3B7139F733", "TestDevice 2", 42013, DeviceTypes.Phone, "192.168.1.43");
         _secondDiscovery = new Discovery.Discovery(_secondDevice);
@@ -52,10 +53,5 @@ public class DiscoveryTest
         {
             Assert.Fail($"Expected to find device {_firstDevice.DeviceId}");
         }
-    }
-
-    [Test]
-    public void Test()
-    {
     }
 }

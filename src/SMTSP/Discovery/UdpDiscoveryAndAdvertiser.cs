@@ -36,35 +36,28 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 
     private void SetupUdpSocket()
     {
-        try
+        foreach (int port in _discoveryPorts)
         {
-            foreach (int port in _discoveryPorts)
+            try
             {
-                try
+                _port = port;
+                _udpSocket = new UdpClient(_port);
+                break;
+            }
+            catch (Exception exception)
+            {
+                if (exception.Message.Contains("Address already in use"))
                 {
-                    _port = port;
-                    _udpSocket = new UdpClient(_port);
-                    break;
+                    Logger.Info($"Address already in use: {port}");
                 }
-                catch (Exception exception)
+                else
                 {
-                    if (exception.Message.Contains("Address already in use"))
-                    {
-                        Logger.Info($"Address already in use: {port}");
-                    }
-                    else
-                    {
-                        Logger.Exception(exception);
-                    }
+                    Logger.Exception(exception);
                 }
             }
+        }
 
-            Logger.Info($"Device Discoverer running at port: {_port}");
-        }
-        catch (SocketException exception)
-        {
-            Logger.Error($"Error while trying to enable UDP Socket {exception}");
-        }
+        Logger.Info($"Device Discoverer running at port: {_port}");
     }
 
     private void AddNewDevice(DeviceInfo deviceInfo)
@@ -127,9 +120,10 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
                 // ReSharper disable once ConvertIfStatementToSwitchStatement
                 if (messageTypeResult.Type == MessageTypes.DeviceInfo)
                 {
-                    var receivedDevice = new DeviceInfo();
-                    receivedDevice.FromStream(stream);
-                    receivedDevice.IpAddress = receivedMessage.RemoteEndPoint.Address.ToString();
+                    var receivedDevice = new DeviceInfo(stream)
+                    {
+                        IpAddress = receivedMessage.RemoteEndPoint.Address.ToString()
+                    };
 
                     if (receivedDevice.DeviceId != _myDeviceInfo.DeviceId)
                     {

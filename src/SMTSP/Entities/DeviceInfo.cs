@@ -9,37 +9,42 @@ namespace SMTSP.Entities;
 public class DeviceInfo
 {
     /// <summary>
-    ///
+    /// The unique ID of the device
     /// </summary>
-    public string DeviceId { get; set; }
+    public string DeviceId { get; set; } = null!;
 
     /// <summary>
-    ///
+    /// The name of the device.
     /// </summary>
-    public string DeviceName { get; set; }
+    public string DeviceName { get; set; } = null!;
 
     /// <summary>
-    ///
+    /// Port for the data transfer.
     /// </summary>
     public ushort Port { get; set; }
 
     /// <summary>
-    ///
+    /// Like computer, phone.
     /// </summary>
-    public string DeviceType { get; set; }
+    public string DeviceType { get; set; } = null!;
+
+    /// <summary>
+    /// Needed for the data transfer.
+    /// </summary>
+    public string IpAddress { get; set; } = null!;
 
     /// <summary>
     ///
     /// </summary>
-    public string IpAddress { get; set; }
+    internal bool ProtocolVersionIncompatible { get; set; } = false;
 
     /// <summary>
-    ///
+    /// Get Properties from tcp stream.
     /// </summary>
-    public bool ProtocolVersionIncompatible { get; set; } = false;
-
-    public DeviceInfo()
+    /// <param name="stream"></param>
+    public DeviceInfo(Stream stream)
     {
+        FromStream(stream);
     }
 
     /// <summary>

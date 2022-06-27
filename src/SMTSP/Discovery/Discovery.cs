@@ -90,6 +90,8 @@ public class Discovery : IDisposable
     /// </summary>
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
+
         foreach (IDiscovery discoveryImplementation in _discoveryImplementations)
         {
             if (discoveryImplementation.GetType() == typeof(UdpDiscoveryAndAdvertiser))

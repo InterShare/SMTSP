@@ -1,5 +1,6 @@
 using System.Net.Sockets;
 using SMTSP.Core;
+using SMTSP.Encryption;
 using SMTSP.Entities;
 using SMTSP.Entities.Content;
 using SMTSP.Extensions;
@@ -25,16 +26,15 @@ public class SmtspSender
 
             await using NetworkStream tcpStream = client.GetStream();
 
-            var encryption = new Encryption.Encryption();
+            var encryption = new SessionEncryption();
 
-            var transferRequest = new TransferRequest
-            {
-                Id = Guid.NewGuid().ToString(),
-                SenderId = myDeviceInfo.DeviceId,
-                SenderName = myDeviceInfo.DeviceName,
-                ContentBase = contentBase,
-                PublicKey = encryption.GetMyPublicKey()
-            };
+            var transferRequest = new TransferRequest(
+                Guid.NewGuid().ToString(),
+                myDeviceInfo.DeviceId,
+                myDeviceInfo.DeviceName,
+                contentBase,
+                encryption.GetMyPublicKey()
+            );
 
             byte[] binaryTransferRequest = transferRequest.ToBinary();
 
@@ -53,13 +53,16 @@ public class SmtspSender
                 // ReSharper disable once MustUseReturnValue
                 await tcpStream.ReadAsync(foreignPublicKey, cancellationToken);
 
+                Console.WriteLine($"Public Key {foreignPublicKey.Length}");
+
                 byte[] aesKey = encryption.CalculateAesKey(foreignPublicKey);
-                byte[] iv = Encryption.Encryption.GenerateIvBytes();
+                byte[] iv = SessionEncryption.GenerateIvBytes();
                 var ivBase64 = Convert.ToBase64String(iv).GetBytes().ToList();
                 ivBase64.Add(0x00);
+
                 await tcpStream.WriteAsync(ivBase64.ToArray(), cancellationToken);
 
-                await encryption.EncryptStream(tcpStream, contentBase.DataStream!, aesKey, iv, progress, cancellationToken);
+                await SessionEncryption.EncryptStream(tcpStream, contentBase.DataStream!, aesKey, iv, progress, cancellationToken);
 
                 Logger.Info("Done sending");
                 return SendFileResponses.Success;
@@ -68,8 +71,9 @@ public class SmtspSender
             tcpStream.Close();
             return SendFileResponses.Denied;
         }
-        catch (OperationCanceledException exception)
+        catch (OperationCanceledException)
         {
+            // Do nothing.
         }
         catch (IOException exception)
         {

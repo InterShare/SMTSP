@@ -5,13 +5,10 @@ using SMTSP.Entities;
 
 namespace SMTSP.Advertisement;
 
-/// <summary>
-///
-/// </summary>
 internal class MdnsAdvertiser : IAdvertiser
 {
-    private DeviceInfo _myDevice;
-    private ServiceDiscovery _serviceDiscovery;
+    private DeviceInfo _myDevice = null!;
+    private ServiceDiscovery _serviceDiscovery = null!;
 
     public void SetMyDevice(DeviceInfo myDevice)
     {
