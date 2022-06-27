@@ -8,5 +8,5 @@ internal interface IDiscovery : IDisposable
     public ObservableCollection<DeviceInfo> DiscoveredDevices { get; }
 
     public void SetMyDevice(DeviceInfo myDevice);
-    public void SendOutLookupSignal();
+    public void StartDiscovering();
 }

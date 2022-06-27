@@ -34,6 +34,11 @@ public class DeviceInfo
     public string IpAddress { get; set; } = null!;
 
     /// <summary>
+    /// Which services does this device host.
+    /// </summary>
+    public string[] Capabilities { get; set; } = Array.Empty<string>();
+
+    /// <summary>
     ///
     /// </summary>
     internal bool ProtocolVersionIncompatible { get; set; } = false;
@@ -55,13 +60,15 @@ public class DeviceInfo
     /// <param name="port"></param>
     /// <param name="deviceType"></param>
     /// <param name="ipAddress"></param>
-    public DeviceInfo(string deviceId, string deviceName, ushort port, string deviceType, string ipAddress)
+    /// <param name="capabilities"></param>
+    public DeviceInfo(string deviceId, string deviceName, ushort port, string deviceType, string ipAddress, string[] capabilities)
     {
         DeviceId = deviceId;
         DeviceName = deviceName;
         Port = port;
         DeviceType = deviceType;
         IpAddress = ipAddress;
+        Capabilities = capabilities;
     }
 
     internal byte[] ToBinary()
@@ -70,20 +77,19 @@ public class DeviceInfo
 
         messageInBytes.AddSmtsHeader(MessageTypes.DeviceInfo);
 
-        Logger.Info($"DeviceId: {DeviceId}");
         messageInBytes.AddRange(DeviceId.GetBytes());
         messageInBytes.Add(0x00);
 
-        Logger.Info($"DeviceName: {DeviceName}");
         messageInBytes.AddRange(DeviceName.GetBytes());
         messageInBytes.Add(0x00);
 
-        Logger.Info($"TransferPort: {Port}");
         messageInBytes.AddRange(Port.ToString().GetBytes());
         messageInBytes.Add(0x00);
 
-        Logger.Info($"DeviceType: {DeviceType}");
         messageInBytes.AddRange(DeviceType.GetBytes());
+        messageInBytes.Add(0x00);
+
+        messageInBytes.AddRange(string.Join(", ", Capabilities).GetBytes());
         messageInBytes.Add(0x00);
 
         return messageInBytes.ToArray();
@@ -97,6 +103,9 @@ public class DeviceInfo
             DeviceName = stream.GetStringTillEndByte(0x00);
             Port = ushort.Parse(stream.GetStringTillEndByte(0x00));
             DeviceType = stream.GetStringTillEndByte(0x00);
+
+            string capabilities = stream.GetStringTillEndByte(0x00);
+            Capabilities = capabilities.Split(", ");
         }
         catch (Exception exception)
         {

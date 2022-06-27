@@ -18,7 +18,7 @@ public class SmtspSender
     /// <param name="myDeviceInfo"></param>
     /// <param name="progress"></param>
     /// <param name="cancellationToken"></param>
-    public static async Task<SendFileResponses> SendFile(DeviceInfo receiver, SmtspContentBase contentBase, DeviceInfo myDeviceInfo, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
+    public static async Task<SendResponses> Send(DeviceInfo receiver, SmtspContentBase contentBase, DeviceInfo myDeviceInfo, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -65,11 +65,11 @@ public class SmtspSender
                 await SessionEncryption.EncryptStream(tcpStream, contentBase.DataStream!, aesKey, iv, progress, cancellationToken);
 
                 Logger.Info("Done sending");
-                return SendFileResponses.Success;
+                return SendResponses.Success;
             }
 
             tcpStream.Close();
-            return SendFileResponses.Denied;
+            return SendResponses.Denied;
         }
         catch (OperationCanceledException)
         {
@@ -79,7 +79,7 @@ public class SmtspSender
         {
             if (exception.Message.Contains("Connection reset by peer"))
             {
-                return SendFileResponses.Corrupted;
+                return SendResponses.Corrupted;
             }
         }
         catch (Exception exception)
@@ -88,6 +88,6 @@ public class SmtspSender
             throw;
         }
 
-        return SendFileResponses.Unknown;
+        return SendResponses.Unknown;
     }
 }

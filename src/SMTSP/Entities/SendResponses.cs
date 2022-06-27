@@ -2,7 +2,7 @@
 
 namespace SMTSP.Entities;
 
-public enum SendFileResponses
+public enum SendResponses
 {
     Unknown,
     Success,

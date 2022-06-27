@@ -87,7 +87,7 @@ internal class MdnsDiscovery : IDiscovery
             DiscoveredDevices.Clear();
         }
 
-        SendOutLookupSignal();
+        StartDiscovering();
     }
 
     private static string? GetPropertyValueFromTxtRecords(List<string> records, string propertyName)
@@ -117,8 +117,9 @@ internal class MdnsDiscovery : IDiscovery
             string? deviceType = GetPropertyValueFromTxtRecords(record.Strings, "type");
             string? protocolVersionString = GetPropertyValueFromTxtRecords(record.Strings, "smtspVersion");
             string? portString = GetPropertyValueFromTxtRecords(record.Strings, "port");
+            string? capabilities = GetPropertyValueFromTxtRecords(record.Strings, "capabilities");
 
-            if (string.IsNullOrEmpty(deviceId) || string.IsNullOrEmpty(deviceName) || string.IsNullOrEmpty(deviceType) || string.IsNullOrEmpty(protocolVersionString) || string.IsNullOrEmpty(portString))
+            if (string.IsNullOrEmpty(deviceId) || string.IsNullOrEmpty(deviceName) || string.IsNullOrEmpty(deviceType) || string.IsNullOrEmpty(protocolVersionString) || string.IsNullOrEmpty(portString) || string.IsNullOrEmpty(capabilities))
             {
                 return;
             }
@@ -131,7 +132,7 @@ internal class MdnsDiscovery : IDiscovery
 
                 if (existingDevice == null)
                 {
-                    DiscoveredDevices.Add(new DeviceInfo(deviceId, deviceName, ushort.Parse(portString), deviceType, ipEndPoint.Address.ToString())
+                    DiscoveredDevices.Add(new DeviceInfo(deviceId, deviceName, ushort.Parse(portString), deviceType, ipEndPoint.Address.ToString(), capabilities.Split(", "))
                     {
                         ProtocolVersionIncompatible = protocolVersion != SmtsConfig.ProtocolVersion
                     });
@@ -144,7 +145,7 @@ internal class MdnsDiscovery : IDiscovery
         }
     }
 
-    public void SendOutLookupSignal()
+    public void StartDiscovering()
     {
         const string service = "_smtsp._tcp.local";
         var query = new Message();

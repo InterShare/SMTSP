@@ -7,8 +7,8 @@ namespace SMTSP.Test;
 
 public class TransferTest
 {
-    private readonly DeviceInfo _sender = new DeviceInfo("05DD541B-B351-4EE3-9BA5-1F9663E0FC4B", "TestDevice 1", 42003, DeviceTypes.Computer, "127.0.0.1");
-    private readonly DeviceInfo _receiver = new DeviceInfo("EE27A6ED-6F30-4299-A35F-AC3B7139F733", "TestDevice 2", 42013, DeviceTypes.Phone, "127.0.0.1");
+    private readonly DeviceInfo _sender = new DeviceInfo("05DD541B-B351-4EE3-9BA5-1F9663E0FC4B", "TestDevice 1", 42003, DeviceTypes.Computer, "127.0.0.1", new[] { "InterShare" });
+    private readonly DeviceInfo _receiver = new DeviceInfo("EE27A6ED-6F30-4299-A35F-AC3B7139F733", "TestDevice 2", 42013, DeviceTypes.Phone, "127.0.0.1", new[] { "InterShare" });
 
     [SetUp]
     public void SetUp()
@@ -23,7 +23,7 @@ public class TransferTest
         var receiver = new SmtspReceiver();
         receiver.StartReceiving();
         _receiver.Port = receiver.Port;
-        receiver.RegisterTransferRequestCallback(delegate(TransferRequest request)
+        receiver.RegisterTransferRequestCallback((TransferRequest request) =>
         {
             Assert.Multiple(() =>
             {
@@ -44,10 +44,14 @@ public class TransferTest
         await writer.FlushAsync();
         fileContent.Position = 0;
 
-        var content = new SmtspFileContent();
-        content.FileName = "SomeFile.txt";
-        content.DataStream = fileContent;
+        FileStream file = File.OpenRead("file.txt");
 
-        await SmtspSender.SendFile(_receiver, content, _sender);
+        var content = new SmtspFileContent
+        {
+            FileName = "SomeFile.txt",
+            DataStream = file
+        };
+
+        await SmtspSender.Send(_receiver, content, _sender);
     }
 }

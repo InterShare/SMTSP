@@ -273,7 +273,7 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
         }
     }
 
-    public void SendOutLookupSignal()
+    public void StartDiscovering()
     {
         _discoveringInterval = new Timer(SendOutLookup, new AutoResetEvent(true), 0, 4000);
     }

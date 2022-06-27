@@ -77,11 +77,11 @@ public class Discovery : IDisposable
     /// <summary>
     /// Sends a signal, to queries all devices found on the network.
     /// </summary>
-    public void SendOutLookupSignal()
+    public void StartDiscovering()
     {
         foreach (IDiscovery discovery in _discoveryImplementations)
         {
-            discovery.SendOutLookupSignal();
+            discovery.StartDiscovering();
         }
     }
 

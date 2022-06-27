@@ -34,6 +34,7 @@ internal class MdnsAdvertiser : IAdvertiser
         serviceProfile.AddProperty("type", _myDevice.DeviceType);
         serviceProfile.AddProperty("smtspVersion", SmtsConfig.ProtocolVersion.ToString());
         serviceProfile.AddProperty("port", _myDevice.Port.ToString());
+        serviceProfile.AddProperty("capabilities", string.Join(", ", _myDevice.Capabilities));
 
         _serviceDiscovery.Advertise(serviceProfile);
         _serviceDiscovery.Announce(serviceProfile);
