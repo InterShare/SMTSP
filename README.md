@@ -65,7 +65,7 @@ receiver.OnContentReceive += (sender, content) =>
 ## Discovery
 
 To increase the chance of discovering devices, SMTSP uses multiple technologies to advertise and discover peripherals. <br />
-The first method uses `UDP Broadcasts` to send out lookup signals and listen for responses. The second method uses `MDNS-Service-Discovery`.
+The first method uses `UDP Broadcasts` to send out lookup signals and listen for responses. The second method uses `MDNS-Service Discovery`.
 
 ## Transfer
 
