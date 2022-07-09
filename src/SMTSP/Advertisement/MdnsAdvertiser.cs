@@ -28,12 +28,12 @@ internal class MdnsAdvertiser : IAdvertiser
     /// </summary>
     public void Advertise()
     {
-        var serviceProfile = new ServiceProfile(_myDevice.DeviceId, SmtsConfig.ServiceName, _myDevice.Port);
+        var serviceProfile = new ServiceProfile(_myDevice.DeviceId, SmtsConfiguration.ServiceName, _myDevice.TcpPort);
         serviceProfile.AddProperty("deviceId", _myDevice.DeviceId);
         serviceProfile.AddProperty("deviceName", _myDevice.DeviceName);
         serviceProfile.AddProperty("type", _myDevice.DeviceType);
-        serviceProfile.AddProperty("smtspVersion", SmtsConfig.ProtocolVersion.ToString());
-        serviceProfile.AddProperty("port", _myDevice.Port.ToString());
+        serviceProfile.AddProperty("smtspVersion", SmtsConfiguration.ProtocolVersion.ToString());
+        serviceProfile.AddProperty("port", _myDevice.TcpPort.ToString());
         serviceProfile.AddProperty("capabilities", string.Join(", ", _myDevice.Capabilities));
 
         _serviceDiscovery.Advertise(serviceProfile);
@@ -45,7 +45,7 @@ internal class MdnsAdvertiser : IAdvertiser
     /// </summary>
     public void StopAdvertising()
     {
-        var serviceProfile = new ServiceProfile(_myDevice.DeviceId, SmtsConfig.ServiceName, _myDevice.Port);
+        var serviceProfile = new ServiceProfile(_myDevice.DeviceId, SmtsConfiguration.ServiceName, _myDevice.TcpPort);
         _serviceDiscovery.Unadvertise(serviceProfile);
     }
 

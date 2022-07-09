@@ -22,8 +22,7 @@ public class SmtspSender
     {
         try
         {
-            var client = new TcpClient(receiver.IpAddress, receiver.Port);
-
+            var client = new TcpClient(receiver.IpAddress, receiver.TcpPort);
             await using NetworkStream tcpStream = client.GetStream();
 
             var encryption = new SessionEncryption();

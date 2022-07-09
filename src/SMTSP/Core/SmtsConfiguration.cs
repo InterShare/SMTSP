@@ -3,7 +3,7 @@ namespace SMTSP.Core;
 /// <summary>
 /// To configure basic things.
 /// </summary>
-public class SmtsConfig
+public class SmtsConfiguration
 {
     internal const string ServiceName = "_smtsp._tcp";
     internal static ushort ProtocolVersion => 1;

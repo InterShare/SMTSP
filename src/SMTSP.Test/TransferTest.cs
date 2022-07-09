@@ -18,11 +18,10 @@ public class TransferTest
         // RunReceiver();
     }
 
-    private void RunReceiver()
+    private async void RunReceiver()
     {
-        var receiver = new SmtspReceiver();
-        receiver.StartReceiving();
-        _receiver.Port = receiver.Port;
+        var receiver = new SmtspReceiver(_receiver);
+        await receiver.StartReceiving();
         receiver.RegisterTransferRequestCallback((TransferRequest request) =>
         {
             Assert.Multiple(() =>

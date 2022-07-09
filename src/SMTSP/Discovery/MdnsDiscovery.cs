@@ -31,7 +31,8 @@ internal class MdnsDiscovery : IDiscovery
     {
         try
         {
-            if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfig.ServiceName) && !eventArgs.ServiceInstanceName.ToString().StartsWith(_myDevice.DeviceId))
+            if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfiguration.ServiceName)
+                && !eventArgs.ServiceInstanceName.ToString().StartsWith(_myDevice.DeviceId))
             {
                 TXTRecord? txtRecord = eventArgs.Message?.Answers.OfType<TXTRecord>().FirstOrDefault();
 
@@ -56,7 +57,7 @@ internal class MdnsDiscovery : IDiscovery
 
     private void OnServiceInstanceShutdown(object? sender, ServiceInstanceShutdownEventArgs eventArgs)
     {
-        if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfig.ServiceName))
+        if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfiguration.ServiceName))
         {
             DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(element => element.DeviceId == eventArgs.ServiceInstanceName.Labels[0]);
 
@@ -74,7 +75,7 @@ internal class MdnsDiscovery : IDiscovery
     {
         TXTRecord? txtRecord = args.Message.Answers.OfType<TXTRecord>().FirstOrDefault();
 
-        if (txtRecord != null && txtRecord.Name.ToString().Contains(SmtsConfig.ServiceName) && !txtRecord.Name.ToString().StartsWith(_myDevice.DeviceId))
+        if (txtRecord != null && txtRecord.Name.ToString().Contains(SmtsConfiguration.ServiceName) && !txtRecord.Name.ToString().StartsWith(_myDevice.DeviceId))
         {
             GetDeviceFromRecords(txtRecord, args.RemoteEndPoint);
         }
@@ -119,7 +120,12 @@ internal class MdnsDiscovery : IDiscovery
             string? portString = GetPropertyValueFromTxtRecords(record.Strings, "port");
             string? capabilities = GetPropertyValueFromTxtRecords(record.Strings, "capabilities");
 
-            if (string.IsNullOrEmpty(deviceId) || string.IsNullOrEmpty(deviceName) || string.IsNullOrEmpty(deviceType) || string.IsNullOrEmpty(protocolVersionString) || string.IsNullOrEmpty(portString) || string.IsNullOrEmpty(capabilities))
+            if (string.IsNullOrEmpty(deviceId) ||
+                string.IsNullOrEmpty(deviceName) ||
+                string.IsNullOrEmpty(deviceType) ||
+                string.IsNullOrEmpty(protocolVersionString) ||
+                string.IsNullOrEmpty(portString) ||
+                string.IsNullOrEmpty(capabilities))
             {
                 return;
             }
@@ -132,9 +138,15 @@ internal class MdnsDiscovery : IDiscovery
 
                 if (existingDevice == null)
                 {
-                    DiscoveredDevices.Add(new DeviceInfo(deviceId, deviceName, ushort.Parse(portString), deviceType, ipEndPoint.Address.ToString(), capabilities.Split(", "))
+                    DiscoveredDevices.Add(new DeviceInfo(
+                        deviceId,
+                        deviceName,
+                        ushort.Parse(portString),
+                        deviceType,
+                        ipEndPoint.Address.ToString(),
+                        capabilities.Split(", "))
                     {
-                        ProtocolVersionIncompatible = protocolVersion != SmtsConfig.ProtocolVersion
+                        ProtocolVersionIncompatible = protocolVersion != SmtsConfiguration.ProtocolVersion
                     });
                 }
             }
