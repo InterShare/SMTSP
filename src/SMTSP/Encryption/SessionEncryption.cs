@@ -1,28 +1,29 @@
 using System.Security.Cryptography;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
 using SMTSP.Extensions;
 
 namespace SMTSP.Encryption;
 
 internal class SessionEncryption
 {
-    private readonly AsymmetricCipherKeyPair _keyPair;
+    private readonly ECDiffieHellman _diffieHellmanInstance;
 
     public SessionEncryption()
     {
-        _keyPair = ECDiffieHellman.GenerateKeyPair();
+        _diffieHellmanInstance = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP521);
     }
 
     public byte[] GetMyPublicKey()
     {
-        return ECDiffieHellman.ExportPublicKey(_keyPair.Public);
+        return _diffieHellmanInstance.ExportSubjectPublicKeyInfo();
     }
 
     public byte[] CalculateAesKey(byte[] foreignPublicKeyBytes)
     {
-        ECPublicKeyParameters foreignPublicKey = ECDiffieHellman.LoadPublicKey(foreignPublicKeyBytes);
-        return ECDiffieHellman.GenerateAesKey(foreignPublicKey, _keyPair.Private);
+        // TODO: Find better method to import public key.
+        var foreignDh = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP521);
+        foreignDh.ImportSubjectPublicKeyInfo(foreignPublicKeyBytes, out int _);
+
+        return _diffieHellmanInstance.DeriveKeyMaterial(foreignDh.PublicKey);
     }
 
     public static byte[] GenerateIvBytes()
