@@ -54,4 +54,37 @@ internal static class StreamExtension
             progress?.Report(totalRead);
         }
     }
+
+    internal static Dictionary<string, string> GetProperties(this Stream source, int maxTries = 50)
+    {
+        var properties = new Dictionary<string, string>();
+
+        for (int count = 0; count < maxTries; count++)
+        {
+            try
+            {
+                string currentProperty = source.GetStringTillEndByte(0x00);
+
+                if (currentProperty.Length == 0)
+                {
+                    break;
+                }
+
+                if (currentProperty.Contains('='))
+                {
+                    string[] parts = currentProperty.Split('=');
+                    string name = parts[0];
+                    string value = parts[1];
+                    
+                    properties.Add(name, value);
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        return properties;
+    }
 }

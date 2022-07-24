@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMTSP", "src\SMTSP\SMTSP.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MDNS", "src\MDNS\MDNS.csproj", "{F13E7E73-8E8F-4069-B63C-B5AF53508133}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMTSP.Test", "src\SMTSP.Test\SMTSP.Test.csproj", "{A44FE775-345F-4C25-929C-FE4EE1DDC987}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMTSP.Test", "tests\SMTSP.Test\SMTSP.Test.csproj", "{A44FE775-345F-4C25-929C-FE4EE1DDC987}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

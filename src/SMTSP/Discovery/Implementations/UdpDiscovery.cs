@@ -84,27 +84,28 @@ internal class UdpDiscovery : IDiscovery
     {
         while (_receiving)
         {
+            bool answerToLookupBroadcasts;
+
+            lock (_listeningThreadLock)
+            {
+                if (!_receiving)
+                {
+                    break;
+                }
+
+                answerToLookupBroadcasts = _answerToLookupBroadcasts;
+            }
+
+            if (_udpSocket == null)
+            {
+                continue;
+            }
+
+            UdpReceiveResult receivedMessage = await _udpSocket.ReceiveAsync();
+            using var stream = new MemoryStream(receivedMessage.Buffer);
+
             try
             {
-                bool answerToLookupBroadcasts;
-
-                lock (_listeningThreadLock)
-                {
-                    if (!_receiving)
-                    {
-                        break;
-                    }
-
-                    answerToLookupBroadcasts = _answerToLookupBroadcasts;
-                }
-
-                if (_udpSocket == null)
-                {
-                    continue;
-                }
-
-                UdpReceiveResult receivedMessage = await _udpSocket.ReceiveAsync();
-                using var stream = new MemoryStream(receivedMessage.Buffer);
                 GetMessageTypeResponse messageTypeResult = MessageTransformer.GetMessageType(stream);
 
                 // ReSharper disable once ConvertIfStatementToSwitchStatement

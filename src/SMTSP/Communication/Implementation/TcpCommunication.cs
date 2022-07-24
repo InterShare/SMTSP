@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using SMTSP.Core;
 using SMTSP.Entities;
 
-namespace SMTSP.Communication.Implementation.Tcp;
+namespace SMTSP.Communication.Implementation;
 
 internal class TcpCommunication : ICommunication
 {

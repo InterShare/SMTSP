@@ -1,4 +1,4 @@
-using SMTSP.Communication.Implementation.Tcp;
+using SMTSP.Communication.Implementation;
 
 namespace SMTSP.Communication;
 

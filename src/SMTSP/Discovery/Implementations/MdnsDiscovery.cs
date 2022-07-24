@@ -112,18 +112,18 @@ internal class MdnsDiscovery : IDiscovery
     {
         try
         {
-            string? deviceId = GetPropertyValueFromTxtRecords(record.Strings, "deviceId");
+            string? deviceId = GetPropertyValueFromTxtRecords(record.Strings, "DeviceId");
 
             if (deviceId == _myDevice.DeviceId)
             {
                 return;
             }
 
-            string? deviceName = GetPropertyValueFromTxtRecords(record.Strings, "deviceName");
-            string? deviceType = GetPropertyValueFromTxtRecords(record.Strings, "type");
-            string? protocolVersionString = GetPropertyValueFromTxtRecords(record.Strings, "smtspVersion");
-            string? portString = GetPropertyValueFromTxtRecords(record.Strings, "port");
-            string? capabilities = GetPropertyValueFromTxtRecords(record.Strings, "capabilities");
+            string? deviceName = GetPropertyValueFromTxtRecords(record.Strings, "DeviceName");
+            string? deviceType = GetPropertyValueFromTxtRecords(record.Strings, "Type");
+            string? protocolVersionString = GetPropertyValueFromTxtRecords(record.Strings, "SmtspVersion");
+            string? portString = GetPropertyValueFromTxtRecords(record.Strings, "TcpPort");
+            string? capabilities = GetPropertyValueFromTxtRecords(record.Strings, "Capabilities");
 
             if (string.IsNullOrEmpty(deviceId) ||
                 string.IsNullOrEmpty(deviceName) ||
@@ -134,8 +134,6 @@ internal class MdnsDiscovery : IDiscovery
             {
                 return;
             }
-
-            ushort protocolVersion = ushort.Parse(protocolVersionString);
 
             lock (DiscoveredDevices)
             {
@@ -149,10 +147,7 @@ internal class MdnsDiscovery : IDiscovery
                         ushort.Parse(portString),
                         deviceType,
                         ipEndPoint.Address.ToString(),
-                        capabilities.Split(", "))
-                    {
-                        ProtocolVersionIncompatible = protocolVersion != SmtsConfiguration.ProtocolVersion
-                    });
+                        capabilities.Split(", ")));
                 }
             }
         }
@@ -179,12 +174,12 @@ internal class MdnsDiscovery : IDiscovery
     public void Advertise()
     {
         var serviceProfile = new ServiceProfile(_myDevice.DeviceId, ServiceName, _myDevice.TcpPort);
-        serviceProfile.AddProperty("deviceId", _myDevice.DeviceId);
-        serviceProfile.AddProperty("deviceName", _myDevice.DeviceName);
-        serviceProfile.AddProperty("type", _myDevice.DeviceType);
-        serviceProfile.AddProperty("smtspVersion", SmtsConfiguration.ProtocolVersion.ToString());
-        serviceProfile.AddProperty("port", _myDevice.TcpPort.ToString());
-        serviceProfile.AddProperty("capabilities", string.Join(", ", _myDevice.Capabilities));
+        serviceProfile.AddProperty("DeviceId", _myDevice.DeviceId);
+        serviceProfile.AddProperty("DeviceName", _myDevice.DeviceName);
+        serviceProfile.AddProperty("Type", _myDevice.DeviceType);
+        serviceProfile.AddProperty("SmtspVersion", SmtsConfiguration.ProtocolVersion.ToString());
+        serviceProfile.AddProperty("TcpPort", _myDevice.TcpPort.ToString());
+        serviceProfile.AddProperty("Capabilities", string.Join(", ", _myDevice.Capabilities));
 
         _serviceDiscovery.Advertise(serviceProfile);
         _serviceDiscovery.Announce(serviceProfile);

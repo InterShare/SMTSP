@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SMTSP\SMTSP.csproj" />
+      <ProjectReference Include="..\..\src\SMTSP\SMTSP.csproj" />
     </ItemGroup>
 
 </Project>

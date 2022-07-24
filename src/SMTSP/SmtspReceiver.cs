@@ -32,9 +32,12 @@ public class SmtspReceiver : IDisposable
     {
         try
         {
-            GetMessageTypeResponse messageTypeResult = MessageTransformer.GetMessageType(stream);
+            GetMessageTypeResponse? messageTypeResult = MessageTransformer.GetMessageType(stream);
 
-            Logger.Info($"Received Request v{messageTypeResult.Version} with type {messageTypeResult.Type}");
+            if (messageTypeResult == null)
+            {
+                return;
+            }
 
             if (messageTypeResult.Type == MessageTypes.TransferRequest)
             {
@@ -106,6 +109,16 @@ public class SmtspReceiver : IDisposable
     }
 
     /// <summary>
+    /// Incoming requests will be invoked on callbacks registered through this method.
+    /// It is necessary to at least register one callback or otherwise, no requests will be accepted.
+    /// </summary>
+    /// <param name="callbackFunction">Return <c>true</c> to accept the data transfer, <c>false</c> to decline it.</param>
+    public void RegisterTransferRequestCallback(Func<TransferRequest, Task<bool>> callbackFunction)
+    {
+        _onTransferRequestCallback = callbackFunction;
+    }
+
+    /// <summary>
     /// Stop looking for requests and dispose all services.
     /// </summary>
     public void Dispose()
@@ -114,15 +127,5 @@ public class SmtspReceiver : IDisposable
         {
             communicationService.Dispose();
         }
-    }
-
-    /// <summary>
-    /// Incoming requests will be invoked on callbacks registered through this method.
-    /// It is necessary to at least register one callback or otherwise, no requests will be accepted.
-    /// </summary>
-    /// <param name="callbackFunction">Return <c>true</c> to accept the data transfer, <c>false</c> to decline it.</param>
-    public void RegisterTransferRequestCallback(Func<TransferRequest, Task<bool>> callbackFunction)
-    {
-        _onTransferRequestCallback = callbackFunction;
     }
 }

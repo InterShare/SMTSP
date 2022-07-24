@@ -1,4 +1,3 @@
-using SMTSP.Core;
 using SMTSP.Extensions;
 
 namespace SMTSP.Entities;
@@ -40,9 +39,6 @@ public class DeviceInfo
     /// </summary>
     public string[] Capabilities { get; set; } = Array.Empty<string>();
 
-
-    internal bool ProtocolVersionIncompatible { get; set; }
-
     /// <summary>
     /// Assign properties from a stream.
     /// </summary>
@@ -52,9 +48,6 @@ public class DeviceInfo
         FromStream(stream);
     }
 
-    /// <summary>
-    ///
-    /// </summary>
     /// <param name="deviceId"></param>
     /// <param name="deviceName"></param>
     /// <param name="tcpPort"></param>
@@ -71,9 +64,7 @@ public class DeviceInfo
         Capabilities = capabilities;
     }
     
-    /// <summary>
-    ///
-    /// </summary>
+    
     /// <param name="deviceId"></param>
     /// <param name="deviceName"></param>
     /// <param name="deviceType"></param>
@@ -92,19 +83,19 @@ public class DeviceInfo
 
         messageInBytes.AddSmtsHeader(MessageTypes.DeviceInfo);
 
-        messageInBytes.AddRange(DeviceId.GetBytes());
+        messageInBytes.AddRange($"DeviceId={DeviceId}".GetBytes());
         messageInBytes.Add(0x00);
 
-        messageInBytes.AddRange(DeviceName.GetBytes());
+        messageInBytes.AddRange($"DeviceName={DeviceName}".GetBytes());
         messageInBytes.Add(0x00);
 
-        messageInBytes.AddRange(TcpPort.ToString().GetBytes());
+        messageInBytes.AddRange($"TcpPort={TcpPort}".GetBytes());
         messageInBytes.Add(0x00);
 
-        messageInBytes.AddRange(DeviceType.GetBytes());
+        messageInBytes.AddRange($"DeviceType={DeviceType}".GetBytes());
         messageInBytes.Add(0x00);
 
-        messageInBytes.AddRange(string.Join(", ", Capabilities).GetBytes());
+        messageInBytes.AddRange($"Capabilities={string.Join(", ", Capabilities)}".GetBytes());
         messageInBytes.Add(0x00);
 
         return messageInBytes.ToArray();
@@ -112,19 +103,24 @@ public class DeviceInfo
 
     internal void FromStream(Stream stream)
     {
-        try
-        {
-            DeviceId = stream.GetStringTillEndByte(0x00);
-            DeviceName = stream.GetStringTillEndByte(0x00);
-            TcpPort = ushort.Parse(stream.GetStringTillEndByte(0x00));
-            DeviceType = stream.GetStringTillEndByte(0x00);
+        var properties = stream.GetProperties();
 
-            string capabilities = stream.GetStringTillEndByte(0x00);
-            Capabilities = capabilities.Split(", ");
-        }
-        catch (Exception exception)
+        string? deviceId = properties.GetValueOrDefault("DeviceId");
+        string? deviceName = properties.GetValueOrDefault("DeviceName");
+        string? tcpPort = properties.GetValueOrDefault("TcpPort");
+        string? deviceType = properties.GetValueOrDefault("DeviceType");
+        string? capabilities = properties.GetValueOrDefault("Capabilities");
+
+        if (!string.IsNullOrEmpty(deviceId)
+            && !string.IsNullOrEmpty(deviceName)
+            && !string.IsNullOrEmpty(tcpPort)
+            && !string.IsNullOrEmpty(deviceType)
+            && !string.IsNullOrEmpty(capabilities))
         {
-            Logger.Exception(exception);
+            DeviceName = deviceName;
+            TcpPort = ushort.Parse(tcpPort);
+            DeviceType = deviceType;
+            Capabilities = capabilities.Split(", ");
         }
     }
 }
