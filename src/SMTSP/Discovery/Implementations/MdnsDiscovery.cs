@@ -6,14 +6,15 @@ using MDNS;
 using SMTSP.Core;
 using SMTSP.Entities;
 
-namespace SMTSP.Discovery;
+namespace SMTSP.Discovery.Implementations;
 
 internal class MdnsDiscovery : IDiscovery
 {
+    private const string ServiceName = "_smtsp._tcp";
     private DeviceInfo _myDevice = null!;
     private ServiceDiscovery _serviceDiscovery = null!;
 
-    public ObservableCollection<DeviceInfo> DiscoveredDevices { get; } = new ObservableCollection<DeviceInfo>();
+    public ObservableCollection<DeviceInfo> DiscoveredDevices { get; } = new();
 
     public void SetMyDevice(DeviceInfo myDevice)
     {
@@ -31,7 +32,8 @@ internal class MdnsDiscovery : IDiscovery
     {
         try
         {
-            if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfiguration.ServiceName)
+            if (eventArgs.ServiceInstanceName != null
+                && eventArgs.ServiceInstanceName.ToString().Contains(ServiceName)
                 && !eventArgs.ServiceInstanceName.ToString().StartsWith(_myDevice.DeviceId))
             {
                 TXTRecord? txtRecord = eventArgs.Message?.Answers.OfType<TXTRecord>().FirstOrDefault();
@@ -57,7 +59,7 @@ internal class MdnsDiscovery : IDiscovery
 
     private void OnServiceInstanceShutdown(object? sender, ServiceInstanceShutdownEventArgs eventArgs)
     {
-        if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfiguration.ServiceName))
+        if (eventArgs.ServiceInstanceName != null && eventArgs.ServiceInstanceName.ToString().Contains(ServiceName))
         {
             DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(element => element.DeviceId == eventArgs.ServiceInstanceName.Labels[0]);
 
@@ -73,9 +75,12 @@ internal class MdnsDiscovery : IDiscovery
 
     private void OnAnswerReceived(object? sender, MessageEventArgs args)
     {
-        TXTRecord? txtRecord = args.Message.Answers.OfType<TXTRecord>().FirstOrDefault();
+        TXTRecord? txtRecord = args.Message?.Answers.OfType<TXTRecord>().FirstOrDefault();
 
-        if (txtRecord != null && txtRecord.Name.ToString().Contains(SmtsConfiguration.ServiceName) && !txtRecord.Name.ToString().StartsWith(_myDevice.DeviceId))
+        if (txtRecord != null
+            && txtRecord.Name.ToString().Contains(ServiceName) 
+            && !txtRecord.Name.ToString().StartsWith(_myDevice.DeviceId)
+            && args.RemoteEndPoint != null)
         {
             GetDeviceFromRecords(txtRecord, args.RemoteEndPoint);
         }
@@ -159,12 +164,36 @@ internal class MdnsDiscovery : IDiscovery
 
     public void StartDiscovering()
     {
-        const string service = "_smtsp._tcp.local";
+        const string service = ServiceName + ".local";
         var query = new Message();
         query.Questions.Add(new Question { Name = service, Type = DnsType.PTR });
         query.Questions.Add(new Question { Name = service, Type = DnsType.TXT });
 
         _serviceDiscovery.Mdns.SendQuery(query);
+    }
+
+    public void StopDiscovering()
+    {
+    }
+
+    public void Advertise()
+    {
+        var serviceProfile = new ServiceProfile(_myDevice.DeviceId, ServiceName, _myDevice.TcpPort);
+        serviceProfile.AddProperty("deviceId", _myDevice.DeviceId);
+        serviceProfile.AddProperty("deviceName", _myDevice.DeviceName);
+        serviceProfile.AddProperty("type", _myDevice.DeviceType);
+        serviceProfile.AddProperty("smtspVersion", SmtsConfiguration.ProtocolVersion.ToString());
+        serviceProfile.AddProperty("port", _myDevice.TcpPort.ToString());
+        serviceProfile.AddProperty("capabilities", string.Join(", ", _myDevice.Capabilities));
+
+        _serviceDiscovery.Advertise(serviceProfile);
+        _serviceDiscovery.Announce(serviceProfile);
+    }
+
+    public void StopAdvertising()
+    {
+        var serviceProfile = new ServiceProfile(_myDevice.DeviceId, ServiceName, _myDevice.TcpPort);
+        _serviceDiscovery.Unadvertise(serviceProfile);
     }
 
     public void Dispose()

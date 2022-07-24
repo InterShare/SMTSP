@@ -8,7 +8,7 @@ namespace SMTSP.Communication.Implementation.Tcp;
 internal class TcpCommunication : ICommunication
 {
     private const int DefaultPort = 42420;
-    private readonly DeviceInfo _myDevice;
+    private DeviceInfo _myDevice = null!;
 
     private bool _running;
     private CancellationTokenSource? _cancellationTokenSource;
@@ -18,15 +18,12 @@ internal class TcpCommunication : ICommunication
 
     public ushort Port { get; private set; }
 
-    public TcpCommunication(DeviceInfo myDevice)
-    {
-        _myDevice = myDevice;
-    }
-
     public event EventHandler<Stream> OnReceive = delegate {};
 
-    public Task Start()
+    public Task Start(DeviceInfo myDevice)
     {
+        _myDevice = myDevice;
+        
         try
         {
             try
@@ -93,9 +90,7 @@ internal class TcpCommunication : ICommunication
     public Stream ConnectToDevice(DeviceInfo receiver)
     {
         var client = new TcpClient(receiver.IpAddress, receiver.TcpPort);
-        NetworkStream tcpStream = client.GetStream();
-
-        return tcpStream;
+        return client.GetStream();
     }
 
     public void Dispose()

@@ -9,7 +9,7 @@ public class SmtspContentAttribute : Attribute
     /// <summary>
     /// This name will be used to identify the content type and automatically parse it to this implementation.
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; }
 
 
     /// <param name="name"></param>

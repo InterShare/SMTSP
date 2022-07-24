@@ -1,24 +1,18 @@
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Sockets;
-using SMTSP.Advertisement;
 using SMTSP.Core;
 using SMTSP.Entities;
 using SMTSP.Extensions;
 using SMTSP.Helpers;
+using Timer = System.Timers.Timer;
 
-namespace SMTSP.Discovery;
+namespace SMTSP.Discovery.Implementations;
 
-/*
- * To reduce CPU load only a single UDP Client is opened and used for both; discovery and advertisement.
- */
-
-internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
+internal class UdpDiscovery : IDiscovery
 {
-    private static UdpDiscoveryAndAdvertiser? _instance;
-
     private readonly int[] _discoveryPorts = { 42400, 42410, 42420 };
-    private readonly object _listeningThreadLock = new object();
+    private readonly object _listeningThreadLock = new();
 
     private DeviceInfo _myDeviceInfo = null!;
     private bool _answerToLookupBroadcasts;
@@ -27,12 +21,8 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
     private Timer? _discoveringInterval;
     private Thread? _listeningThread;
     private UdpClient? _udpSocket;
-    private bool _discoveryDisposed;
-    private bool _advertisingDisposed;
 
-    public static UdpDiscoveryAndAdvertiser Instance => _instance ??= new UdpDiscoveryAndAdvertiser();
-
-    public ObservableCollection<DeviceInfo> DiscoveredDevices { get; } = new ObservableCollection<DeviceInfo>();
+    public ObservableCollection<DeviceInfo> DiscoveredDevices { get; } = new();
 
     private void SetupUdpSocket()
     {
@@ -163,7 +153,7 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
         }
     }
 
-    private async void SendOutLookup(object? sender = null)
+    private async void SendOutLookup(object? sender = null, System.Timers.ElapsedEventArgs? _ = null)
     {
         if (_udpSocket == null)
         {
@@ -275,42 +265,37 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 
     public void StartDiscovering()
     {
-        _discoveringInterval = new Timer(SendOutLookup, new AutoResetEvent(true), 0, 4000);
+        _discoveringInterval = new Timer();
+        _discoveringInterval.Interval = 4000;
+        _discoveringInterval.Elapsed += SendOutLookup;
+        _discoveringInterval.AutoReset = true;
+        _discoveringInterval.Enabled = true;
+        
+        _discoveringInterval?.Start();
     }
 
-    public void DisposeDiscovery()
+    public void StopDiscovering()
     {
-        _discoveryDisposed = true;
+        _discoveringInterval?.Stop();
         _discoveringInterval?.Dispose();
-
-        Dispose();
-    }
-
-    public void DisposeAdvertiser()
-    {
-        _advertisingDisposed = true;
-        _answerToLookupBroadcasts = false;
-
-        Dispose();
     }
 
     public void Dispose()
     {
-        if (_advertisingDisposed && _discoveryDisposed)
+        _discoveringInterval?.Dispose();
+        
+        lock (_listeningThreadLock)
         {
-            lock (_listeningThreadLock)
-            {
-                _receiving = false;
-            }
+            _receiving = false;
+        }
 
-            if (_udpSocket != null)
+        if (_udpSocket != null)
+        {
+            lock (_udpSocket)
             {
-                lock (_udpSocket)
-                {
-                    _udpSocket?.Close();
-                    _udpSocket?.Dispose();
-                    _udpSocket = null;
-                }
+                _udpSocket?.Close();
+                _udpSocket?.Dispose();
+                _udpSocket = null;
             }
         }
     }

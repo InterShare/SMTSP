@@ -70,6 +70,21 @@ public class DeviceInfo
         IpAddress = ipAddress;
         Capabilities = capabilities;
     }
+    
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="deviceId"></param>
+    /// <param name="deviceName"></param>
+    /// <param name="deviceType"></param>
+    /// <param name="capabilities"></param>
+    public DeviceInfo(string deviceId, string deviceName, string deviceType, string[] capabilities)
+    {
+        DeviceId = deviceId;
+        DeviceName = deviceName;
+        DeviceType = deviceType;
+        Capabilities = capabilities;
+    }
 
     internal byte[] ToBinary()
     {

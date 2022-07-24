@@ -1,5 +1,4 @@
 using SMTSP.Communication;
-using SMTSP.Communication.Implementation.Tcp;
 using SMTSP.Core;
 using SMTSP.Encryption;
 using SMTSP.Entities;
@@ -14,18 +13,14 @@ namespace SMTSP;
 /// </summary>
 public class SmtspReceiver : IDisposable
 {
+    private readonly DeviceInfo _myDevice;
     private Func<TransferRequest, Task<bool>>? _onTransferRequestCallback;
-
-    /// <summary>
-    /// Holds a list of all implementations used for a file transfer.
-    /// </summary>
-    public readonly List<ICommunication> CommunicationImplementations = new List<ICommunication>();
 
 
     /// <param name="myDevice">The DeviceInfo of this device.</param>
     public SmtspReceiver(DeviceInfo myDevice)
     {
-        CommunicationImplementations.Add(new TcpCommunication(myDevice));
+        _myDevice = myDevice;
     }
 
     /// <summary>
@@ -33,7 +28,7 @@ public class SmtspReceiver : IDisposable
     /// </summary>
     public event EventHandler<SmtspContentBase> OnContentReceive = delegate { };
 
-    private void OnReceive(object? sender, Stream? stream)
+    private void OnReceive(object? sender, Stream stream)
     {
         try
         {
@@ -98,9 +93,9 @@ public class SmtspReceiver : IDisposable
     {
         try
         {
-            foreach (ICommunication communicationService in CommunicationImplementations)
+            foreach (ICommunication communicationService in CommunicationManager.CommunicationImplementations)
             {
-                await communicationService.Start();
+                await communicationService.Start(_myDevice);
                 communicationService.OnReceive += OnReceive;
             }
         }
@@ -115,7 +110,7 @@ public class SmtspReceiver : IDisposable
     /// </summary>
     public void Dispose()
     {
-        foreach (ICommunication communicationService in CommunicationImplementations)
+        foreach (ICommunication communicationService in CommunicationManager.CommunicationImplementations)
         {
             communicationService.Dispose();
         }

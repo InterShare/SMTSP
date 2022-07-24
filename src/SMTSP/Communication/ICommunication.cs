@@ -1,5 +1,4 @@
 using SMTSP.Entities;
-using SMTSP.Entities.Content;
 
 namespace SMTSP.Communication;
 
@@ -17,12 +16,11 @@ public interface ICommunication : IDisposable
     /// Start the communication service.
     /// </summary>
     /// <returns></returns>
-    Task Start();
+    Task Start(DeviceInfo deviceInfo);
 
     /// <summary>
     /// Send data to a peripheral.
     /// </summary>
     /// <param name="receiver"></param>
-    public Stream ConnectToDevice(DeviceInfo receiver);
-
+    Stream ConnectToDevice(DeviceInfo receiver);
 }
