@@ -11,18 +11,18 @@ internal class SessionEncryption
 
     public SessionEncryption()
     {
-        _keyPair = ECDiffieHellman.GenerateKeyPair();
+        _keyPair = EllipticCurveDiffieHellman.GenerateKeyPair();
     }
 
     public byte[] GetMyPublicKey()
     {
-        return ECDiffieHellman.ExportPublicKey(_keyPair.Public);
+        return EllipticCurveDiffieHellman.ExportPublicKey(_keyPair.Public);
     }
 
     public byte[] CalculateAesKey(byte[] foreignPublicKeyBytes)
     {
-        ECPublicKeyParameters foreignPublicKey = ECDiffieHellman.LoadPublicKey(foreignPublicKeyBytes);
-        return ECDiffieHellman.GenerateAesKey(foreignPublicKey, _keyPair.Private);
+        ECPublicKeyParameters foreignPublicKey = EllipticCurveDiffieHellman.LoadPublicKey(foreignPublicKeyBytes);
+        return EllipticCurveDiffieHellman.GenerateAesKey(foreignPublicKey, _keyPair.Private);
     }
 
     public static byte[] GenerateIvBytes()

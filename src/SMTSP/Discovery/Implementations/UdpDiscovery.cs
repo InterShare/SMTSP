@@ -106,7 +106,14 @@ internal class UdpDiscovery : IDiscovery
 
             try
             {
-                GetMessageTypeResponse messageTypeResult = MessageTransformer.GetMessageType(stream);
+                GetMessageTypeResponse? messageTypeResult = MessageTransformer.GetMessageType(stream);
+
+                if (messageTypeResult == null)
+                {
+                    stream.Close();
+                    await stream.DisposeAsync();
+                    continue;
+                }
 
                 // ReSharper disable once ConvertIfStatementToSwitchStatement
                 if (messageTypeResult.Type == MessageTypes.DeviceInfo)
