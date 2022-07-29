@@ -101,11 +101,13 @@ internal class UdpDiscovery : IDiscovery
                 continue;
             }
 
-            UdpReceiveResult receivedMessage = await _udpSocket.ReceiveAsync();
-            using var stream = new MemoryStream(receivedMessage.Buffer);
+            Stream? stream = null;
 
             try
             {
+                UdpReceiveResult receivedMessage = await _udpSocket.ReceiveAsync();
+                stream = new MemoryStream(receivedMessage.Buffer);
+                
                 GetMessageTypeResponse? messageTypeResult = MessageTransformer.GetMessageType(stream);
 
                 if (messageTypeResult == null)
@@ -150,13 +152,16 @@ internal class UdpDiscovery : IDiscovery
                         RemoveDevice(deviceId, receivedMessage.RemoteEndPoint.Address.ToString());
                     }
                 }
-
-                stream.Close();
-                await stream.DisposeAsync();
             }
             catch (Exception exception)
             {
                 Logger.Exception(exception);
+            }
+            
+            if (stream != null)
+            {
+                stream.Close();
+                await stream.DisposeAsync();
             }
         }
     }
