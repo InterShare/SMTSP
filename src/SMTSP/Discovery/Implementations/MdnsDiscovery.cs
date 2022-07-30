@@ -6,14 +6,15 @@ using MDNS;
 using SMTSP.Core;
 using SMTSP.Entities;
 
-namespace SMTSP.Discovery;
+namespace SMTSP.Discovery.Implementations;
 
 internal class MdnsDiscovery : IDiscovery
 {
+    private const string ServiceName = "_smtsp._tcp";
     private DeviceInfo _myDevice = null!;
     private ServiceDiscovery _serviceDiscovery = null!;
 
-    public ObservableCollection<DeviceInfo> DiscoveredDevices { get; } = new ObservableCollection<DeviceInfo>();
+    public ObservableCollection<DeviceInfo> DiscoveredDevices { get; } = new();
 
     public void SetMyDevice(DeviceInfo myDevice)
     {
@@ -31,7 +32,9 @@ internal class MdnsDiscovery : IDiscovery
     {
         try
         {
-            if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfig.ServiceName) && !eventArgs.ServiceInstanceName.ToString().StartsWith(_myDevice.DeviceId))
+            if (eventArgs.ServiceInstanceName != null
+                && eventArgs.ServiceInstanceName.ToString().Contains(ServiceName)
+                && !eventArgs.ServiceInstanceName.ToString().StartsWith(_myDevice.DeviceId))
             {
                 TXTRecord? txtRecord = eventArgs.Message?.Answers.OfType<TXTRecord>().FirstOrDefault();
 
@@ -56,7 +59,7 @@ internal class MdnsDiscovery : IDiscovery
 
     private void OnServiceInstanceShutdown(object? sender, ServiceInstanceShutdownEventArgs eventArgs)
     {
-        if (eventArgs.ServiceInstanceName.ToString().Contains(SmtsConfig.ServiceName))
+        if (eventArgs.ServiceInstanceName != null && eventArgs.ServiceInstanceName.ToString().Contains(ServiceName))
         {
             DeviceInfo? existingDevice = DiscoveredDevices.FirstOrDefault(element => element.DeviceId == eventArgs.ServiceInstanceName.Labels[0]);
 
@@ -72,9 +75,12 @@ internal class MdnsDiscovery : IDiscovery
 
     private void OnAnswerReceived(object? sender, MessageEventArgs args)
     {
-        TXTRecord? txtRecord = args.Message.Answers.OfType<TXTRecord>().FirstOrDefault();
+        TXTRecord? txtRecord = args.Message?.Answers.OfType<TXTRecord>().FirstOrDefault();
 
-        if (txtRecord != null && txtRecord.Name.ToString().Contains(SmtsConfig.ServiceName) && !txtRecord.Name.ToString().StartsWith(_myDevice.DeviceId))
+        if (txtRecord != null
+            && txtRecord.Name.ToString().Contains(ServiceName) 
+            && !txtRecord.Name.ToString().StartsWith(_myDevice.DeviceId)
+            && args.RemoteEndPoint != null)
         {
             GetDeviceFromRecords(txtRecord, args.RemoteEndPoint);
         }
@@ -106,25 +112,28 @@ internal class MdnsDiscovery : IDiscovery
     {
         try
         {
-            string? deviceId = GetPropertyValueFromTxtRecords(record.Strings, "deviceId");
+            string? deviceId = GetPropertyValueFromTxtRecords(record.Strings, "DeviceId");
 
             if (deviceId == _myDevice.DeviceId)
             {
                 return;
             }
 
-            string? deviceName = GetPropertyValueFromTxtRecords(record.Strings, "deviceName");
-            string? deviceType = GetPropertyValueFromTxtRecords(record.Strings, "type");
-            string? protocolVersionString = GetPropertyValueFromTxtRecords(record.Strings, "smtspVersion");
-            string? portString = GetPropertyValueFromTxtRecords(record.Strings, "port");
-            string? capabilities = GetPropertyValueFromTxtRecords(record.Strings, "capabilities");
+            string? deviceName = GetPropertyValueFromTxtRecords(record.Strings, "DeviceName");
+            string? deviceType = GetPropertyValueFromTxtRecords(record.Strings, "Type");
+            string? protocolVersionString = GetPropertyValueFromTxtRecords(record.Strings, "SmtspVersion");
+            string? portString = GetPropertyValueFromTxtRecords(record.Strings, "TcpPort");
+            string? capabilities = GetPropertyValueFromTxtRecords(record.Strings, "Capabilities");
 
-            if (string.IsNullOrEmpty(deviceId) || string.IsNullOrEmpty(deviceName) || string.IsNullOrEmpty(deviceType) || string.IsNullOrEmpty(protocolVersionString) || string.IsNullOrEmpty(portString) || string.IsNullOrEmpty(capabilities))
+            if (string.IsNullOrEmpty(deviceId) ||
+                string.IsNullOrEmpty(deviceName) ||
+                string.IsNullOrEmpty(deviceType) ||
+                string.IsNullOrEmpty(protocolVersionString) ||
+                string.IsNullOrEmpty(portString) ||
+                string.IsNullOrEmpty(capabilities))
             {
                 return;
             }
-
-            ushort protocolVersion = ushort.Parse(protocolVersionString);
 
             lock (DiscoveredDevices)
             {
@@ -132,10 +141,13 @@ internal class MdnsDiscovery : IDiscovery
 
                 if (existingDevice == null)
                 {
-                    DiscoveredDevices.Add(new DeviceInfo(deviceId, deviceName, ushort.Parse(portString), deviceType, ipEndPoint.Address.ToString(), capabilities.Split(", "))
-                    {
-                        ProtocolVersionIncompatible = protocolVersion != SmtsConfig.ProtocolVersion
-                    });
+                    DiscoveredDevices.Add(new DeviceInfo(
+                        deviceId,
+                        deviceName,
+                        ushort.Parse(portString),
+                        deviceType,
+                        ipEndPoint.Address.ToString(),
+                        capabilities.Split(", ")));
                 }
             }
         }
@@ -147,12 +159,36 @@ internal class MdnsDiscovery : IDiscovery
 
     public void StartDiscovering()
     {
-        const string service = "_smtsp._tcp.local";
+        const string service = ServiceName + ".local";
         var query = new Message();
         query.Questions.Add(new Question { Name = service, Type = DnsType.PTR });
         query.Questions.Add(new Question { Name = service, Type = DnsType.TXT });
 
         _serviceDiscovery.Mdns.SendQuery(query);
+    }
+
+    public void StopDiscovering()
+    {
+    }
+
+    public void Advertise()
+    {
+        var serviceProfile = new ServiceProfile(_myDevice.DeviceId, ServiceName, _myDevice.TcpPort);
+        serviceProfile.AddProperty("DeviceId", _myDevice.DeviceId);
+        serviceProfile.AddProperty("DeviceName", _myDevice.DeviceName);
+        serviceProfile.AddProperty("Type", _myDevice.DeviceType);
+        serviceProfile.AddProperty("SmtspVersion", SmtsConfiguration.ProtocolVersion.ToString());
+        serviceProfile.AddProperty("TcpPort", _myDevice.TcpPort.ToString());
+        serviceProfile.AddProperty("Capabilities", string.Join(", ", _myDevice.Capabilities));
+
+        _serviceDiscovery.Advertise(serviceProfile);
+        _serviceDiscovery.Announce(serviceProfile);
+    }
+
+    public void StopAdvertising()
+    {
+        var serviceProfile = new ServiceProfile(_myDevice.DeviceId, ServiceName, _myDevice.TcpPort);
+        _serviceDiscovery.Unadvertise(serviceProfile);
     }
 
     public void Dispose()

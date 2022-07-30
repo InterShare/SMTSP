@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using SMTSP.Discovery.Implementations;
 using SMTSP.Entities;
 
 namespace SMTSP.Discovery;
@@ -7,9 +8,13 @@ namespace SMTSP.Discovery;
 /// <summary>
 /// Used to discover devices in the current network.
 /// </summary>
-public class Discovery : IDisposable
+public class DeviceDiscovery : IDisposable
 {
-    private readonly List<IDiscovery> _discoveryImplementations = new List<IDiscovery>();
+    private readonly List<IDiscovery> _discoveryImplementations = new()
+    {
+        new MdnsDiscovery(),
+        new UdpDiscovery()
+    };
 
     /// <summary>
     /// Holds the list of discovered devices.
@@ -17,11 +22,8 @@ public class Discovery : IDisposable
     public readonly ObservableCollection<DeviceInfo> DiscoveredDevices = new();
 
     /// <param name="myDevice">The current device, used to advertise on the network, so that other devices can find this one</param>
-    public Discovery(DeviceInfo myDevice)
+    public DeviceDiscovery(DeviceInfo myDevice)
     {
-        _discoveryImplementations.Add(new MdnsDiscovery());
-        _discoveryImplementations.Add(UdpDiscoveryAndAdvertiser.Instance);
-
         foreach (IDiscovery discovery in _discoveryImplementations)
         {
             discovery.SetMyDevice(myDevice);
@@ -84,6 +86,28 @@ public class Discovery : IDisposable
             discovery.StartDiscovering();
         }
     }
+    
+    /// <summary>
+    /// Starts advertising the current device.
+    /// </summary>
+    public void Advertise()
+    {
+        foreach (IDiscovery advertiserImplementation in _discoveryImplementations)
+        {
+            advertiserImplementation.Advertise();
+        }
+    }
+
+    /// <summary>
+    /// Stops advertising the current device.
+    /// </summary>
+    public void StopAdvertising()
+    {
+        foreach (IDiscovery advertiserImplementation in _discoveryImplementations)
+        {
+            advertiserImplementation.StopAdvertising();
+        }
+    }
 
     /// <summary>
     /// Disposes this instance.
@@ -94,13 +118,13 @@ public class Discovery : IDisposable
 
         foreach (IDiscovery discoveryImplementation in _discoveryImplementations)
         {
-            if (discoveryImplementation.GetType() == typeof(UdpDiscoveryAndAdvertiser))
+            try
             {
-                (discoveryImplementation as UdpDiscoveryAndAdvertiser)?.DisposeDiscovery();
+                discoveryImplementation.Dispose();
             }
-            else
+            catch (Exception)
             {
-                discoveryImplementation?.Dispose();
+                // ignore
             }
         }
     }

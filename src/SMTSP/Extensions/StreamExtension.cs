@@ -39,10 +39,24 @@ internal static class StreamExtension
 
         return result.Any() ? result.GetStringFromBytes() : "";
     }
+    
+    internal static string? GetProperty(this Stream stream, string propertyName)
+    {
+        byte[] result = GetBytesWhile(stream, 0x00);
+        string value = result.Any() ? result.GetStringFromBytes() : "";
+        string[] parts = value.Split("=");
+
+        if (parts.Length < 2)
+        {
+            return null;
+        }
+
+        return string.Equals(parts[0], propertyName, StringComparison.CurrentCultureIgnoreCase) ? parts[1] : null;
+    }
 
     internal static async Task CopyToAsyncWithProgress(this Stream source, Stream destination, IProgress<long>? progress, CancellationToken cancellationToken = default, int bufferSize = 81920)
     {
-        byte[]? buffer = new byte[bufferSize];
+        byte[] buffer = new byte[bufferSize];
         int bytesRead;
         long totalRead = 0;
 
@@ -53,5 +67,38 @@ internal static class StreamExtension
             totalRead += bytesRead;
             progress?.Report(totalRead);
         }
+    }
+
+    internal static Dictionary<string, string> GetProperties(this Stream source, int maxTries = 50)
+    {
+        var properties = new Dictionary<string, string>();
+
+        for (int count = 0; count < maxTries; count++)
+        {
+            try
+            {
+                string currentProperty = source.GetStringTillEndByte(0x00);
+
+                if (currentProperty.Length == 0)
+                {
+                    break;
+                }
+
+                if (currentProperty.Contains('='))
+                {
+                    string[] parts = currentProperty.Split('=');
+                    string name = parts[0];
+                    string value = parts[1];
+                    
+                    properties.Add(name, value);
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        return properties;
     }
 }

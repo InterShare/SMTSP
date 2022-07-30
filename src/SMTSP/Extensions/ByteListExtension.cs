@@ -7,14 +7,16 @@ internal static class ByteListExtension
 {
     internal static void AddSmtsHeader(this List<byte> bytes, MessageTypes messageType)
     {
-        Logger.Info($"Protocol Version: {SmtsConfig.ProtocolVersion}");
-        bytes.AddRange(SmtsConfig.ProtocolVersion.ToString().GetBytes());
+        bytes.AddRange($"SmtspVersion={SmtsConfiguration.ProtocolVersion.ToString()}".GetBytes());
         bytes.Add(0x00);
 
-        string messageTypeString = messageType.ToLowerCamelCaseString();
+        bytes.AddRange($"MessageType={messageType.ToString()}".GetBytes());
+        bytes.Add(0x00);
+    }
 
-        Logger.Info($"Message type: {messageTypeString}");
-        bytes.AddRange(messageTypeString.GetBytes());
+    internal static void AddProperty(this List<byte> bytes, string propertyName, string propertyValue)
+    {
+        bytes.AddRange($"{propertyName}={propertyValue}".GetBytes());
         bytes.Add(0x00);
     }
 

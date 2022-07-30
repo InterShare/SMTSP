@@ -5,16 +5,16 @@ namespace SMTSP.Helpers;
 
 internal class MessageTransformer
 {
-    internal static GetMessageTypeResponse GetMessageType(Stream stream)
+    internal static GetMessageTypeResponse? GetMessageType(Stream stream)
     {
-        var result = new GetMessageTypeResponse
+        string? version = stream.GetProperty("SmtspVersion");
+        var messageType = stream.GetProperty("MessageType")?.ToEnum<MessageTypes>(MessageTypes.Unknown);
+
+        if (!string.IsNullOrEmpty(version) && messageType != null)
         {
-            Version = stream.GetStringTillEndByte(0x00)
-        };
+            return new GetMessageTypeResponse(version, (MessageTypes) messageType);
+        }
 
-        string type = stream.GetStringTillEndByte(0x00);
-        result.Type = type.ToEnum<MessageTypes>(MessageTypes.Unknown);
-
-        return result;
+        return null;
     }
 }

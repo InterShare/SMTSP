@@ -1,24 +1,18 @@
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Sockets;
-using SMTSP.Advertisement;
 using SMTSP.Core;
 using SMTSP.Entities;
 using SMTSP.Extensions;
 using SMTSP.Helpers;
+using Timer = System.Timers.Timer;
 
-namespace SMTSP.Discovery;
+namespace SMTSP.Discovery.Implementations;
 
-/*
- * To reduce CPU load only a single UDP Client is opened and used for both; discovery and advertisement.
- */
-
-internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
+internal class UdpDiscovery : IDiscovery
 {
-    private static UdpDiscoveryAndAdvertiser? _instance;
-
-    private readonly int[] _discoveryPorts = { 42400, 42410, 42420 };
-    private readonly object _listeningThreadLock = new object();
+    private readonly int[] _discoveryPorts = { 42400, 42410, 42420, 42430 };
+    private readonly object _listeningThreadLock = new();
 
     private DeviceInfo _myDeviceInfo = null!;
     private bool _answerToLookupBroadcasts;
@@ -27,12 +21,8 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
     private Timer? _discoveringInterval;
     private Thread? _listeningThread;
     private UdpClient? _udpSocket;
-    private bool _discoveryDisposed;
-    private bool _advertisingDisposed;
 
-    public static UdpDiscoveryAndAdvertiser Instance => _instance ??= new UdpDiscoveryAndAdvertiser();
-
-    public ObservableCollection<DeviceInfo> DiscoveredDevices { get; } = new ObservableCollection<DeviceInfo>();
+    public ObservableCollection<DeviceInfo> DiscoveredDevices { get; } = new();
 
     private void SetupUdpSocket()
     {
@@ -49,6 +39,12 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
                 if (exception.Message.Contains("Address already in use"))
                 {
                     Logger.Info($"Address already in use: {port}");
+
+                    if (port == _discoveryPorts.Last())
+                    {
+                        Console.WriteLine("All ports already in use. UDP-discovery is offline.");
+                        return;
+                    }
                 }
                 else
                 {
@@ -68,7 +64,7 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
                 element.DeviceId == deviceInfo.DeviceId &&
                 element.IpAddress == deviceInfo.IpAddress);
 
-            if (existingDeviceInfo == null)
+            if (existingDeviceInfo == null && !string.IsNullOrEmpty(deviceInfo.DeviceId))
             {
                 DiscoveredDevices.Add(deviceInfo);
             }
@@ -94,28 +90,38 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
     {
         while (_receiving)
         {
+            bool answerToLookupBroadcasts;
+
+            lock (_listeningThreadLock)
+            {
+                if (!_receiving)
+                {
+                    break;
+                }
+
+                answerToLookupBroadcasts = _answerToLookupBroadcasts;
+            }
+
+            if (_udpSocket == null)
+            {
+                continue;
+            }
+
+            Stream? stream = null;
+
             try
             {
-                bool answerToLookupBroadcasts;
+                UdpReceiveResult receivedMessage = await _udpSocket.ReceiveAsync();
+                stream = new MemoryStream(receivedMessage.Buffer);
+                
+                GetMessageTypeResponse? messageTypeResult = MessageTransformer.GetMessageType(stream);
 
-                lock (_listeningThreadLock)
+                if (messageTypeResult == null)
                 {
-                    if (!_receiving)
-                    {
-                        break;
-                    }
-
-                    answerToLookupBroadcasts = _answerToLookupBroadcasts;
-                }
-
-                if (_udpSocket == null)
-                {
+                    stream.Close();
+                    await stream.DisposeAsync();
                     continue;
                 }
-
-                UdpReceiveResult receivedMessage = await _udpSocket.ReceiveAsync();
-                using var stream = new MemoryStream(receivedMessage.Buffer);
-                GetMessageTypeResponse messageTypeResult = MessageTransformer.GetMessageType(stream);
 
                 // ReSharper disable once ConvertIfStatementToSwitchStatement
                 if (messageTypeResult.Type == MessageTypes.DeviceInfo)
@@ -134,7 +140,7 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
                 {
                     if (answerToLookupBroadcasts)
                     {
-                        string deviceId = stream.GetStringTillEndByte(0x00);
+                        string? deviceId = stream.GetProperty(nameof(DeviceInfo.DeviceId));
 
                         if (!string.IsNullOrEmpty(deviceId) && deviceId != _myDeviceInfo.DeviceId)
                         {
@@ -145,25 +151,28 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
                 }
                 else if (messageTypeResult.Type == MessageTypes.RemoveDeviceFromDiscovery)
                 {
-                    string deviceId = stream.GetStringTillEndByte(0x00);
+                    string? deviceId = stream.GetProperty(nameof(DeviceInfo.DeviceId));
 
                     if (!string.IsNullOrEmpty(deviceId))
                     {
                         RemoveDevice(deviceId, receivedMessage.RemoteEndPoint.Address.ToString());
                     }
                 }
-
-                stream.Close();
-                await stream.DisposeAsync();
             }
             catch (Exception exception)
             {
                 Logger.Exception(exception);
             }
+            
+            if (stream != null)
+            {
+                stream.Close();
+                await stream.DisposeAsync();
+            }
         }
     }
 
-    private async void SendOutLookup(object? sender = null)
+    private async void SendOutLookup(object? sender = null, System.Timers.ElapsedEventArgs? _ = null)
     {
         if (_udpSocket == null)
         {
@@ -174,8 +183,7 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 
         var messageInBytes = new List<byte>();
         messageInBytes.AddSmtsHeader(MessageTypes.DeviceLookupRequest);
-        messageInBytes.AddRange(_myDeviceInfo.DeviceId.GetBytes());
-        messageInBytes.Add(0x00);
+        messageInBytes.AddProperty(nameof(_myDeviceInfo.DeviceId), _myDeviceInfo.DeviceId);
 
         foreach (int port in _discoveryPorts)
         {
@@ -219,6 +227,8 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
         {
             return;
         }
+        
+        StartReceiveLoop();
 
         _answerToLookupBroadcasts = true;
         StartReceiveLoop();
@@ -251,8 +261,7 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 
         var messageInBytes = new List<byte>();
         messageInBytes.AddSmtsHeader(MessageTypes.RemoveDeviceFromDiscovery);
-        messageInBytes.AddRange(_myDeviceInfo.DeviceId.GetBytes());
-        messageInBytes.Add(0x00);
+        messageInBytes.AddProperty(nameof(_myDeviceInfo.DeviceId), _myDeviceInfo.DeviceId);
 
         foreach (int port in _discoveryPorts)
         {
@@ -275,42 +284,37 @@ internal class UdpDiscoveryAndAdvertiser : IDiscovery, IAdvertiser
 
     public void StartDiscovering()
     {
-        _discoveringInterval = new Timer(SendOutLookup, new AutoResetEvent(true), 0, 4000);
+        _discoveringInterval = new Timer();
+        _discoveringInterval.Interval = 4000;
+        _discoveringInterval.Elapsed += SendOutLookup;
+        _discoveringInterval.AutoReset = true;
+        _discoveringInterval.Enabled = true;
+        
+        _discoveringInterval?.Start();
     }
 
-    public void DisposeDiscovery()
+    public void StopDiscovering()
     {
-        _discoveryDisposed = true;
+        _discoveringInterval?.Stop();
         _discoveringInterval?.Dispose();
-
-        Dispose();
-    }
-
-    public void DisposeAdvertiser()
-    {
-        _advertisingDisposed = true;
-        _answerToLookupBroadcasts = false;
-
-        Dispose();
     }
 
     public void Dispose()
     {
-        if (_advertisingDisposed && _discoveryDisposed)
+        _discoveringInterval?.Dispose();
+        
+        lock (_listeningThreadLock)
         {
-            lock (_listeningThreadLock)
-            {
-                _receiving = false;
-            }
+            _receiving = false;
+        }
 
-            if (_udpSocket != null)
+        if (_udpSocket != null)
+        {
+            lock (_udpSocket)
             {
-                lock (_udpSocket)
-                {
-                    _udpSocket?.Close();
-                    _udpSocket?.Dispose();
-                    _udpSocket = null;
-                }
+                _udpSocket?.Close();
+                _udpSocket?.Dispose();
+                _udpSocket = null;
             }
         }
     }

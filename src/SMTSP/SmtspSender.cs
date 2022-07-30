@@ -1,4 +1,4 @@
-using System.Net.Sockets;
+using SMTSP.Communication;
 using SMTSP.Core;
 using SMTSP.Encryption;
 using SMTSP.Entities;
@@ -22,27 +22,26 @@ public class SmtspSender
     {
         try
         {
-            var client = new TcpClient(receiver.IpAddress, receiver.Port);
+            ICommunication mostSuitableImplementation = CommunicationManager.GetMostSuitableImplementation();
+            Stream stream = mostSuitableImplementation.ConnectToDevice(receiver);
 
-            await using NetworkStream tcpStream = client.GetStream();
-
-            var encryption = new SessionEncryption();
+            var sessionEncryption = new SessionEncryption();
 
             var transferRequest = new TransferRequest(
                 Guid.NewGuid().ToString(),
                 myDeviceInfo.DeviceId,
                 myDeviceInfo.DeviceName,
                 contentBase,
-                encryption.GetMyPublicKey()
+                sessionEncryption.GetMyPublicKey()
             );
 
             byte[] binaryTransferRequest = transferRequest.ToBinary();
 
-            await tcpStream.WriteAsync(binaryTransferRequest, cancellationToken);
+            await stream.WriteAsync(binaryTransferRequest, cancellationToken);
 
             byte[] response = new byte[7];
             // ReSharper disable once MustUseReturnValue
-            await tcpStream.ReadAsync(response, cancellationToken);
+            await stream.ReadAsync(response, cancellationToken);
 
             var responseAnswer = response.GetStringFromBytes().ToEnum<TransferRequestAnswers>();
             Logger.Info($"Received response answer: {responseAnswer}");
@@ -51,24 +50,22 @@ public class SmtspSender
             {
                 byte[] foreignPublicKey = new byte[67];
                 // ReSharper disable once MustUseReturnValue
-                await tcpStream.ReadAsync(foreignPublicKey, cancellationToken);
+                await stream.ReadAsync(foreignPublicKey, cancellationToken);
 
-                Console.WriteLine($"Public Key {foreignPublicKey.Length}");
-
-                byte[] aesKey = encryption.CalculateAesKey(foreignPublicKey);
+                byte[] aesKey = sessionEncryption.CalculateAesKey(foreignPublicKey);
                 byte[] iv = SessionEncryption.GenerateIvBytes();
                 var ivBase64 = Convert.ToBase64String(iv).GetBytes().ToList();
                 ivBase64.Add(0x00);
 
-                await tcpStream.WriteAsync(ivBase64.ToArray(), cancellationToken);
+                await stream.WriteAsync(ivBase64.ToArray(), cancellationToken);
 
-                await SessionEncryption.EncryptStream(tcpStream, contentBase.DataStream!, aesKey, iv, progress, cancellationToken);
+                await SessionEncryption.EncryptStream(stream, contentBase.DataStream!, aesKey, iv, progress, cancellationToken);
 
                 Logger.Info("Done sending");
                 return SendResponses.Success;
             }
 
-            tcpStream.Close();
+            stream.Close();
             return SendResponses.Denied;
         }
         catch (OperationCanceledException)

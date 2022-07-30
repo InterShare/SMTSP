@@ -2,7 +2,7 @@ namespace SMTSP.Core;
 
 internal static class Logger
 {
-    public static bool OutputEnabled { get; set; } = SmtsConfig.LoggerOutputEnabled;
+    public static bool OutputEnabled { get; } = SmtsConfiguration.LoggerOutputEnabled;
 
     private static string FormatMessage(string severity, string message)
     {

@@ -1,4 +1,3 @@
-using SMTSP.Core;
 using SMTSP.Extensions;
 
 namespace SMTSP.Entities;
@@ -9,7 +8,7 @@ namespace SMTSP.Entities;
 public class DeviceInfo
 {
     /// <summary>
-    /// The unique ID of the device
+    /// The unique ID of the device.
     /// </summary>
     public string DeviceId { get; set; } = null!;
 
@@ -18,10 +17,6 @@ public class DeviceInfo
     /// </summary>
     public string DeviceName { get; set; } = null!;
 
-    /// <summary>
-    /// Port for the data transfer.
-    /// </summary>
-    public ushort Port { get; set; }
 
     /// <summary>
     /// Like computer, phone.
@@ -34,17 +29,18 @@ public class DeviceInfo
     public string IpAddress { get; set; } = null!;
 
     /// <summary>
-    /// Which services does this device host.
+    /// Port for the data transfer.
+    /// </summary>
+    public ushort TcpPort { get; set; }
+
+    /// <summary>
+    /// The services this host provides. Could be the name of your app,
+    /// if you only want to communicate with other devices running your app.
     /// </summary>
     public string[] Capabilities { get; set; } = Array.Empty<string>();
 
     /// <summary>
-    ///
-    /// </summary>
-    internal bool ProtocolVersionIncompatible { get; set; } = false;
-
-    /// <summary>
-    /// Get Properties from tcp stream.
+    /// Assign properties from a stream.
     /// </summary>
     /// <param name="stream"></param>
     public DeviceInfo(Stream stream)
@@ -52,22 +48,31 @@ public class DeviceInfo
         FromStream(stream);
     }
 
-    /// <summary>
-    ///
-    /// </summary>
     /// <param name="deviceId"></param>
     /// <param name="deviceName"></param>
-    /// <param name="port"></param>
+    /// <param name="tcpPort"></param>
     /// <param name="deviceType"></param>
     /// <param name="ipAddress"></param>
     /// <param name="capabilities"></param>
-    public DeviceInfo(string deviceId, string deviceName, ushort port, string deviceType, string ipAddress, string[] capabilities)
+    public DeviceInfo(string deviceId, string deviceName, ushort tcpPort, string deviceType, string ipAddress, string[] capabilities)
     {
         DeviceId = deviceId;
         DeviceName = deviceName;
-        Port = port;
+        TcpPort = tcpPort;
         DeviceType = deviceType;
         IpAddress = ipAddress;
+        Capabilities = capabilities;
+    }
+
+    /// <param name="deviceId"></param>
+    /// <param name="deviceName"></param>
+    /// <param name="deviceType"></param>
+    /// <param name="capabilities"></param>
+    public DeviceInfo(string deviceId, string deviceName, string deviceType, string[] capabilities)
+    {
+        DeviceId = deviceId;
+        DeviceName = deviceName;
+        DeviceType = deviceType;
         Capabilities = capabilities;
     }
 
@@ -76,40 +81,37 @@ public class DeviceInfo
         var messageInBytes = new List<byte>();
 
         messageInBytes.AddSmtsHeader(MessageTypes.DeviceInfo);
-
-        messageInBytes.AddRange(DeviceId.GetBytes());
-        messageInBytes.Add(0x00);
-
-        messageInBytes.AddRange(DeviceName.GetBytes());
-        messageInBytes.Add(0x00);
-
-        messageInBytes.AddRange(Port.ToString().GetBytes());
-        messageInBytes.Add(0x00);
-
-        messageInBytes.AddRange(DeviceType.GetBytes());
-        messageInBytes.Add(0x00);
-
-        messageInBytes.AddRange(string.Join(", ", Capabilities).GetBytes());
-        messageInBytes.Add(0x00);
+        
+        messageInBytes.AddProperty(nameof(DeviceId), DeviceId);
+        messageInBytes.AddProperty(nameof(DeviceName), DeviceName);
+        messageInBytes.AddProperty(nameof(TcpPort), TcpPort.ToString());
+        messageInBytes.AddProperty(nameof(DeviceType), DeviceType);
+        messageInBytes.AddProperty(nameof(Capabilities), string.Join(", ", Capabilities));
 
         return messageInBytes.ToArray();
     }
 
     internal void FromStream(Stream stream)
     {
-        try
-        {
-            DeviceId = stream.GetStringTillEndByte(0x00);
-            DeviceName = stream.GetStringTillEndByte(0x00);
-            Port = ushort.Parse(stream.GetStringTillEndByte(0x00));
-            DeviceType = stream.GetStringTillEndByte(0x00);
+        var properties = stream.GetProperties();
 
-            string capabilities = stream.GetStringTillEndByte(0x00);
-            Capabilities = capabilities.Split(", ");
-        }
-        catch (Exception exception)
+        string? deviceId = properties.GetValueOrDefault("DeviceId");
+        string? deviceName = properties.GetValueOrDefault("DeviceName");
+        string? tcpPort = properties.GetValueOrDefault("TcpPort");
+        string? deviceType = properties.GetValueOrDefault("DeviceType");
+        string? capabilities = properties.GetValueOrDefault("Capabilities");
+
+        if (!string.IsNullOrEmpty(deviceId)
+            && !string.IsNullOrEmpty(deviceName)
+            && !string.IsNullOrEmpty(tcpPort)
+            && !string.IsNullOrEmpty(deviceType)
+            && !string.IsNullOrEmpty(capabilities))
         {
-            Logger.Exception(exception);
+            DeviceId = deviceId;
+            DeviceName = deviceName;
+            TcpPort = ushort.Parse(tcpPort);
+            DeviceType = deviceType;
+            Capabilities = capabilities.Split(", ");
         }
     }
 }

@@ -9,8 +9,7 @@ using Org.BouncyCastle.Security;
 
 namespace SMTSP.Encryption;
 
-// ReSharper disable once InconsistentNaming
-internal class ECDiffieHellman
+internal class EllipticCurveDiffieHellman
 {
     private static ECDomainParameters? _curveParameters;
 

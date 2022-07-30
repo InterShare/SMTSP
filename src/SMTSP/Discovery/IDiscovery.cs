@@ -9,4 +9,7 @@ internal interface IDiscovery : IDisposable
 
     public void SetMyDevice(DeviceInfo myDevice);
     public void StartDiscovering();
+    public void StopDiscovering();
+    public void Advertise();
+    public void StopAdvertising();
 }

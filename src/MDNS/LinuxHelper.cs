@@ -1,7 +1,7 @@
-﻿namespace MDNS
+﻿namespace MDNS;
+
+internal static class LinuxHelper
 {
-    static class LinuxHelper
-    {
 // #if NETSTANDARD2_0
 //         // see https://github.com/richardschneider/net-mdns/issues/22
 //         public static unsafe void ReuseAddresss(Socket socket)
@@ -24,5 +24,4 @@
 //         }
 // #endif
 
-    }
 }

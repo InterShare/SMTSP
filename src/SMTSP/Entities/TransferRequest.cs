@@ -110,7 +110,7 @@ public class TransferRequest
                     where attributes.Cast<SmtspContentAttribute>().First().Name == contentType
                     select type;
 
-                return list?.FirstOrDefault();
+                return list.FirstOrDefault();
             }
         }
     }
