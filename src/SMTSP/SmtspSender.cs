@@ -25,14 +25,14 @@ public class SmtspSender
             ICommunication mostSuitableImplementation = CommunicationManager.GetMostSuitableImplementation();
             Stream stream = mostSuitableImplementation.ConnectToDevice(receiver);
 
-            var encryption = new SessionEncryption();
+            var sessionEncryption = new SessionEncryption();
 
             var transferRequest = new TransferRequest(
                 Guid.NewGuid().ToString(),
                 myDeviceInfo.DeviceId,
                 myDeviceInfo.DeviceName,
                 contentBase,
-                encryption.GetMyPublicKey()
+                sessionEncryption.GetMyPublicKey()
             );
 
             byte[] binaryTransferRequest = transferRequest.ToBinary();
@@ -48,11 +48,11 @@ public class SmtspSender
 
             if (responseAnswer == TransferRequestAnswers.Accept)
             {
-                byte[] foreignPublicKey = new byte[158];
+                byte[] foreignPublicKey = new byte[67];
                 // ReSharper disable once MustUseReturnValue
                 await stream.ReadAsync(foreignPublicKey, cancellationToken);
 
-                byte[] aesKey = encryption.CalculateAesKey(foreignPublicKey);
+                byte[] aesKey = sessionEncryption.CalculateAesKey(foreignPublicKey);
                 byte[] iv = SessionEncryption.GenerateIvBytes();
                 var ivBase64 = Convert.ToBase64String(iv).GetBytes().ToList();
                 ivBase64.Add(0x00);

@@ -42,6 +42,7 @@ internal class UdpDiscovery : IDiscovery
 
                     if (port == _discoveryPorts.Last())
                     {
+                        Console.WriteLine("All ports already in use. UDP-discovery is offline.");
                         return;
                     }
                 }
@@ -63,7 +64,7 @@ internal class UdpDiscovery : IDiscovery
                 element.DeviceId == deviceInfo.DeviceId &&
                 element.IpAddress == deviceInfo.IpAddress);
 
-            if (existingDeviceInfo == null)
+            if (existingDeviceInfo == null && !string.IsNullOrEmpty(deviceInfo.DeviceId))
             {
                 DiscoveredDevices.Add(deviceInfo);
             }

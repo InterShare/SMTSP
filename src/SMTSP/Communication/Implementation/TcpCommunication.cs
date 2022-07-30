@@ -89,7 +89,9 @@ internal class TcpCommunication : ICommunication
 
     public Stream ConnectToDevice(DeviceInfo receiver)
     {
-        var client = new TcpClient(receiver.IpAddress, receiver.TcpPort);
+        var client = new TcpClient(AddressFamily.InterNetworkV6);
+        client.Connect(IPAddress.Parse(receiver.IpAddress), receiver.TcpPort);
+        
         return client.GetStream();
     }
 

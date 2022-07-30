@@ -52,8 +52,8 @@ public class SmtspReceiver : IDisposable
 
                 if (result)
                 {
-                    var encryption = new SessionEncryption();
-                    byte[] publicKey = encryption.GetMyPublicKey();
+                    var sessionEncryption = new SessionEncryption();
+                    byte[] publicKey = sessionEncryption.GetMyPublicKey();
 
                     byte[] resultInBytes = TransferRequestAnswers.Accept.ToLowerCamelCaseString().GetBytes().ToArray();
                     stream.Write(resultInBytes, 0, resultInBytes.Length);
@@ -61,7 +61,7 @@ public class SmtspReceiver : IDisposable
                     stream.Write(publicKey, 0, publicKey.Length);
 
                     byte[] iv = Convert.FromBase64String(stream.GetStringTillEndByte(0x00));
-                    byte[] aesKey = encryption.CalculateAesKey(transferRequest.SessionPublicKey!);
+                    byte[] aesKey = sessionEncryption.CalculateAesKey(transferRequest.SessionPublicKey!);
 
                     Stream decrypted = SessionEncryption.CreateDecryptedStream(stream, aesKey, iv);
 
