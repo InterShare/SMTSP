@@ -23,7 +23,7 @@ var myDevice = new DeviceInfo(
   capabilities: new[] { "InterShare" }
 );
 
-var discovery = new Discovery.Discovery(myDevice);
+var discovery = new DeviceDiscovery(myDevice);
 disocvery.StartDiscovering();
 discovery.DiscoveredDevices.CollectionChanged += (sender, args) =>
 {
@@ -33,8 +33,8 @@ discovery.DiscoveredDevices.CollectionChanged += (sender, args) =>
 
 Advertise a device:
 ```csharp
-var advertiser = new Advertiser(myDevice);
-advertiser.Advertise();
+var discovery = new DeviceDiscovery(myDevice);
+discovery.Advertise();
 ```
 
 Sending a file:
