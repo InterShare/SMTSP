@@ -118,7 +118,14 @@ public class DeviceDiscovery : IDisposable
 
         foreach (IDiscovery discoveryImplementation in _discoveryImplementations)
         {
-            discoveryImplementation.Dispose();
+            try
+            {
+                discoveryImplementation.Dispose();
+            }
+            catch (Exception)
+            {
+                // ignore
+            }
         }
     }
 }
