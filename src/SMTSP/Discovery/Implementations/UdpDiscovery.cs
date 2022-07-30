@@ -11,7 +11,7 @@ namespace SMTSP.Discovery.Implementations;
 
 internal class UdpDiscovery : IDiscovery
 {
-    private readonly int[] _discoveryPorts = { 42400, 42410, 42420 };
+    private readonly int[] _discoveryPorts = { 42400, 42410, 42420, 42430 };
     private readonly object _listeningThreadLock = new();
 
     private DeviceInfo _myDeviceInfo = null!;
@@ -39,6 +39,11 @@ internal class UdpDiscovery : IDiscovery
                 if (exception.Message.Contains("Address already in use"))
                 {
                     Logger.Info($"Address already in use: {port}");
+
+                    if (port == _discoveryPorts.Last())
+                    {
+                        return;
+                    }
                 }
                 else
                 {
@@ -134,7 +139,7 @@ internal class UdpDiscovery : IDiscovery
                 {
                     if (answerToLookupBroadcasts)
                     {
-                        string deviceId = stream.GetStringTillEndByte(0x00);
+                        string? deviceId = stream.GetProperty(nameof(DeviceInfo.DeviceId));
 
                         if (!string.IsNullOrEmpty(deviceId) && deviceId != _myDeviceInfo.DeviceId)
                         {
@@ -145,7 +150,7 @@ internal class UdpDiscovery : IDiscovery
                 }
                 else if (messageTypeResult.Type == MessageTypes.RemoveDeviceFromDiscovery)
                 {
-                    string deviceId = stream.GetStringTillEndByte(0x00);
+                    string? deviceId = stream.GetProperty(nameof(DeviceInfo.DeviceId));
 
                     if (!string.IsNullOrEmpty(deviceId))
                     {
@@ -177,8 +182,7 @@ internal class UdpDiscovery : IDiscovery
 
         var messageInBytes = new List<byte>();
         messageInBytes.AddSmtsHeader(MessageTypes.DeviceLookupRequest);
-        messageInBytes.AddRange(_myDeviceInfo.DeviceId.GetBytes());
-        messageInBytes.Add(0x00);
+        messageInBytes.AddProperty(nameof(_myDeviceInfo.DeviceId), _myDeviceInfo.DeviceId);
 
         foreach (int port in _discoveryPorts)
         {
@@ -222,6 +226,8 @@ internal class UdpDiscovery : IDiscovery
         {
             return;
         }
+        
+        StartReceiveLoop();
 
         _answerToLookupBroadcasts = true;
         StartReceiveLoop();
@@ -254,8 +260,7 @@ internal class UdpDiscovery : IDiscovery
 
         var messageInBytes = new List<byte>();
         messageInBytes.AddSmtsHeader(MessageTypes.RemoveDeviceFromDiscovery);
-        messageInBytes.AddRange(_myDeviceInfo.DeviceId.GetBytes());
-        messageInBytes.Add(0x00);
+        messageInBytes.AddProperty(nameof(_myDeviceInfo.DeviceId), _myDeviceInfo.DeviceId);
 
         foreach (int port in _discoveryPorts)
         {

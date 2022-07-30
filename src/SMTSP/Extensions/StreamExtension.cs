@@ -39,6 +39,20 @@ internal static class StreamExtension
 
         return result.Any() ? result.GetStringFromBytes() : "";
     }
+    
+    internal static string? GetProperty(this Stream stream, string propertyName)
+    {
+        byte[] result = GetBytesWhile(stream, 0x00);
+        string value = result.Any() ? result.GetStringFromBytes() : "";
+        string[] parts = value.Split("=");
+
+        if (parts.Length < 2)
+        {
+            return null;
+        }
+
+        return string.Equals(parts[0], propertyName, StringComparison.CurrentCultureIgnoreCase) ? parts[1] : null;
+    }
 
     internal static async Task CopyToAsyncWithProgress(this Stream source, Stream destination, IProgress<long>? progress, CancellationToken cancellationToken = default, int bufferSize = 81920)
     {

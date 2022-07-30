@@ -7,10 +7,8 @@ internal class MessageTransformer
 {
     internal static GetMessageTypeResponse? GetMessageType(Stream stream)
     {
-        var properties = stream.GetProperties();
-
-        string? version = properties.GetValueOrDefault("SmtspVersion");
-        var messageType = properties.GetValueOrDefault("MessageType")?.ToEnum<MessageTypes>(MessageTypes.Unknown);
+        string? version = stream.GetProperty("SmtspVersion");
+        var messageType = stream.GetProperty("MessageType")?.ToEnum<MessageTypes>(MessageTypes.Unknown);
 
         if (!string.IsNullOrEmpty(version) && messageType != null)
         {

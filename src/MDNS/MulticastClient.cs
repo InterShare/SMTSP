@@ -118,7 +118,7 @@ internal sealed class MulticastClient : IDisposable
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Cannot setup send socket for {address}: {e.Message}");
+                // Console.WriteLine($"Cannot setup send socket for {address}: {e.Message}");
                 sender.Dispose();
             }
         }
@@ -144,7 +144,7 @@ internal sealed class MulticastClient : IDisposable
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Sender {sender.Key} failure: {e.Message}");
+                // Console.WriteLine($"Sender {sender.Key} failure: {e.Message}");
                 // eat it.
             }
         }

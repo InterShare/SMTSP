@@ -63,8 +63,7 @@ public class DeviceInfo
         IpAddress = ipAddress;
         Capabilities = capabilities;
     }
-    
-    
+
     /// <param name="deviceId"></param>
     /// <param name="deviceName"></param>
     /// <param name="deviceType"></param>
@@ -82,21 +81,12 @@ public class DeviceInfo
         var messageInBytes = new List<byte>();
 
         messageInBytes.AddSmtsHeader(MessageTypes.DeviceInfo);
-
-        messageInBytes.AddRange($"DeviceId={DeviceId}".GetBytes());
-        messageInBytes.Add(0x00);
-
-        messageInBytes.AddRange($"DeviceName={DeviceName}".GetBytes());
-        messageInBytes.Add(0x00);
-
-        messageInBytes.AddRange($"TcpPort={TcpPort}".GetBytes());
-        messageInBytes.Add(0x00);
-
-        messageInBytes.AddRange($"DeviceType={DeviceType}".GetBytes());
-        messageInBytes.Add(0x00);
-
-        messageInBytes.AddRange($"Capabilities={string.Join(", ", Capabilities)}".GetBytes());
-        messageInBytes.Add(0x00);
+        
+        messageInBytes.AddProperty(nameof(DeviceId), DeviceId);
+        messageInBytes.AddProperty(nameof(DeviceName), DeviceName);
+        messageInBytes.AddProperty(nameof(TcpPort), TcpPort.ToString());
+        messageInBytes.AddProperty(nameof(DeviceType), DeviceType);
+        messageInBytes.AddProperty(nameof(Capabilities), string.Join(", ", Capabilities));
 
         return messageInBytes.ToArray();
     }
@@ -117,6 +107,7 @@ public class DeviceInfo
             && !string.IsNullOrEmpty(deviceType)
             && !string.IsNullOrEmpty(capabilities))
         {
+            DeviceId = deviceId;
             DeviceName = deviceName;
             TcpPort = ushort.Parse(tcpPort);
             DeviceType = deviceType;

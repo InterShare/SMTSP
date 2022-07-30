@@ -14,6 +14,12 @@ internal static class ByteListExtension
         bytes.Add(0x00);
     }
 
+    internal static void AddProperty(this List<byte> bytes, string propertyName, string propertyValue)
+    {
+        bytes.AddRange($"{propertyName}={propertyValue}".GetBytes());
+        bytes.Add(0x00);
+    }
+
     internal static string GetStringTillEndByte(this IEnumerable<byte> bytes, byte endByte, ref int startPosition)
     {
         var skipped = bytes.Skip(startPosition);
