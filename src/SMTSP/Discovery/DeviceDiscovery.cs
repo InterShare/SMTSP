@@ -88,6 +88,17 @@ public class DeviceDiscovery : IDisposable
     }
     
     /// <summary>
+    /// Stop searching for devices.
+    /// </summary>
+    public void StopDiscovering()
+    {
+        foreach (IDiscovery discovery in _discoveryImplementations)
+        {
+            discovery.StopDiscovering();
+        }
+    }
+    
+    /// <summary>
     /// Starts advertising the current device.
     /// </summary>
     public void Advertise()

@@ -116,7 +116,7 @@ internal sealed class MulticastClient : IDisposable
                 // VPN NetworkInterfaces
                 sender.Dispose();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // Console.WriteLine($"Cannot setup send socket for {address}: {e.Message}");
                 sender.Dispose();
@@ -142,7 +142,7 @@ internal sealed class MulticastClient : IDisposable
                         endpoint)
                     .ConfigureAwait(false);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // Console.WriteLine($"Sender {sender.Key} failure: {e.Message}");
                 // eat it.

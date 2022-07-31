@@ -301,7 +301,7 @@ internal class UdpDiscovery : IDiscovery
 
     public void Dispose()
     {
-        _discoveringInterval?.Dispose();
+        StopDiscovering();
         
         lock (_listeningThreadLock)
         {

@@ -43,6 +43,7 @@ public class DiscoveryTest
 
             if (foundDevice?.DeviceId == _firstDevice.DeviceId)
             {
+                _secondDeviceDiscovery.StopDiscovering();
                 break;
             }
 
