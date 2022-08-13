@@ -4,6 +4,7 @@ using SMTSP.Encryption;
 using SMTSP.Entities;
 using SMTSP.Entities.Content;
 using SMTSP.Extensions;
+using DeviceInfo = SMTSP.Entities.DeviceInfo;
 
 namespace SMTSP;
 

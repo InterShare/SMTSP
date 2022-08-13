@@ -7,7 +7,7 @@
         <Authors>Julian Baumann</Authors>
         <Description>This protocol allows for quick data exchange between two devices/services in a network.</Description>
         <Copyright>2022 Julian Baumann</Copyright>
-        <PackageProjectUrl>https://smts.julba.de</PackageProjectUrl>
+        <PackageProjectUrl>https://intershare.julba.de</PackageProjectUrl>
         <RepositoryUrl>https://github.com/InterShare/SMTSP</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <LangVersion>10</LangVersion>

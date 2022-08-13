@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using SMTSP.Entities;
+using DeviceInfo = SMTSP.Entities.DeviceInfo;
 
 namespace SMTSP.Discovery;
 

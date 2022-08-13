@@ -5,6 +5,7 @@ using Makaretu.Dns;
 using MDNS;
 using SMTSP.Core;
 using SMTSP.Entities;
+using DeviceInfo = SMTSP.Entities.DeviceInfo;
 
 namespace SMTSP.Discovery.Implementations;
 

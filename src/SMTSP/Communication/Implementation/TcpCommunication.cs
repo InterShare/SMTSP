@@ -1,13 +1,13 @@
 using System.Net;
 using System.Net.Sockets;
 using SMTSP.Core;
-using SMTSP.Entities;
+using DeviceInfo = SMTSP.Entities.DeviceInfo;
 
 namespace SMTSP.Communication.Implementation;
 
 internal class TcpCommunication : ICommunication
 {
-    private const int DefaultPort = 42420;
+    private const ushort DefaultPort = 42420;
     private DeviceInfo _myDevice = null!;
 
     private bool _running;
@@ -20,17 +20,29 @@ internal class TcpCommunication : ICommunication
 
     public event EventHandler<Stream> OnReceive = delegate {};
 
+    private void StartSocket(ushort port)
+    {
+        _tcpListener = new TcpListener(new IPEndPoint(IPAddress.IPv6Any, port))
+        {
+            Server =
+            {
+                DualMode = true
+            }
+        };
+        
+        _tcpListener.Start();
+    }
+
     public Task Start(DeviceInfo myDevice)
     {
         _myDevice = myDevice;
-        
+
         try
         {
             try
             {
                 Logger.Info($"Starting TCP Server with port {DefaultPort}");
-                _tcpListener = new TcpListener(IPAddress.Any, DefaultPort);
-                _tcpListener.Start();
+                StartSocket(DefaultPort);
             }
             catch (SocketException exception)
             {
@@ -38,8 +50,7 @@ internal class TcpCommunication : ICommunication
                 if (exception.Message.ToLowerInvariant().Contains("already in use"))
                 {
                     Logger.Info("Default port is already in use, choosing another one");
-                    _tcpListener = new TcpListener(IPAddress.Any, 0);
-                    _tcpListener.Start();
+                    StartSocket(0);
                 }
                 else
                 {
@@ -55,7 +66,7 @@ internal class TcpCommunication : ICommunication
                 return Task.CompletedTask;
             }
 
-            Port = ushort.Parse(((IPEndPoint)_tcpListener.LocalEndpoint).Port.ToString());
+            Port = ushort.Parse(((IPEndPoint)_tcpListener!.LocalEndpoint).Port.ToString());
             _myDevice.TcpPort = Port;
 
             _cancellationTokenSource = new CancellationTokenSource();

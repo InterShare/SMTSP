@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using SMTSP.Discovery.Implementations;
 using SMTSP.Entities;
+using DeviceInfo = SMTSP.Entities.DeviceInfo;
 
 namespace SMTSP.Discovery;
 

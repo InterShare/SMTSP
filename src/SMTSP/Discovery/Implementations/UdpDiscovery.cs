@@ -6,6 +6,7 @@ using SMTSP.Entities;
 using SMTSP.Extensions;
 using SMTSP.Helpers;
 using Timer = System.Timers.Timer;
+using DeviceInfo = SMTSP.Entities.DeviceInfo;
 
 namespace SMTSP.Discovery.Implementations;
 
@@ -161,7 +162,10 @@ internal class UdpDiscovery : IDiscovery
             }
             catch (Exception exception)
             {
-                Logger.Exception(exception);
+                if (exception is not OperationCanceledException)
+                {
+                    Logger.Exception(exception);
+                }
             }
             
             if (stream != null)

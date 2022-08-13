@@ -1,4 +1,5 @@
 using SMTSP.Entities;
+using DeviceInfo = SMTSP.Entities.DeviceInfo;
 
 namespace SMTSP.Communication;
 

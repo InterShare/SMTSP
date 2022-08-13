@@ -5,6 +5,7 @@ using SMTSP.Entities;
 using SMTSP.Entities.Content;
 using SMTSP.Extensions;
 using SMTSP.Helpers;
+using DeviceInfo = SMTSP.Entities.DeviceInfo;
 
 namespace SMTSP;
 

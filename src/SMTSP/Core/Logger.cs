@@ -6,7 +6,6 @@ internal static class Logger
 
     private static string FormatMessage(string severity, string message)
     {
-        // ReSharper disable once UseFormatSpecifierInInterpolation
         return $"{DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ")} {severity} {message}";
     }
 

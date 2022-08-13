@@ -10,5 +10,5 @@ public class SmtsConfiguration
     /// <summary>
     /// Enables logger output in console
     /// </summary>
-    public static bool LoggerOutputEnabled => false;
+    public static bool LoggerOutputEnabled { get; set; } = false;
 }
