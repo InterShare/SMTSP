@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package SMTSP.protocol.discovery;
+
+message Device {
+    string id = 1;
+    string name = 2;
+    DeviceType type = 3;
+    TcpConnectionInfo tcp_connection_info = 4;
+
+    enum DeviceType {
+        UNKNOWN = 0;
+        MOBILE = 1;
+        DESKTOP = 2;
+        TV = 3;
+        CAR = 4;
+        WATCH = 5;
+        EMBEDDED = 6;
+    }
+}
+
+message TcpConnectionInfo {
+    string ip_address = 1;
+    uint32 port = 2;
+}

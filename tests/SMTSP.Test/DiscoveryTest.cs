@@ -1,49 +1,46 @@
 using NUnit.Framework;
-using SMTSP.Discovery;
-using SMTSP.Discovery.Entities;
-using SMTSP.Entities;
+using SMTSP.Protocol.Discovery;
 
 namespace SMTSP.Test;
 
-public class DiscoveryTest
+public class Tests
 {
-    private DeviceDiscovery _firstDeviceAdvertiser = null!;
-    private DeviceDiscovery _secondDeviceDiscovery = null!;
-
-    private DeviceInfo _firstDevice = null!;
-    private DeviceInfo _secondDevice = null!;
+    private const string AdvertisedDeviceId = "8F596F84-57AD-4D97-817D-D5ADECD2A9FF";
 
     [SetUp]
     public void Setup()
     {
-        var thread = new Thread(RunAdvertiser);
-        thread.Start();
+        var discovery = new DeviceDiscovery(new Device
+        {
+            Name = "Advertised [TEST]",
+            Id = AdvertisedDeviceId,
+            Type = Device.Types.DeviceType.Mobile
+        });
 
-        _secondDevice = new DeviceInfo("EE27A6ED-6F30-4299-A35F-AC3B7139F733", "TestDevice 2", 42013, DeviceTypes.Phone, "192.168.1.43", new[] { Capabilities.FileTransfer });
-        _secondDeviceDiscovery = new DeviceDiscovery(_secondDevice);
+        discovery.Register(42);
     }
 
-    private void RunAdvertiser()
-    {
-        _firstDevice = new DeviceInfo("05DD541B-B351-4EE3-9BA5-1F9663E0FC4B", "TestDevice 1", 42003, DeviceTypes.Computer, "192.168.1.42", new[] { Capabilities.FileTransfer });
-        _firstDeviceAdvertiser = new DeviceDiscovery(_firstDevice);
-        _firstDeviceAdvertiser.Advertise();
-    }
 
     [Test]
-    public void DiscoverDevice()
+    public void TestBonjourDiscovery()
     {
-        _secondDeviceDiscovery.StartDiscovering();
-
-        DeviceInfo? foundDevice = null;
-
-        for (int i = 0; i < 10; i++)
+        var discovery = new DeviceDiscovery(new Device
         {
-            foundDevice = _secondDeviceDiscovery.DiscoveredDevices.FirstOrDefault(device => device.DeviceId == _firstDevice.DeviceId);
+            Name = "Discovery [TEST]",
+            Id = Guid.NewGuid().ToString(),
+            Type = Device.Types.DeviceType.Mobile
+        });
 
-            if (foundDevice?.DeviceId == _firstDevice.DeviceId)
+        discovery.Browse();
+
+        Device? foundDevice = null;
+
+        for (var i = 0; i < 10; i++)
+        {
+            foundDevice = discovery.DiscoveredDevices.FirstOrDefault(device => device.Id == AdvertisedDeviceId);
+
+            if (foundDevice != null)
             {
-                _secondDeviceDiscovery.StopDiscovering();
                 break;
             }
 
@@ -52,7 +49,7 @@ public class DiscoveryTest
 
         if (foundDevice == null)
         {
-            Assert.Fail($"Expected to find device {_firstDevice.DeviceId}");
+            Assert.Fail($"Expected to find device {AdvertisedDeviceId}");
         }
     }
 }
