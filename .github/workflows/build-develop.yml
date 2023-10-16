@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/dotnet/sdk:7.0
     steps:
     - uses: actions/checkout@v2
       with:
@@ -16,6 +15,11 @@ jobs:
 
     - name: Install Protoc
       uses: zchee/setup-protoc@v1
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '7.0.x'
 
     - name: Build
       run: |
