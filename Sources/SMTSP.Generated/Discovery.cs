@@ -24,19 +24,19 @@ namespace SMTSP.Protocol.Discovery {
     static DiscoveryReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg9kaXNjb3ZlcnkucHJvdG8SGFNNVFNQLnByb3RvY29sLmRpc2NvdmVyeSKF",
+            "Cg9kaXNjb3ZlcnkucHJvdG8SGFNNVFNQLnByb3RvY29sLmRpc2NvdmVyeSKf",
             "AgoGRGV2aWNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSOQoEdHlwZRgD",
             "IAEoDjIrLlNNVFNQLnByb3RvY29sLmRpc2NvdmVyeS5EZXZpY2UuRGV2aWNl",
             "VHlwZRJIChN0Y3BfY29ubmVjdGlvbl9pbmZvGAQgASgLMisuU01UU1AucHJv",
-            "dG9jb2wuZGlzY292ZXJ5LlRjcENvbm5lY3Rpb25JbmZvIlwKCkRldmljZVR5",
-            "cGUSCwoHVU5LTk9XThAAEgoKBk1PQklMRRABEgsKB0RFU0tUT1AQAhIGCgJU",
-            "VhADEgcKA0NBUhAEEgkKBVdBVENIEAUSDAoIRU1CRURERUQQBiI1ChFUY3BD",
-            "b25uZWN0aW9uSW5mbxISCgppcF9hZGRyZXNzGAEgASgJEgwKBHBvcnQYAiAB",
-            "KA1iBnByb3RvMw=="));
+            "dG9jb2wuZGlzY292ZXJ5LlRjcENvbm5lY3Rpb25JbmZvEhgKEHByb3RvY29s",
+            "X3ZlcnNpb24YBSABKAUiXAoKRGV2aWNlVHlwZRILCgdVTktOT1dOEAASCgoG",
+            "TU9CSUxFEAESCwoHREVTS1RPUBACEgYKAlRWEAMSBwoDQ0FSEAQSCQoFV0FU",
+            "Q0gQBRIMCghFTUJFRERFRBAGIjUKEVRjcENvbm5lY3Rpb25JbmZvEhIKCmlw",
+            "X2FkZHJlc3MYASABKAkSDAoEcG9ydBgCIAEoDWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Discovery.Device), global::SMTSP.Protocol.Discovery.Device.Parser, new[]{ "Id", "Name", "Type", "TcpConnectionInfo" }, null, new[]{ typeof(global::SMTSP.Protocol.Discovery.Device.Types.DeviceType) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Discovery.Device), global::SMTSP.Protocol.Discovery.Device.Parser, new[]{ "Id", "Name", "Type", "TcpConnectionInfo", "ProtocolVersion" }, null, new[]{ typeof(global::SMTSP.Protocol.Discovery.Device.Types.DeviceType) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Discovery.TcpConnectionInfo), global::SMTSP.Protocol.Discovery.TcpConnectionInfo.Parser, new[]{ "IpAddress", "Port" }, null, null, null, null)
           }));
     }
@@ -82,6 +82,7 @@ namespace SMTSP.Protocol.Discovery {
       name_ = other.name_;
       type_ = other.type_;
       tcpConnectionInfo_ = other.tcpConnectionInfo_ != null ? other.tcpConnectionInfo_.Clone() : null;
+      protocolVersion_ = other.protocolVersion_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -139,6 +140,18 @@ namespace SMTSP.Protocol.Discovery {
       }
     }
 
+    /// <summary>Field number for the "protocol_version" field.</summary>
+    public const int ProtocolVersionFieldNumber = 5;
+    private int protocolVersion_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ProtocolVersion {
+      get { return protocolVersion_; }
+      set {
+        protocolVersion_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -158,6 +171,7 @@ namespace SMTSP.Protocol.Discovery {
       if (Name != other.Name) return false;
       if (Type != other.Type) return false;
       if (!object.Equals(TcpConnectionInfo, other.TcpConnectionInfo)) return false;
+      if (ProtocolVersion != other.ProtocolVersion) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -169,6 +183,7 @@ namespace SMTSP.Protocol.Discovery {
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (Type != global::SMTSP.Protocol.Discovery.Device.Types.DeviceType.Unknown) hash ^= Type.GetHashCode();
       if (tcpConnectionInfo_ != null) hash ^= TcpConnectionInfo.GetHashCode();
+      if (ProtocolVersion != 0) hash ^= ProtocolVersion.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -203,6 +218,10 @@ namespace SMTSP.Protocol.Discovery {
         output.WriteRawTag(34);
         output.WriteMessage(TcpConnectionInfo);
       }
+      if (ProtocolVersion != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(ProtocolVersion);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -229,6 +248,10 @@ namespace SMTSP.Protocol.Discovery {
         output.WriteRawTag(34);
         output.WriteMessage(TcpConnectionInfo);
       }
+      if (ProtocolVersion != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(ProtocolVersion);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -250,6 +273,9 @@ namespace SMTSP.Protocol.Discovery {
       }
       if (tcpConnectionInfo_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(TcpConnectionInfo);
+      }
+      if (ProtocolVersion != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(ProtocolVersion);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -277,6 +303,9 @@ namespace SMTSP.Protocol.Discovery {
           TcpConnectionInfo = new global::SMTSP.Protocol.Discovery.TcpConnectionInfo();
         }
         TcpConnectionInfo.MergeFrom(other.TcpConnectionInfo);
+      }
+      if (other.ProtocolVersion != 0) {
+        ProtocolVersion = other.ProtocolVersion;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -312,6 +341,10 @@ namespace SMTSP.Protocol.Discovery {
             input.ReadMessage(TcpConnectionInfo);
             break;
           }
+          case 40: {
+            ProtocolVersion = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -344,6 +377,10 @@ namespace SMTSP.Protocol.Discovery {
               TcpConnectionInfo = new global::SMTSP.Protocol.Discovery.TcpConnectionInfo();
             }
             input.ReadMessage(TcpConnectionInfo);
+            break;
+          }
+          case 40: {
+            ProtocolVersion = input.ReadInt32();
             break;
           }
         }

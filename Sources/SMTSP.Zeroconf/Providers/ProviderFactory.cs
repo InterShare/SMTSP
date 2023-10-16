@@ -25,24 +25,24 @@ internal static class ProviderFactory
     {
         get
         {
-            if (ProviderFactory.providers == null)
-                ProviderFactory.GetProviders () ;
+            if (providers == null)
+                GetProviders () ;
 
-            return ProviderFactory.providers[0] ;
+            return providers[0] ;
         }
     }
 
     public static IZeroconfProvider SelectedProvider
     {
-        get => ProviderFactory.selectedProvider ?? ProviderFactory.DefaultProvider
+        get => selectedProvider ?? DefaultProvider
         ;
-        set => ProviderFactory.selectedProvider = value ;
+        set => selectedProvider = value ;
     }
 
     private static IZeroconfProvider[] GetProviders ()
     {
-        if (ProviderFactory.providers != null)
-            return ProviderFactory.providers ;
+        if (providers != null)
+            return providers ;
 
         var providersList = new List <IZeroconfProvider> () ;
 
@@ -60,8 +60,8 @@ internal static class ProviderFactory
         if (providersList.Count == 0)
             throw new Exception ("No Zeroconf providers could be found or initialized. Necessary daemon may not be running.") ;
 
-        ProviderFactory.providers = providersList.ToArray () ;
+        providers = providersList.ToArray () ;
 
-        return ProviderFactory.providers ;
+        return providers ;
     }
 }

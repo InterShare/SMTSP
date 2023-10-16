@@ -3,13 +3,13 @@ using System.Net.Sockets;
 using SMTSP.Core;
 using SMTSP.Protocol.Discovery;
 
-namespace SMTSP.Connection;
+namespace SMTSP.Communication.Backends;
 
-internal class TcpCommunication
+internal class TcpCommunicationBackend : ICommunicationBackend
 {
-    public static TcpCommunication Shared { get; } = new();
+    public static TcpCommunicationBackend Shared { get; } = new();
 
-    private const int DefaultPort = 42420;
+    private const int DefaultPort = 80;
     private Device _myDevice = null!;
 
     private bool _running;
@@ -17,8 +17,8 @@ internal class TcpCommunication
     private CancellationToken _cancellationToken;
     private TcpListener? _tcpListener;
     private Thread? _listeningThread;
+    private ushort _port;
 
-    public ushort Port { get; private set; }
 
     public event EventHandler<Stream> OnReceive = delegate {};
 
@@ -57,8 +57,8 @@ internal class TcpCommunication
                 return Task.CompletedTask;
             }
 
-            Port = ushort.Parse(((IPEndPoint)_tcpListener.LocalEndpoint).Port.ToString());
-            _myDevice.TcpConnectionInfo.Port = Port;
+            _port = ushort.Parse(((IPEndPoint)_tcpListener.LocalEndpoint).Port.ToString());
+            _myDevice.TcpConnectionInfo.Port = _port;
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
@@ -69,7 +69,7 @@ internal class TcpCommunication
                 Logger.Success("Stopped tcp server");
             });
 
-            Logger.Success($"Server is running on port: {Port}");
+            Logger.Success($"Server is running on port: {_port}");
             _running = true;
 
             _listeningThread?.Interrupt();

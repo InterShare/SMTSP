@@ -7,13 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Arkane.Zeroconf\Arkane.Zeroconf.csproj" />
+      <ProjectReference Include="..\SMTSP.Zeroconf\SMTSP.Zeroconf.csproj" />
       <ProjectReference Include="..\SMTSP.Generated\SMTSP.Generated.csproj" />
-
-
     </ItemGroup>
-
-
-
+    
+    <ItemGroup>
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
+    </ItemGroup>
 
 </Project>

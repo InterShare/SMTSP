@@ -1,9 +1,17 @@
 using System.Collections.ObjectModel;
 using ArkaneSystems.Arkane.Zeroconf;
+using SMTSP.Core;
 using SMTSP.Extensions;
 using SMTSP.Protocol.Discovery;
 
 namespace SMTSP.Discovery;
+
+internal struct TxtProperties
+{
+    public const string Name = "Name";
+    public const string Type = "Type";
+    public const string Version = "Version";
+}
 
 /// <summary>
 /// This uses the native underlying bonjour libraries to advertise/discover mDNS services.
@@ -32,8 +40,9 @@ internal class BonjourDiscovery
         _service.UPort = port;
 
         var txtRecord = new TxtRecord();
-        txtRecord.Add("Name", _myDevice.Name);
-        txtRecord.Add("Type", _myDevice.Type.ToString());
+        txtRecord.Add(TxtProperties.Name, _myDevice.Name);
+        txtRecord.Add(TxtProperties.Type, _myDevice.Type.ToString());
+        txtRecord.Add(TxtProperties.Version, Config.ProtocolVersion.ToString());
 
         _service.TxtRecord = txtRecord;
 
@@ -82,54 +91,54 @@ internal class BonjourDiscovery
         }
     }
 
-    private static string? GetPropertyValueFromTxtRecords(ITxtRecord records, string propertyName)
-    {
-        if (records.Count <= 0)
-        {
-            return null;
-        }
-
-        foreach (TxtRecordItem txtRecord in records)
-        {
-            if (txtRecord.Key == propertyName)
-            {
-                return txtRecord.ValueString;
-            }
-        }
-
-        return null;
-    }
-
     private void OnServiceAdded(object _, ServiceBrowseEventArgs serviceBrowseEventArgs)
     {
         serviceBrowseEventArgs.Service.Resolved += (_, args) => {
-            var resolvableService = args.Service;
-
-            var id = resolvableService.Name;
-            var name = GetPropertyValueFromTxtRecords(resolvableService.TxtRecord, "Name");
-            var type = GetPropertyValueFromTxtRecords(resolvableService.TxtRecord, "Type")?.ToEnum<Device.Types.DeviceType>(Device.Types.DeviceType.Unknown);
-            var ipAddress = resolvableService.HostEntry.AddressList.FirstOrDefault();
-            var port = resolvableService.Port;
-
-            if (string.IsNullOrEmpty(id)
-                || string.IsNullOrEmpty(name)
-                || type == null
-                || ipAddress == null)
+            try
             {
-                return;
-            }
+                var resolvableService = args.Service;
 
-            AddOrReplaceDevice(new Device
-            {
-                Id = id,
-                Name = name,
-                Type = type.Value,
-                TcpConnectionInfo = new TcpConnectionInfo
+                var id = resolvableService.Name;
+
+                var protocolVersionRaw = resolvableService.TxtRecord.GetValue(TxtProperties.Version);
+
+                if (string.IsNullOrEmpty(protocolVersionRaw))
                 {
-                    IpAddress = ipAddress.ToString(),
-                    Port = Convert.ToUInt32(port)
+                    return;
                 }
-            });
+
+                var protocolVersion = int.Parse(protocolVersionRaw);
+                var name = resolvableService.TxtRecord.GetValue(TxtProperties.Name);
+                var type = resolvableService.TxtRecord.GetValue(TxtProperties.Type)?.ToEnum<Device.Types.DeviceType>(Device.Types.DeviceType.Unknown);
+
+                var ipAddress = resolvableService.HostEntry.AddressList.FirstOrDefault();
+                var port = resolvableService.Port;
+
+                if (string.IsNullOrEmpty(id)
+                    || string.IsNullOrEmpty(name)
+                    || type == null
+                    || ipAddress == null)
+                {
+                    return;
+                }
+
+                AddOrReplaceDevice(new Device
+                {
+                    Id = id,
+                    Name = name,
+                    Type = type.Value,
+                    ProtocolVersion = protocolVersion,
+                    TcpConnectionInfo = new TcpConnectionInfo
+                    {
+                        IpAddress = ipAddress.ToString(),
+                        Port = Convert.ToUInt32(port)
+                    }
+                });
+            }
+            catch (Exception exception)
+            {
+                Logger.Exception(exception);
+            }
         };
 
         serviceBrowseEventArgs.Service.Resolve();

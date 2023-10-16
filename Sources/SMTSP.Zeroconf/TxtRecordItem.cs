@@ -19,14 +19,14 @@ public class TxtRecordItem
 
     public TxtRecordItem (string key, byte[] valueRaw)
     {
-        this.Key      = key ;
-        this.ValueRaw = valueRaw ;
+        Key      = key ;
+        ValueRaw = valueRaw ;
     }
 
     public TxtRecordItem (string key, string valueString)
     {
-        this.Key         = key ;
-        this.ValueString = valueString ;
+        Key         = key ;
+        ValueString = valueString ;
     }
 
     private string valueString ;
@@ -39,18 +39,18 @@ public class TxtRecordItem
     {
         get
         {
-            if (this.valueString != null)
-                return this.valueString ;
+            if (valueString != null)
+                return valueString ;
 
-            this.valueString = TxtRecordItem.Encoding.GetString (this.ValueRaw) ;
-            return this.valueString ;
+            valueString = Encoding.GetString (ValueRaw) ;
+            return valueString ;
         }
         set
         {
-            this.valueString = value ;
-            this.ValueRaw    = TxtRecordItem.Encoding.GetBytes (value) ;
+            valueString = value ;
+            ValueRaw    = Encoding.GetBytes (value) ;
         }
     }
 
-    public override string ToString () => string.Format ("{0} = {1}", this.Key, this.ValueString) ;
+    public override string ToString () => string.Format ("{0} = {1}", Key, ValueString) ;
 }

@@ -15,11 +15,11 @@ Please see project web site for more information.</Description>
     <Copyright>MIT License</Copyright>
     <PackageTags>zeroconf bonjour</PackageTags>
     <PackageReleaseNotes>Converted to .NET Core. Projects for which this is not suitable should continue to use 1.2.</PackageReleaseNotes>
-    <AssemblyName>Arkane.Zeroconf</AssemblyName>
     <RootNamespace>ArkaneSystems.Arkane.Zeroconf</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>zeroconf.snk</AssemblyOriginatorKeyFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageId>SMTSP.Zeroconf</PackageId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

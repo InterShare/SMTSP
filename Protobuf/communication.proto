@@ -3,7 +3,7 @@ syntax = "proto3";
 package SMTSP.protocol.communication;
 import "discovery.proto";
 
-message KeyExchange {
+message EncryptionRequestResponse {
     bytes public_key = 1;
     bytes iv = 2;
 }
@@ -13,14 +13,12 @@ message EncryptionRequest {
 }
 
 message TransferRequest {
-    string id = 1;
-    discovery.Device device = 2;
-    CommunicationIntents intent = 3;
+    discovery.Device device = 1;
+    CommunicationIntents intent = 2;
 
     enum CommunicationIntents {
-        SINGLE_FILE_TRANSFER = 0;
-        MULTIPLE_FILES_TRANSFER = 1;
-        CLIPBOARD_TRANSFER = 2;
+        FILE_TRANSFER = 0;
+        CLIPBOARD_TRANSFER = 1;
     }
 }
 
@@ -33,13 +31,13 @@ message TransferRequestResponse {
     }
 }
 
-message FileInfo {
+message SharedFileInfo {
     string file_name = 1;
     int64 file_size = 2;
 }
 
 message FileTransferIntent {
-    repeated FileInfo file_info = 1;
+    repeated SharedFileInfo file_info = 1;
 }
 
 message ClipboardTransferIntent {

@@ -25,26 +25,30 @@ namespace SMTSP.Protocol.Communication {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChNjb21tdW5pY2F0aW9uLnByb3RvEhxTTVRTUC5wcm90b2NvbC5jb21tdW5p",
-            "Y2F0aW9uGg9kaXNjb3ZlcnkucHJvdG8iLQoLS2V5RXhjaGFuZ2USEgoKcHVi",
-            "bGljX2tleRgBIAEoDBIKCgJpdhgCIAEoDCInChFFbmNyeXB0aW9uUmVxdWVz",
-            "dBISCgpwdWJsaWNfa2V5GAEgASgMIooCCg9UcmFuc2ZlclJlcXVlc3QSCgoC",
-            "aWQYASABKAkSMAoGZGV2aWNlGAIgASgLMiAuU01UU1AucHJvdG9jb2wuZGlz",
-            "Y292ZXJ5LkRldmljZRJSCgZpbnRlbnQYAyABKA4yQi5TTVRTUC5wcm90b2Nv",
-            "bC5jb21tdW5pY2F0aW9uLlRyYW5zZmVyUmVxdWVzdC5Db21tdW5pY2F0aW9u",
-            "SW50ZW50cyJlChRDb21tdW5pY2F0aW9uSW50ZW50cxIYChRTSU5HTEVfRklM",
-            "RV9UUkFOU0ZFUhAAEhsKF01VTFRJUExFX0ZJTEVTX1RSQU5TRkVSEAESFgoS",
-            "Q0xJUEJPQVJEX1RSQU5TRkVSEAIiMAoIRmlsZUluZm8SEQoJZmlsZV9uYW1l",
-            "GAEgASgJEhEKCWZpbGVfc2l6ZRgCIAEoAyJPChJGaWxlVHJhbnNmZXJJbnRl",
-            "bnQSOQoJZmlsZV9pbmZvGAEgAygLMiYuU01UU1AucHJvdG9jb2wuY29tbXVu",
-            "aWNhdGlvbi5GaWxlSW5mbyI0ChdDbGlwYm9hcmRUcmFuc2ZlckludGVudBIZ",
-            "ChFjbGlwYm9hcmRfY29udGVudBgBIAMoCWIGcHJvdG8z"));
+            "Y2F0aW9uGg9kaXNjb3ZlcnkucHJvdG8iOwoZRW5jcnlwdGlvblJlcXVlc3RS",
+            "ZXNwb25zZRISCgpwdWJsaWNfa2V5GAEgASgMEgoKAml2GAIgASgMIicKEUVu",
+            "Y3J5cHRpb25SZXF1ZXN0EhIKCnB1YmxpY19rZXkYASABKAwi2gEKD1RyYW5z",
+            "ZmVyUmVxdWVzdBIwCgZkZXZpY2UYASABKAsyIC5TTVRTUC5wcm90b2NvbC5k",
+            "aXNjb3ZlcnkuRGV2aWNlElIKBmludGVudBgCIAEoDjJCLlNNVFNQLnByb3Rv",
+            "Y29sLmNvbW11bmljYXRpb24uVHJhbnNmZXJSZXF1ZXN0LkNvbW11bmljYXRp",
+            "b25JbnRlbnRzIkEKFENvbW11bmljYXRpb25JbnRlbnRzEhEKDUZJTEVfVFJB",
+            "TlNGRVIQABIWChJDTElQQk9BUkRfVFJBTlNGRVIQASKJAQoXVHJhbnNmZXJS",
+            "ZXF1ZXN0UmVzcG9uc2USTQoGYW5zd2VyGAEgASgOMj0uU01UU1AucHJvdG9j",
+            "b2wuY29tbXVuaWNhdGlvbi5UcmFuc2ZlclJlcXVlc3RSZXNwb25zZS5BbnN3",
+            "ZXJzIh8KB0Fuc3dlcnMSCAoEREVOWRAAEgoKBkFDQ0VQVBABIjYKDlNoYXJl",
+            "ZEZpbGVJbmZvEhEKCWZpbGVfbmFtZRgBIAEoCRIRCglmaWxlX3NpemUYAiAB",
+            "KAMiVQoSRmlsZVRyYW5zZmVySW50ZW50Ej8KCWZpbGVfaW5mbxgBIAMoCzIs",
+            "LlNNVFNQLnByb3RvY29sLmNvbW11bmljYXRpb24uU2hhcmVkRmlsZUluZm8i",
+            "NAoXQ2xpcGJvYXJkVHJhbnNmZXJJbnRlbnQSGQoRY2xpcGJvYXJkX2NvbnRl",
+            "bnQYASADKAliBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::SMTSP.Protocol.Discovery.DiscoveryReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Communication.KeyExchange), global::SMTSP.Protocol.Communication.KeyExchange.Parser, new[]{ "PublicKey", "Iv" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Communication.EncryptionRequestResponse), global::SMTSP.Protocol.Communication.EncryptionRequestResponse.Parser, new[]{ "PublicKey", "Iv" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Communication.EncryptionRequest), global::SMTSP.Protocol.Communication.EncryptionRequest.Parser, new[]{ "PublicKey" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Communication.TransferRequest), global::SMTSP.Protocol.Communication.TransferRequest.Parser, new[]{ "Id", "Device", "Intent" }, null, new[]{ typeof(global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Communication.FileInfo), global::SMTSP.Protocol.Communication.FileInfo.Parser, new[]{ "FileName", "FileSize" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Communication.TransferRequest), global::SMTSP.Protocol.Communication.TransferRequest.Parser, new[]{ "Device", "Intent" }, null, new[]{ typeof(global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Communication.TransferRequestResponse), global::SMTSP.Protocol.Communication.TransferRequestResponse.Parser, new[]{ "Answer" }, null, new[]{ typeof(global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Communication.SharedFileInfo), global::SMTSP.Protocol.Communication.SharedFileInfo.Parser, new[]{ "FileName", "FileSize" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Communication.FileTransferIntent), global::SMTSP.Protocol.Communication.FileTransferIntent.Parser, new[]{ "FileInfo" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Communication.ClipboardTransferIntent), global::SMTSP.Protocol.Communication.ClipboardTransferIntent.Parser, new[]{ "ClipboardContent" }, null, null, null, null)
           }));
@@ -53,16 +57,16 @@ namespace SMTSP.Protocol.Communication {
 
   }
   #region Messages
-  public sealed partial class KeyExchange : pb::IMessage<KeyExchange>
+  public sealed partial class EncryptionRequestResponse : pb::IMessage<EncryptionRequestResponse>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<KeyExchange> _parser = new pb::MessageParser<KeyExchange>(() => new KeyExchange());
+    private static readonly pb::MessageParser<EncryptionRequestResponse> _parser = new pb::MessageParser<EncryptionRequestResponse>(() => new EncryptionRequestResponse());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<KeyExchange> Parser { get { return _parser; } }
+    public static pb::MessageParser<EncryptionRequestResponse> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -78,7 +82,7 @@ namespace SMTSP.Protocol.Communication {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public KeyExchange() {
+    public EncryptionRequestResponse() {
       OnConstruction();
     }
 
@@ -86,7 +90,7 @@ namespace SMTSP.Protocol.Communication {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public KeyExchange(KeyExchange other) : this() {
+    public EncryptionRequestResponse(EncryptionRequestResponse other) : this() {
       publicKey_ = other.publicKey_;
       iv_ = other.iv_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -94,8 +98,8 @@ namespace SMTSP.Protocol.Communication {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public KeyExchange Clone() {
-      return new KeyExchange(this);
+    public EncryptionRequestResponse Clone() {
+      return new EncryptionRequestResponse(this);
     }
 
     /// <summary>Field number for the "public_key" field.</summary>
@@ -125,12 +129,12 @@ namespace SMTSP.Protocol.Communication {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as KeyExchange);
+      return Equals(other as EncryptionRequestResponse);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(KeyExchange other) {
+    public bool Equals(EncryptionRequestResponse other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -216,7 +220,7 @@ namespace SMTSP.Protocol.Communication {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(KeyExchange other) {
+    public void MergeFrom(EncryptionRequestResponse other) {
       if (other == null) {
         return;
       }
@@ -502,7 +506,6 @@ namespace SMTSP.Protocol.Communication {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public TransferRequest(TransferRequest other) : this() {
-      id_ = other.id_;
       device_ = other.device_ != null ? other.device_.Clone() : null;
       intent_ = other.intent_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -514,20 +517,8 @@ namespace SMTSP.Protocol.Communication {
       return new TransferRequest(this);
     }
 
-    /// <summary>Field number for the "id" field.</summary>
-    public const int IdFieldNumber = 1;
-    private string id_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Id {
-      get { return id_; }
-      set {
-        id_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
     /// <summary>Field number for the "device" field.</summary>
-    public const int DeviceFieldNumber = 2;
+    public const int DeviceFieldNumber = 1;
     private global::SMTSP.Protocol.Discovery.Device device_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -539,8 +530,8 @@ namespace SMTSP.Protocol.Communication {
     }
 
     /// <summary>Field number for the "intent" field.</summary>
-    public const int IntentFieldNumber = 3;
-    private global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents intent_ = global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.SingleFileTransfer;
+    public const int IntentFieldNumber = 2;
+    private global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents intent_ = global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.FileTransfer;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents Intent {
@@ -565,7 +556,6 @@ namespace SMTSP.Protocol.Communication {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Id != other.Id) return false;
       if (!object.Equals(Device, other.Device)) return false;
       if (Intent != other.Intent) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -575,9 +565,8 @@ namespace SMTSP.Protocol.Communication {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Id.Length != 0) hash ^= Id.GetHashCode();
       if (device_ != null) hash ^= Device.GetHashCode();
-      if (Intent != global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.SingleFileTransfer) hash ^= Intent.GetHashCode();
+      if (Intent != global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.FileTransfer) hash ^= Intent.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -596,16 +585,12 @@ namespace SMTSP.Protocol.Communication {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Id.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Id);
-      }
       if (device_ != null) {
-        output.WriteRawTag(18);
+        output.WriteRawTag(10);
         output.WriteMessage(Device);
       }
-      if (Intent != global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.SingleFileTransfer) {
-        output.WriteRawTag(24);
+      if (Intent != global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.FileTransfer) {
+        output.WriteRawTag(16);
         output.WriteEnum((int) Intent);
       }
       if (_unknownFields != null) {
@@ -618,16 +603,12 @@ namespace SMTSP.Protocol.Communication {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Id.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Id);
-      }
       if (device_ != null) {
-        output.WriteRawTag(18);
+        output.WriteRawTag(10);
         output.WriteMessage(Device);
       }
-      if (Intent != global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.SingleFileTransfer) {
-        output.WriteRawTag(24);
+      if (Intent != global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.FileTransfer) {
+        output.WriteRawTag(16);
         output.WriteEnum((int) Intent);
       }
       if (_unknownFields != null) {
@@ -640,13 +621,10 @@ namespace SMTSP.Protocol.Communication {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Id.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Id);
-      }
       if (device_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Device);
       }
-      if (Intent != global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.SingleFileTransfer) {
+      if (Intent != global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.FileTransfer) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Intent);
       }
       if (_unknownFields != null) {
@@ -661,16 +639,13 @@ namespace SMTSP.Protocol.Communication {
       if (other == null) {
         return;
       }
-      if (other.Id.Length != 0) {
-        Id = other.Id;
-      }
       if (other.device_ != null) {
         if (device_ == null) {
           Device = new global::SMTSP.Protocol.Discovery.Device();
         }
         Device.MergeFrom(other.Device);
       }
-      if (other.Intent != global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.SingleFileTransfer) {
+      if (other.Intent != global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents.FileTransfer) {
         Intent = other.Intent;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -689,17 +664,13 @@ namespace SMTSP.Protocol.Communication {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            Id = input.ReadString();
-            break;
-          }
-          case 18: {
             if (device_ == null) {
               Device = new global::SMTSP.Protocol.Discovery.Device();
             }
             input.ReadMessage(Device);
             break;
           }
-          case 24: {
+          case 16: {
             Intent = (global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents) input.ReadEnum();
             break;
           }
@@ -719,17 +690,13 @@ namespace SMTSP.Protocol.Communication {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            Id = input.ReadString();
-            break;
-          }
-          case 18: {
             if (device_ == null) {
               Device = new global::SMTSP.Protocol.Discovery.Device();
             }
             input.ReadMessage(Device);
             break;
           }
-          case 24: {
+          case 16: {
             Intent = (global::SMTSP.Protocol.Communication.TransferRequest.Types.CommunicationIntents) input.ReadEnum();
             break;
           }
@@ -744,9 +711,8 @@ namespace SMTSP.Protocol.Communication {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static partial class Types {
       public enum CommunicationIntents {
-        [pbr::OriginalName("SINGLE_FILE_TRANSFER")] SingleFileTransfer = 0,
-        [pbr::OriginalName("MULTIPLE_FILES_TRANSFER")] MultipleFilesTransfer = 1,
-        [pbr::OriginalName("CLIPBOARD_TRANSFER")] ClipboardTransfer = 2,
+        [pbr::OriginalName("FILE_TRANSFER")] FileTransfer = 0,
+        [pbr::OriginalName("CLIPBOARD_TRANSFER")] ClipboardTransfer = 1,
       }
 
     }
@@ -754,16 +720,16 @@ namespace SMTSP.Protocol.Communication {
 
   }
 
-  public sealed partial class FileInfo : pb::IMessage<FileInfo>
+  public sealed partial class TransferRequestResponse : pb::IMessage<TransferRequestResponse>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<FileInfo> _parser = new pb::MessageParser<FileInfo>(() => new FileInfo());
+    private static readonly pb::MessageParser<TransferRequestResponse> _parser = new pb::MessageParser<TransferRequestResponse>(() => new TransferRequestResponse());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<FileInfo> Parser { get { return _parser; } }
+    public static pb::MessageParser<TransferRequestResponse> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -779,7 +745,7 @@ namespace SMTSP.Protocol.Communication {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public FileInfo() {
+    public TransferRequestResponse() {
       OnConstruction();
     }
 
@@ -787,7 +753,209 @@ namespace SMTSP.Protocol.Communication {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public FileInfo(FileInfo other) : this() {
+    public TransferRequestResponse(TransferRequestResponse other) : this() {
+      answer_ = other.answer_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TransferRequestResponse Clone() {
+      return new TransferRequestResponse(this);
+    }
+
+    /// <summary>Field number for the "answer" field.</summary>
+    public const int AnswerFieldNumber = 1;
+    private global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers answer_ = global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers.Deny;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers Answer {
+      get { return answer_; }
+      set {
+        answer_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as TransferRequestResponse);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(TransferRequestResponse other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Answer != other.Answer) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Answer != global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers.Deny) hash ^= Answer.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Answer != global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers.Deny) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Answer);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Answer != global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers.Deny) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Answer);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Answer != global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers.Deny) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Answer);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(TransferRequestResponse other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Answer != global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers.Deny) {
+        Answer = other.Answer;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Answer = (global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Answer = (global::SMTSP.Protocol.Communication.TransferRequestResponse.Types.Answers) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the TransferRequestResponse message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static partial class Types {
+      public enum Answers {
+        [pbr::OriginalName("DENY")] Deny = 0,
+        [pbr::OriginalName("ACCEPT")] Accept = 1,
+      }
+
+    }
+    #endregion
+
+  }
+
+  public sealed partial class SharedFileInfo : pb::IMessage<SharedFileInfo>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<SharedFileInfo> _parser = new pb::MessageParser<SharedFileInfo>(() => new SharedFileInfo());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<SharedFileInfo> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::SMTSP.Protocol.Communication.CommunicationReflection.Descriptor.MessageTypes[4]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SharedFileInfo() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SharedFileInfo(SharedFileInfo other) : this() {
       fileName_ = other.fileName_;
       fileSize_ = other.fileSize_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -795,8 +963,8 @@ namespace SMTSP.Protocol.Communication {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public FileInfo Clone() {
-      return new FileInfo(this);
+    public SharedFileInfo Clone() {
+      return new SharedFileInfo(this);
     }
 
     /// <summary>Field number for the "file_name" field.</summary>
@@ -826,12 +994,12 @@ namespace SMTSP.Protocol.Communication {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as FileInfo);
+      return Equals(other as SharedFileInfo);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(FileInfo other) {
+    public bool Equals(SharedFileInfo other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -917,7 +1085,7 @@ namespace SMTSP.Protocol.Communication {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(FileInfo other) {
+    public void MergeFrom(SharedFileInfo other) {
       if (other == null) {
         return;
       }
@@ -994,7 +1162,7 @@ namespace SMTSP.Protocol.Communication {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SMTSP.Protocol.Communication.CommunicationReflection.Descriptor.MessageTypes[4]; }
+      get { return global::SMTSP.Protocol.Communication.CommunicationReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1026,12 +1194,12 @@ namespace SMTSP.Protocol.Communication {
 
     /// <summary>Field number for the "file_info" field.</summary>
     public const int FileInfoFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::SMTSP.Protocol.Communication.FileInfo> _repeated_fileInfo_codec
-        = pb::FieldCodec.ForMessage(10, global::SMTSP.Protocol.Communication.FileInfo.Parser);
-    private readonly pbc::RepeatedField<global::SMTSP.Protocol.Communication.FileInfo> fileInfo_ = new pbc::RepeatedField<global::SMTSP.Protocol.Communication.FileInfo>();
+    private static readonly pb::FieldCodec<global::SMTSP.Protocol.Communication.SharedFileInfo> _repeated_fileInfo_codec
+        = pb::FieldCodec.ForMessage(10, global::SMTSP.Protocol.Communication.SharedFileInfo.Parser);
+    private readonly pbc::RepeatedField<global::SMTSP.Protocol.Communication.SharedFileInfo> fileInfo_ = new pbc::RepeatedField<global::SMTSP.Protocol.Communication.SharedFileInfo>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::SMTSP.Protocol.Communication.FileInfo> FileInfo {
+    public pbc::RepeatedField<global::SMTSP.Protocol.Communication.SharedFileInfo> FileInfo {
       get { return fileInfo_; }
     }
 
@@ -1172,7 +1340,7 @@ namespace SMTSP.Protocol.Communication {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SMTSP.Protocol.Communication.CommunicationReflection.Descriptor.MessageTypes[5]; }
+      get { return global::SMTSP.Protocol.Communication.CommunicationReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

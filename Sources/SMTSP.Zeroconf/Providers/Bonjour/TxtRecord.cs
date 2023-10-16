@@ -22,8 +22,8 @@ public class TxtRecord : ITxtRecord
 
     public TxtRecord ()
     {
-        this.handle = Marshal.AllocHGlobal (16) ;
-        Native.TXTRecordCreate (this.handle, 0, IntPtr.Zero) ;
+        handle = Marshal.AllocHGlobal (16) ;
+        Native.TXTRecordCreate (handle, 0, IntPtr.Zero) ;
     }
 
     public TxtRecord (ushort length, IntPtr buffer)
@@ -50,38 +50,38 @@ public class TxtRecord : ITxtRecord
         }
     }
 
-    public IntPtr RawBytes => this.handle == IntPtr.Zero ? this.buffer : Native.TXTRecordGetBytesPtr (this.handle) ;
+    public IntPtr RawBytes => handle == IntPtr.Zero ? buffer : Native.TXTRecordGetBytesPtr (handle) ;
 
-    public ushort RawLength => this.handle == IntPtr.Zero ? this.length : Native.TXTRecordGetLength (this.handle) ;
+    public ushort RawLength => handle == IntPtr.Zero ? length : Native.TXTRecordGetLength (handle) ;
 
-    public int Count => Native.TXTRecordGetCount (this.RawLength, this.RawBytes) ;
+    public int Count => Native.TXTRecordGetCount (RawLength, RawBytes) ;
 
     public ITxtRecord BaseRecord => this ;
 
     public void Dispose ()
     {
-        if (this.handle != IntPtr.Zero)
+        if (handle != IntPtr.Zero)
         {
-            Native.TXTRecordDeallocate (this.handle) ;
-            this.handle = IntPtr.Zero ;
+            Native.TXTRecordDeallocate (handle) ;
+            handle = IntPtr.Zero ;
         }
     }
 
-    public void Add (string key, string value) { this.Add (new TxtRecordItem (key, value)) ; }
+    public void Add (string key, string value) { Add (new TxtRecordItem (key, value)) ; }
 
-    public void Add (string key, byte[] value) { this.Add (new TxtRecordItem (key, value)) ; }
+    public void Add (string key, byte[] value) { Add (new TxtRecordItem (key, value)) ; }
 
     public void Add (TxtRecordItem item)
     {
-        if (this.handle == IntPtr.Zero)
+        if (handle == IntPtr.Zero)
             throw new InvalidOperationException ("This TXT Record is read only") ;
 
         var key = item.Key ;
         if (key[key.Length - 1] != '\0')
             key += "\0" ;
 
-        var error = Native.TXTRecordSetValue (this.handle,
-                                              TxtRecord.Encoding.GetBytes (key + "\0"),
+        var error = Native.TXTRecordSetValue (handle,
+                                              Encoding.GetBytes (key + "\0"),
                                               (sbyte) item.ValueRaw.Length,
                                               item.ValueRaw) ;
 
@@ -91,10 +91,10 @@ public class TxtRecord : ITxtRecord
 
     public void Remove (string key)
     {
-        if (this.handle == IntPtr.Zero)
+        if (handle == IntPtr.Zero)
             throw new InvalidOperationException ("This TXT Record is read only") ;
 
-        var error = Native.TXTRecordRemoveValue (this.handle, TxtRecord.Encoding.GetBytes (key)) ;
+        var error = Native.TXTRecordRemoveValue (handle, Encoding.GetBytes (key)) ;
 
         if (error != ServiceError.NoError)
             throw new ServiceErrorException (error) ;
@@ -104,11 +104,11 @@ public class TxtRecord : ITxtRecord
     {
         var key = new byte[32] ;
 
-        if ((index < 0) || (index >= this.Count))
+        if ((index < 0) || (index >= Count))
             throw new IndexOutOfRangeException () ;
 
-        var error = Native.TXTRecordGetItemAtIndex (this.RawLength,
-                                                    this.RawBytes,
+        var error = Native.TXTRecordGetItemAtIndex (RawLength,
+                                                    RawBytes,
                                                     (ushort) index,
                                                     (ushort) key.Length,
                                                     key,
@@ -126,7 +126,7 @@ public class TxtRecord : ITxtRecord
         for (; (pos < key.Length) && (key[pos] != 0); pos++)
         { }
 
-        return new TxtRecordItem (TxtRecord.Encoding.GetString (key, 0, pos), buffer) ;
+        return new TxtRecordItem (Encoding.GetString (key, 0, pos), buffer) ;
     }
 
     public IEnumerator GetEnumerator () => new TxtRecordEnumerator (this) ;
@@ -135,7 +135,7 @@ public class TxtRecord : ITxtRecord
     {
         var ret   = string.Empty ;
         var i     = 0 ;
-        var count = this.Count ;
+        var count = Count ;
 
         foreach (TxtRecordItem item in this)
         {

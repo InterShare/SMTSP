@@ -18,11 +18,11 @@ public struct ServiceRef
 {
     public static readonly ServiceRef Zero ;
 
-    public ServiceRef (IntPtr raw) => this.Raw = raw ;
+    public ServiceRef (IntPtr raw) => Raw = raw ;
 
-    public void Deallocate () { Native.DNSServiceRefDeallocate (this.Raw) ; }
+    public void Deallocate () { Native.DNSServiceRefDeallocate (Raw) ; }
 
-    public ServiceError ProcessSingle () => Native.DNSServiceProcessResult (this.Raw) ;
+    public ServiceError ProcessSingle () => Native.DNSServiceProcessResult (Raw) ;
 
     public void Process ()
     {
@@ -32,13 +32,13 @@ public struct ServiceRef
     public void Process (CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        while (this.ProcessSingle() == ServiceError.NoError)
+        while (ProcessSingle() == ServiceError.NoError)
         {
             cancellationToken.ThrowIfCancellationRequested();
         }
     }
 
-    public int SocketFD => Native.DNSServiceRefSockFD (this.Raw) ;
+    public int SocketFD => Native.DNSServiceRefSockFD (Raw) ;
 
     public IntPtr Raw { get ; }
 
@@ -47,10 +47,10 @@ public struct ServiceRef
         if (!(o is ServiceRef))
             return false ;
 
-        return ((ServiceRef) o).Raw == this.Raw ;
+        return ((ServiceRef) o).Raw == Raw ;
     }
 
-    public override int GetHashCode () => this.Raw.GetHashCode () ;
+    public override int GetHashCode () => Raw.GetHashCode () ;
 
     public static bool operator == (ServiceRef a, ServiceRef b) => a.Raw == b.Raw ;
 

@@ -22,11 +22,11 @@ namespace ArkaneSystems.Arkane.Zeroconf.Providers.Bonjour ;
 
 public sealed class BrowseService : Service, IResolvableService
 {
-    public BrowseService () { this.SetupCallbacks () ; }
+    public BrowseService () { SetupCallbacks () ; }
 
     public BrowseService (string name, string replyDomain, string regtype) : base (name, replyDomain, regtype)
     {
-        this.SetupCallbacks () ;
+        SetupCallbacks () ;
     }
 
     internal BrowseService (Channel<IResolvableService> channel) : this ()
@@ -53,25 +53,25 @@ public sealed class BrowseService : Service, IResolvableService
     {
         // If people call this in a ServiceAdded event handler (which they generally do), we need to
         // invoke onto another thread, otherwise we block processing any more results.
-        this.resolveResult = ResolveAsync () ;
+        resolveResult = ResolveAsync () ;
     }
 
     public Task ResolveAsync (CancellationToken cancellationToken = default)
     {
-        return Task.Run (() => this.resolveAction (false, cancellationToken), cancellationToken) ;
+        return Task.Run (() => resolveAction (false, cancellationToken), cancellationToken) ;
     }
 
     ~BrowseService ()
     {
-        if (this.resolveResult != null)
-            this.resolveAction.EndInvoke (this.resolveResult) ;
+        if (resolveResult != null)
+            resolveAction.EndInvoke (resolveResult) ;
     }
 
     private void SetupCallbacks ()
     {
-        this.resolveReplyHandler     = this.OnResolveReply ;
-        this.queryRecordReplyHandler = this.OnQueryRecordReply ;
-        this.resolveAction           = this.Resolve ;
+        resolveReplyHandler     = OnResolveReply ;
+        queryRecordReplyHandler = OnQueryRecordReply ;
+        resolveAction           = Resolve ;
     }
 
     public void Resolve (bool requery)
@@ -81,22 +81,22 @@ public sealed class BrowseService : Service, IResolvableService
 
     public void Resolve (bool requery, CancellationToken cancellationToken)
     {
-        if (this.resolvePending)
+        if (resolvePending)
             return ;
 
-        this.IsResolved     = false ;
-        this.resolvePending = true ;
+        IsResolved     = false ;
+        resolvePending = true ;
 
         if (requery)
-            this.InterfaceIndex = 0 ;
+            InterfaceIndex = 0 ;
 
         var error = Native.DNSServiceResolve (out var sdRef,
                                               ServiceFlags.None,
-                                              this.InterfaceIndex,
-                                              Encoding.UTF8.GetBytes (this.Name),
-                                              this.RegType,
-                                              this.ReplyDomain,
-                                              this.resolveReplyHandler,
+                                              InterfaceIndex,
+                                              Encoding.UTF8.GetBytes (Name),
+                                              RegType,
+                                              ReplyDomain,
+                                              resolveReplyHandler,
                                               IntPtr.Zero) ;
 
         if (error != ServiceError.NoError)
@@ -112,10 +112,10 @@ public sealed class BrowseService : Service, IResolvableService
         var error = Native.DNSServiceQueryRecord (out var sdRef,
                                                   ServiceFlags.None,
                                                   0,
-                                                  this.fullname,
+                                                  fullname,
                                                   ServiceType.TXT,
                                                   ServiceClass.IN,
-                                                  this.queryRecordReplyHandler,
+                                                  queryRecordReplyHandler,
                                                   IntPtr.Zero) ;
 
         if (error != ServiceError.NoError)
@@ -135,13 +135,13 @@ public sealed class BrowseService : Service, IResolvableService
                                  IntPtr       txtRecord,
                                  IntPtr       contex)
     {
-        this.IsResolved     = true ;
-        this.resolvePending = false ;
+        IsResolved     = true ;
+        resolvePending = false ;
 
-        this.InterfaceIndex = interfaceIndex ;
-        this.FullName       = Marshal.PtrToStringUTF8 (fullname) ;
+        InterfaceIndex = interfaceIndex ;
+        FullName       = Marshal.PtrToStringUTF8 (fullname) ;
         this.port           = (ushort) IPAddress.NetworkToHostOrder ((short) port) ;
-        this.TxtRecord      = new TxtRecord (txtLen, txtRecord) ;
+        TxtRecord      = new TxtRecord (txtLen, txtRecord) ;
         this.hosttarget     = hosttarget ;
 
         sdRef.Deallocate () ;
@@ -149,7 +149,7 @@ public sealed class BrowseService : Service, IResolvableService
         // Run an A query to resolve the IP address
         ServiceRef sd_ref ;
 
-        if ((this.AddressProtocol == AddressProtocol.Any) || (this.AddressProtocol == AddressProtocol.IPv4))
+        if ((AddressProtocol == AddressProtocol.Any) || (AddressProtocol == AddressProtocol.IPv4))
         {
             var error = Native.DNSServiceQueryRecord (out sd_ref,
                                                       ServiceFlags.None,
@@ -157,7 +157,7 @@ public sealed class BrowseService : Service, IResolvableService
                                                       hosttarget,
                                                       ServiceType.A,
                                                       ServiceClass.IN,
-                                                      this.queryRecordReplyHandler,
+                                                      queryRecordReplyHandler,
                                                       IntPtr.Zero) ;
 
             if (error != ServiceError.NoError)
@@ -166,7 +166,7 @@ public sealed class BrowseService : Service, IResolvableService
             sd_ref.Process () ;
         }
 
-        if ((this.AddressProtocol == AddressProtocol.Any) || (this.AddressProtocol == AddressProtocol.IPv6))
+        if ((AddressProtocol == AddressProtocol.Any) || (AddressProtocol == AddressProtocol.IPv6))
         {
             var error = Native.DNSServiceQueryRecord (out sd_ref,
                                                       ServiceFlags.None,
@@ -174,7 +174,7 @@ public sealed class BrowseService : Service, IResolvableService
                                                       hosttarget,
                                                       ServiceType.AAAA,
                                                       ServiceClass.IN,
-                                                      this.queryRecordReplyHandler,
+                                                      queryRecordReplyHandler,
                                                       IntPtr.Zero) ;
 
             if (error != ServiceError.NoError)
@@ -183,11 +183,11 @@ public sealed class BrowseService : Service, IResolvableService
             sd_ref.Process () ;
         }
 
-        if (this.hostentry.AddressList != null)
+        if (hostentry.AddressList != null)
         {
-            var handler = this.Resolved ;
+            var handler = Resolved ;
             handler?.Invoke (this, new ServiceResolvedEventArgs (this)) ;
-            this.channel?.Writer.TryWrite (this) ;
+            channel?.Writer.TryWrite (this) ;
         }
     }
 
@@ -230,17 +230,17 @@ public sealed class BrowseService : Service, IResolvableService
                     break ;
                 }
 
-                if (this.hostentry == null)
-                    this.hostentry = new IPHostEntry { HostName = this.hosttarget } ;
+                if (hostentry == null)
+                    hostentry = new IPHostEntry { HostName = hosttarget } ;
 
-                if (this.hostentry.AddressList != null)
+                if (hostentry.AddressList != null)
                 {
-                    var list = new ArrayList (this.hostentry.AddressList) { address } ;
-                    this.hostentry.AddressList = list.ToArray (typeof (IPAddress)) as IPAddress[] ;
+                    var list = new ArrayList (hostentry.AddressList) { address } ;
+                    hostentry.AddressList = list.ToArray (typeof (IPAddress)) as IPAddress[] ;
                 }
                 else
                 {
-                    this.hostentry.AddressList = new[] { address } ;
+                    hostentry.AddressList = new[] { address } ;
                 }
 
                 //ServiceResolvedEventHandler handler = this.Resolved ;
@@ -249,9 +249,9 @@ public sealed class BrowseService : Service, IResolvableService
 
                 break ;
             case ServiceType.TXT:
-                this.TxtRecord?.Dispose () ;
+                TxtRecord?.Dispose () ;
 
-                this.TxtRecord = new TxtRecord (rdlen, rdata) ;
+                TxtRecord = new TxtRecord (rdlen, rdata) ;
                 break ;
         }
 

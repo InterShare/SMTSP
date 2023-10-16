@@ -20,11 +20,11 @@ namespace ArkaneSystems.Arkane.Zeroconf.Providers.Bonjour ;
 
 public sealed class RegisterService : Service, IRegisterService, IDisposable
 {
-    public RegisterService () { this.SetupCallback () ; }
+    public RegisterService () { SetupCallback () ; }
 
     public RegisterService (string name, string replyDomain, string regtype) : base (name, replyDomain, regtype)
     {
-        this.SetupCallback () ;
+        SetupCallback () ;
     }
 
     private readonly CancellationTokenSource cts = new() ;
@@ -37,60 +37,60 @@ public sealed class RegisterService : Service, IRegisterService, IDisposable
 
     public event RegisterServiceEventHandler Response ;
 
-    public void Register () { this.Register (true) ; }
+    public void Register () { Register (true) ; }
 
     public void Dispose ()
     {
-        this.cts?.Cancel () ;
+        cts?.Cancel () ;
 
-        this.cts.Dispose () ;
-        this.sdRef.Deallocate () ;
+        cts.Dispose () ;
+        sdRef.Deallocate () ;
     }
 
-    private void SetupCallback () { this.registerReplyHandler = this.OnRegisterReply ; }
+    private void SetupCallback () { registerReplyHandler = OnRegisterReply ; }
 
     public void Register (bool async)
     {
-        if (this.task != null)
+        if (task != null)
             throw new InvalidOperationException ("RegisterService registration already in process") ;
 
         if (async)
-            this.task = Task.Run (() => this.ProcessRegister ()).ContinueWith (_ => this.task = null, this.cts.Token) ;
+            task = Task.Run (() => ProcessRegister ()).ContinueWith (_ => task = null, cts.Token) ;
         else
-            this.ProcessRegister () ;
+            ProcessRegister () ;
     }
 
-    public void RegisterSync () { this.Register (false) ; }
+    public void RegisterSync () { Register (false) ; }
 
     public void ProcessRegister ()
     {
         ushort txtRecLength = 0 ;
         byte[] txtRec       = null ;
 
-        if (this.TxtRecord != null)
+        if (TxtRecord != null)
         {
-            txtRecLength = ((TxtRecord) this.TxtRecord.BaseRecord).RawLength ;
+            txtRecLength = ((TxtRecord) TxtRecord.BaseRecord).RawLength ;
             txtRec       = new byte[txtRecLength] ;
-            Marshal.Copy (((TxtRecord) this.TxtRecord.BaseRecord).RawBytes, txtRec, 0, txtRecLength) ;
+            Marshal.Copy (((TxtRecord) TxtRecord.BaseRecord).RawBytes, txtRec, 0, txtRecLength) ;
         }
 
-        var error = Native.DNSServiceRegister (out this.sdRef,
-                                               this.AutoRename ? ServiceFlags.None : ServiceFlags.NoAutoRename,
-                                               this.InterfaceIndex,
-                                               Encoding.UTF8.GetBytes (this.Name),
-                                               this.RegType,
-                                               this.ReplyDomain,
-                                               this.HostTarget,
-                                               (ushort) IPAddress.HostToNetworkOrder ((short) this.port),
+        var error = Native.DNSServiceRegister (out sdRef,
+                                               AutoRename ? ServiceFlags.None : ServiceFlags.NoAutoRename,
+                                               InterfaceIndex,
+                                               Encoding.UTF8.GetBytes (Name),
+                                               RegType,
+                                               ReplyDomain,
+                                               HostTarget,
+                                               (ushort) IPAddress.HostToNetworkOrder ((short) port),
                                                txtRecLength,
                                                txtRec,
-                                               this.registerReplyHandler,
+                                               registerReplyHandler,
                                                IntPtr.Zero) ;
 
         if (error != ServiceError.NoError)
             throw new ServiceErrorException (error) ;
 
-        this.sdRef.Process () ;
+        sdRef.Process () ;
     }
 
     private void OnRegisterReply (ServiceRef   sdRef,
@@ -109,13 +109,13 @@ public sealed class RegisterService : Service, IRegisterService, IDisposable
 
         if (errorCode == ServiceError.NoError)
         {
-            this.Name         = Marshal.PtrToStringUTF8(name) ;
-            this.RegType      = regtype ;
-            this.ReplyDomain  = domain ;
+            Name         = Marshal.PtrToStringUTF8(name) ;
+            RegType      = regtype ;
+            ReplyDomain  = domain ;
             args.IsRegistered = true ;
         }
 
-        var handler = this.Response ;
+        var handler = Response ;
         handler?.Invoke (this, args) ;
     }
 }

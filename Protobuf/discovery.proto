@@ -7,6 +7,7 @@ message Device {
     string name = 2;
     DeviceType type = 3;
     TcpConnectionInfo tcp_connection_info = 4;
+    int32 protocol_version = 5;
 
     enum DeviceType {
         UNKNOWN = 0;

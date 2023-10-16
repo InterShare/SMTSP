@@ -19,9 +19,9 @@ public class RegisterServiceEventArgs : EventArgs
 
     public RegisterServiceEventArgs (IRegisterService service, bool isRegistered, ServiceErrorCode error)
     {
-        this.Service      = service ;
-        this.IsRegistered = isRegistered ;
-        this.ServiceError = error ;
+        Service      = service ;
+        IsRegistered = isRegistered ;
+        ServiceError = error ;
     }
 
     public IRegisterService Service { get ; set ; }

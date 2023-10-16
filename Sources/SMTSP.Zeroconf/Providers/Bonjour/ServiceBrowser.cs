@@ -23,14 +23,14 @@ namespace ArkaneSystems.Arkane.Zeroconf.Providers.Bonjour ;
 
 public class ServiceBrowseEventArgs : Arkane.Zeroconf.ServiceBrowseEventArgs
 {
-    public ServiceBrowseEventArgs (BrowseService service, bool moreComing) : base (service) => this.MoreComing = moreComing ;
+    public ServiceBrowseEventArgs (BrowseService service, bool moreComing) : base (service) => MoreComing = moreComing ;
 
     public bool MoreComing { get ; }
 }
 
 public class ServiceBrowser : IServiceBrowser, IDisposable
 {
-    public ServiceBrowser () => this.browseReplyHandler = this.OnBrowseReply ;
+    public ServiceBrowser () => browseReplyHandler = OnBrowseReply ;
 
     private readonly Native.DNSServiceBrowseReply            browseReplyHandler ;
     private readonly Dictionary <string, IResolvableService> serviceTable = new() ;
@@ -52,8 +52,8 @@ public class ServiceBrowser : IServiceBrowser, IDisposable
 
     public void Browse (uint interfaceIndex, AddressProtocol addressProtocol, string regtype, string domain)
     {
-        this.Configure (interfaceIndex, addressProtocol, regtype, domain) ;
-        this.StartAsync () ;
+        Configure (interfaceIndex, addressProtocol, regtype, domain) ;
+        StartAsync () ;
     }
 
     public async IAsyncEnumerable<IResolvableService> BrowseAsync(uint interfaceIndex, AddressProtocol addressProtocol, string regtype, string domain, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -61,8 +61,8 @@ public class ServiceBrowser : IServiceBrowser, IDisposable
         var channelOptions = new UnboundedChannelOptions { SingleReader = true } ;
         channel = Channel.CreateUnbounded<IResolvableService> (channelOptions) ;
 
-        this.Configure (interfaceIndex, addressProtocol, regtype, domain) ;
-        this.StartAsync () ;
+        Configure (interfaceIndex, addressProtocol, regtype, domain) ;
+        StartAsync () ;
 
         await foreach (var result in channel.Reader.ReadAllAsync (cancellationToken))
         {
@@ -70,14 +70,14 @@ public class ServiceBrowser : IServiceBrowser, IDisposable
         }
     }
 
-    public void Dispose () { this.Stop () ; }
+    public void Dispose () { Stop () ; }
 
     public IEnumerator <IResolvableService> GetEnumerator ()
     {
         serviceTableSemaphore.Wait();
         try
         {
-            foreach (var service in this.serviceTable.Values)
+            foreach (var service in serviceTable.Values)
                 yield return service ;
         }
         finally
@@ -86,12 +86,12 @@ public class ServiceBrowser : IServiceBrowser, IDisposable
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator () => this.GetEnumerator () ;
+    IEnumerator IEnumerable.GetEnumerator () => GetEnumerator () ;
 
     public void Configure (uint interfaceIndex, AddressProtocol addressProtocol, string regtype, string domain)
     {
         this.interfaceIndex   = interfaceIndex ;
-        this.address_protocol = addressProtocol ;
+        address_protocol = addressProtocol ;
         this.regtype          = regtype ;
         this.domain           = domain ;
 
@@ -101,14 +101,14 @@ public class ServiceBrowser : IServiceBrowser, IDisposable
 
     private void Start (bool async)
     {
-        if (this.task != null)
+        if (task != null)
             throw new InvalidOperationException ("ServiceBrowser is already started") ;
 
         if (async)
-            this.task = Task.Run (() => this.ProcessStart ())
+            task = Task.Run (() => ProcessStart ())
                             .ContinueWith (_ =>
                                            {
-                                               this.task = null ;
+                                               task = null ;
                                                if (_.IsFaulted)
                                                {
                                                    Debug.Assert (_.Exception != null, "_.Exception != null") ;
@@ -116,38 +116,38 @@ public class ServiceBrowser : IServiceBrowser, IDisposable
                                                }
                                            }) ;
         else
-            this.ProcessStart () ;
+            ProcessStart () ;
     }
 
-    public void Start () { this.Start (false) ; }
+    public void Start () { Start (false) ; }
 
-    public void StartAsync () { this.Start (true) ; }
+    public void StartAsync () { Start (true) ; }
 
     private void ProcessStart ()
     {
-        var error = Native.DNSServiceBrowse (out this.sdRef,
+        var error = Native.DNSServiceBrowse (out sdRef,
                                              ServiceFlags.None,
-                                             this.interfaceIndex,
-                                             this.regtype,
-                                             this.domain,
-                                             this.browseReplyHandler,
+                                             interfaceIndex,
+                                             regtype,
+                                             domain,
+                                             browseReplyHandler,
                                              IntPtr.Zero) ;
 
         if (error != ServiceError.NoError)
             throw new ServiceErrorException (error) ;
 
-        this.sdRef.Process () ;
+        sdRef.Process () ;
     }
 
     public void Stop ()
     {
-        if (this.sdRef != ServiceRef.Zero)
+        if (sdRef != ServiceRef.Zero)
         {
-            this.sdRef.Deallocate () ;
-            this.sdRef = ServiceRef.Zero ;
+            sdRef.Deallocate () ;
+            sdRef = ServiceRef.Zero ;
         }
 
-        this.task?.Wait () ;
+        task?.Wait () ;
     }
 
     private void OnBrowseReply (ServiceRef   sdRef,
@@ -168,7 +168,7 @@ public class ServiceBrowser : IServiceBrowser, IDisposable
                           RegType         = regtype,
                           ReplyDomain     = replyDomain,
                           InterfaceIndex  = interfaceIndex,
-                          AddressProtocol = this.address_protocol,
+                          AddressProtocol = address_protocol,
                       } ;
 
         var args = new ServiceBrowseEventArgs (
@@ -180,14 +180,14 @@ public class ServiceBrowser : IServiceBrowser, IDisposable
             serviceTableSemaphore.Wait();
             try
             {
-                this.serviceTable[name] = service;
+                serviceTable[name] = service;
             }
             finally
             {
                 serviceTableSemaphore.Release();
             }
 
-            var handler = this.ServiceAdded ;
+            var handler = ServiceAdded ;
             handler?.Invoke (this, args) ;
             if (channel != null)
             {
@@ -199,14 +199,14 @@ public class ServiceBrowser : IServiceBrowser, IDisposable
             serviceTableSemaphore.Wait();
             try
             {
-                this.serviceTable.Remove (name) ;
+                serviceTable.Remove (name) ;
             }
             finally
             {
                 serviceTableSemaphore.Release();
             }
 
-            var handler = this.ServiceRemoved ;
+            var handler = ServiceRemoved ;
             handler?.Invoke (this, args) ;
         }
     }

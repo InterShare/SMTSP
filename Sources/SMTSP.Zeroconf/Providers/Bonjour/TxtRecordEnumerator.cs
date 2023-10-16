@@ -22,20 +22,20 @@ internal class TxtRecordEnumerator : IEnumerator
     private TxtRecordItem currentItem ;
     private int           index ;
 
-    public object Current => this.currentItem ;
+    public object Current => currentItem ;
 
     public void Reset ()
     {
-        this.index       = 0 ;
-        this.currentItem = null ;
+        index       = 0 ;
+        currentItem = null ;
     }
 
     public bool MoveNext ()
     {
-        if ((this.index < 0) || (this.index >= this.record.Count))
+        if ((index < 0) || (index >= record.Count))
             return false ;
 
-        this.currentItem = this.record.GetItemAt (this.index++) ;
-        return this.currentItem != null ;
+        currentItem = record.GetItemAt (index++) ;
+        return currentItem != null ;
     }
 }
