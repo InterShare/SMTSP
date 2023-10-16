@@ -1,3 +1,5 @@
+using System.Net;
+using Google.Protobuf;
 using NUnit.Framework;
 using SMTSP.Protocol.Communication;
 using SMTSP.Protocol.Discovery;
@@ -13,7 +15,7 @@ public class FileTransferTest
         Type = Device.Types.DeviceType.Mobile,
         TcpConnectionInfo = new TcpConnectionInfo
         {
-            IpAddress = "127.0.0.1"
+            IpAddress = IPAddress.Loopback.ToString()
         }
     };
 
@@ -49,5 +51,22 @@ public class FileTransferTest
         };
 
         await nearby.SendFile(ServerDevice, fileInfo, fileStream);
+    }
+
+    [Test]
+    public void TestTest()
+    {
+        var array = new byte[]
+        {
+            0, 1, 2, 3
+        };
+        var encryptionRequest = new EncryptionRequest
+        {
+            PublicKey = ByteString.CopyFrom(array)
+        }.ToByteArray();
+
+        var stream = new MemoryStream(encryptionRequest);
+
+        var test = EncryptionRequest.Parser.ParseFrom(stream);
     }
 }

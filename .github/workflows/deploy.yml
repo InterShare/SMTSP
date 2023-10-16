@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number"
+        default: "0.0.0"
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: Deployment
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Build
+      run: |
+        ./compile-protobuf.sh
+        dotnet build -c Release
+
+    - name: Pack
+      run: dotnet pack src/SMTSP/SMTSP.csproj -c Release -p:PackageVersion='${{ github.event.inputs.version }}' --output packages
+
+    - name: Publish Package on NuGet
+      run: nuget push **\*.nupkg -NoSymbols -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{ secrets.NUGET_API_KEY }}
+
+    - name: Create Release strings
+      id: release_strings
+      run: |
+        echo "RELEASE_TAG=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+        echo "RELEASE_NAME=Version ${{ github.event.inputs.version }}" >> $GITHUB_ENV
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        name: ${{ env.RELEASE_NAME }}
