@@ -1,9 +1,9 @@
-name: Build
+name: Build feature
 
 on:
   push:
     branches:
-      - '**'
+      - 'feature/**'
 
 jobs:
   build:
