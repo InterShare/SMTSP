@@ -11,6 +11,8 @@ jobs:
     container: mcr.microsoft.com/dotnet/sdk:7.0
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Install Protoc
       uses: zchee/setup-protoc@v1
