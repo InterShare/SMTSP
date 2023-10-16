@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -37,8 +37,8 @@ jobs:
 
     - name: Upload to GitHub registry
       run: |
-        dotnet nuget add source --username julian-baumann --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/julian-baumann/index.json"
-        dotnet nuget push "packages/SMTSP.${{ steps.previoustag.outputs.tag }}-develop.${{ github.run_number }}.nupkg"  --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
+        dotnet nuget add source --username julian-baumann --password "${{ secrets.GITHUB_TOKEN }}" --store-password-in-clear-text --name github "https://nuget.pkg.github.com/julian-baumann/index.json"
+        dotnet nuget push "packages/SMTSP.${{ steps.previoustag.outputs.tag }}-develop.${{ github.run_number }}.nupkg" --api-key "${{ secrets.GITHUB_TOKEN }}" --source "github"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
