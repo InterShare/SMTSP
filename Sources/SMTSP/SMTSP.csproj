@@ -7,12 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SMTSP.Zeroconf\SMTSP.Zeroconf.csproj" />
-      <ProjectReference Include="..\SMTSP.Generated\SMTSP.Generated.csproj" />
+      <ProjectReference Include="..\SMTSP.Zeroconf\SMTSP.Zeroconf.csproj" PrivateAssets="All" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
+        <PackageReference Include="Google.Protobuf" Version="3.25.0-rc1" />
     </ItemGroup>
 
 </Project>

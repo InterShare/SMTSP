@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using SMTSP.Core;
-using SMTSP.Protocol.Discovery;
+using SMTSP.Discovery;
 
 namespace SMTSP.Communication.Backends;
 

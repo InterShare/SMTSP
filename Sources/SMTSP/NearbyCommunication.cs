@@ -1,9 +1,8 @@
 using SMTSP.Communication;
 using SMTSP.Communication.TransferTypes;
 using SMTSP.Core;
+using SMTSP.Discovery;
 using SMTSP.Exceptions;
-using SMTSP.Protocol.Communication;
-using SMTSP.Protocol.Discovery;
 
 namespace SMTSP;
 

@@ -9,7 +9,7 @@ using pb = global::Google.Protobuf;
 using pbc = global::Google.Protobuf.Collections;
 using pbr = global::Google.Protobuf.Reflection;
 using scg = global::System.Collections.Generic;
-namespace SMTSP.Protocol.Discovery {
+namespace SMTSP.Discovery {
 
   /// <summary>Holder for reflection information generated from discovery.proto</summary>
   public static partial class DiscoveryReflection {
@@ -24,20 +24,20 @@ namespace SMTSP.Protocol.Discovery {
     static DiscoveryReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg9kaXNjb3ZlcnkucHJvdG8SGFNNVFNQLnByb3RvY29sLmRpc2NvdmVyeSKf",
-            "AgoGRGV2aWNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSOQoEdHlwZRgD",
-            "IAEoDjIrLlNNVFNQLnByb3RvY29sLmRpc2NvdmVyeS5EZXZpY2UuRGV2aWNl",
-            "VHlwZRJIChN0Y3BfY29ubmVjdGlvbl9pbmZvGAQgASgLMisuU01UU1AucHJv",
-            "dG9jb2wuZGlzY292ZXJ5LlRjcENvbm5lY3Rpb25JbmZvEhgKEHByb3RvY29s",
-            "X3ZlcnNpb24YBSABKAUiXAoKRGV2aWNlVHlwZRILCgdVTktOT1dOEAASCgoG",
-            "TU9CSUxFEAESCwoHREVTS1RPUBACEgYKAlRWEAMSBwoDQ0FSEAQSCQoFV0FU",
-            "Q0gQBRIMCghFTUJFRERFRBAGIjUKEVRjcENvbm5lY3Rpb25JbmZvEhIKCmlw",
-            "X2FkZHJlc3MYASABKAkSDAoEcG9ydBgCIAEoDWIGcHJvdG8z"));
+            "Cg9kaXNjb3ZlcnkucHJvdG8SD1NNVFNQLmRpc2NvdmVyeSKNAgoGRGV2aWNl",
+            "EgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSMAoEdHlwZRgDIAEoDjIiLlNN",
+            "VFNQLmRpc2NvdmVyeS5EZXZpY2UuRGV2aWNlVHlwZRI/ChN0Y3BfY29ubmVj",
+            "dGlvbl9pbmZvGAQgASgLMiIuU01UU1AuZGlzY292ZXJ5LlRjcENvbm5lY3Rp",
+            "b25JbmZvEhgKEHByb3RvY29sX3ZlcnNpb24YBSABKAUiXAoKRGV2aWNlVHlw",
+            "ZRILCgdVTktOT1dOEAASCgoGTU9CSUxFEAESCwoHREVTS1RPUBACEgYKAlRW",
+            "EAMSBwoDQ0FSEAQSCQoFV0FUQ0gQBRIMCghFTUJFRERFRBAGIjUKEVRjcENv",
+            "bm5lY3Rpb25JbmZvEhIKCmlwX2FkZHJlc3MYASABKAkSDAoEcG9ydBgCIAEo",
+            "DWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Discovery.Device), global::SMTSP.Protocol.Discovery.Device.Parser, new[]{ "Id", "Name", "Type", "TcpConnectionInfo", "ProtocolVersion" }, null, new[]{ typeof(global::SMTSP.Protocol.Discovery.Device.Types.DeviceType) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Protocol.Discovery.TcpConnectionInfo), global::SMTSP.Protocol.Discovery.TcpConnectionInfo.Parser, new[]{ "IpAddress", "Port" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Discovery.Device), global::SMTSP.Discovery.Device.Parser, new[]{ "Id", "Name", "Type", "TcpConnectionInfo", "ProtocolVersion" }, null, new[]{ typeof(global::SMTSP.Discovery.Device.Types.DeviceType) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Discovery.TcpConnectionInfo), global::SMTSP.Discovery.TcpConnectionInfo.Parser, new[]{ "IpAddress", "Port" }, null, null, null, null)
           }));
     }
     #endregion
@@ -58,7 +58,7 @@ namespace SMTSP.Protocol.Discovery {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SMTSP.Protocol.Discovery.DiscoveryReflection.Descriptor.MessageTypes[0]; }
+      get { return global::SMTSP.Discovery.DiscoveryReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -118,10 +118,10 @@ namespace SMTSP.Protocol.Discovery {
 
     /// <summary>Field number for the "type" field.</summary>
     public const int TypeFieldNumber = 3;
-    private global::SMTSP.Protocol.Discovery.Device.Types.DeviceType type_ = global::SMTSP.Protocol.Discovery.Device.Types.DeviceType.Unknown;
+    private global::SMTSP.Discovery.Device.Types.DeviceType type_ = global::SMTSP.Discovery.Device.Types.DeviceType.Unknown;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::SMTSP.Protocol.Discovery.Device.Types.DeviceType Type {
+    public global::SMTSP.Discovery.Device.Types.DeviceType Type {
       get { return type_; }
       set {
         type_ = value;
@@ -130,10 +130,10 @@ namespace SMTSP.Protocol.Discovery {
 
     /// <summary>Field number for the "tcp_connection_info" field.</summary>
     public const int TcpConnectionInfoFieldNumber = 4;
-    private global::SMTSP.Protocol.Discovery.TcpConnectionInfo tcpConnectionInfo_;
+    private global::SMTSP.Discovery.TcpConnectionInfo tcpConnectionInfo_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::SMTSP.Protocol.Discovery.TcpConnectionInfo TcpConnectionInfo {
+    public global::SMTSP.Discovery.TcpConnectionInfo TcpConnectionInfo {
       get { return tcpConnectionInfo_; }
       set {
         tcpConnectionInfo_ = value;
@@ -181,7 +181,7 @@ namespace SMTSP.Protocol.Discovery {
       int hash = 1;
       if (Id.Length != 0) hash ^= Id.GetHashCode();
       if (Name.Length != 0) hash ^= Name.GetHashCode();
-      if (Type != global::SMTSP.Protocol.Discovery.Device.Types.DeviceType.Unknown) hash ^= Type.GetHashCode();
+      if (Type != global::SMTSP.Discovery.Device.Types.DeviceType.Unknown) hash ^= Type.GetHashCode();
       if (tcpConnectionInfo_ != null) hash ^= TcpConnectionInfo.GetHashCode();
       if (ProtocolVersion != 0) hash ^= ProtocolVersion.GetHashCode();
       if (_unknownFields != null) {
@@ -210,7 +210,7 @@ namespace SMTSP.Protocol.Discovery {
         output.WriteRawTag(18);
         output.WriteString(Name);
       }
-      if (Type != global::SMTSP.Protocol.Discovery.Device.Types.DeviceType.Unknown) {
+      if (Type != global::SMTSP.Discovery.Device.Types.DeviceType.Unknown) {
         output.WriteRawTag(24);
         output.WriteEnum((int) Type);
       }
@@ -240,7 +240,7 @@ namespace SMTSP.Protocol.Discovery {
         output.WriteRawTag(18);
         output.WriteString(Name);
       }
-      if (Type != global::SMTSP.Protocol.Discovery.Device.Types.DeviceType.Unknown) {
+      if (Type != global::SMTSP.Discovery.Device.Types.DeviceType.Unknown) {
         output.WriteRawTag(24);
         output.WriteEnum((int) Type);
       }
@@ -268,7 +268,7 @@ namespace SMTSP.Protocol.Discovery {
       if (Name.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
       }
-      if (Type != global::SMTSP.Protocol.Discovery.Device.Types.DeviceType.Unknown) {
+      if (Type != global::SMTSP.Discovery.Device.Types.DeviceType.Unknown) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
       }
       if (tcpConnectionInfo_ != null) {
@@ -295,12 +295,12 @@ namespace SMTSP.Protocol.Discovery {
       if (other.Name.Length != 0) {
         Name = other.Name;
       }
-      if (other.Type != global::SMTSP.Protocol.Discovery.Device.Types.DeviceType.Unknown) {
+      if (other.Type != global::SMTSP.Discovery.Device.Types.DeviceType.Unknown) {
         Type = other.Type;
       }
       if (other.tcpConnectionInfo_ != null) {
         if (tcpConnectionInfo_ == null) {
-          TcpConnectionInfo = new global::SMTSP.Protocol.Discovery.TcpConnectionInfo();
+          TcpConnectionInfo = new global::SMTSP.Discovery.TcpConnectionInfo();
         }
         TcpConnectionInfo.MergeFrom(other.TcpConnectionInfo);
       }
@@ -331,12 +331,12 @@ namespace SMTSP.Protocol.Discovery {
             break;
           }
           case 24: {
-            Type = (global::SMTSP.Protocol.Discovery.Device.Types.DeviceType) input.ReadEnum();
+            Type = (global::SMTSP.Discovery.Device.Types.DeviceType) input.ReadEnum();
             break;
           }
           case 34: {
             if (tcpConnectionInfo_ == null) {
-              TcpConnectionInfo = new global::SMTSP.Protocol.Discovery.TcpConnectionInfo();
+              TcpConnectionInfo = new global::SMTSP.Discovery.TcpConnectionInfo();
             }
             input.ReadMessage(TcpConnectionInfo);
             break;
@@ -369,12 +369,12 @@ namespace SMTSP.Protocol.Discovery {
             break;
           }
           case 24: {
-            Type = (global::SMTSP.Protocol.Discovery.Device.Types.DeviceType) input.ReadEnum();
+            Type = (global::SMTSP.Discovery.Device.Types.DeviceType) input.ReadEnum();
             break;
           }
           case 34: {
             if (tcpConnectionInfo_ == null) {
-              TcpConnectionInfo = new global::SMTSP.Protocol.Discovery.TcpConnectionInfo();
+              TcpConnectionInfo = new global::SMTSP.Discovery.TcpConnectionInfo();
             }
             input.ReadMessage(TcpConnectionInfo);
             break;
@@ -422,7 +422,7 @@ namespace SMTSP.Protocol.Discovery {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SMTSP.Protocol.Discovery.DiscoveryReflection.Descriptor.MessageTypes[1]; }
+      get { return global::SMTSP.Discovery.DiscoveryReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

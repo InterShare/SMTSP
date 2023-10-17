@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using ArkaneSystems.Arkane.Zeroconf;
 using SMTSP.Core;
 using SMTSP.Extensions;
-using SMTSP.Protocol.Discovery;
 
 namespace SMTSP.Discovery;
 

@@ -1,6 +1,5 @@
 using Google.Protobuf;
-using SMTSP.Protocol.Communication;
-using SMTSP.Protocol.Discovery;
+using SMTSP.Discovery;
 
 namespace SMTSP.Communication.TransferTypes;
 

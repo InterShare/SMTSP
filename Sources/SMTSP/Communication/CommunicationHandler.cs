@@ -1,10 +1,9 @@
 using Google.Protobuf;
 using SMTSP.Communication.TransferTypes;
+using SMTSP.Discovery;
 using SMTSP.Encryption;
 using SMTSP.Exceptions;
 using SMTSP.Extensions;
-using SMTSP.Protocol.Communication;
-using SMTSP.Protocol.Discovery;
 
 namespace SMTSP.Communication;
 

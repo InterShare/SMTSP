@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package SMTSP.protocol.discovery;
+package SMTSP.discovery;
 
 message Device {
     string id = 1;

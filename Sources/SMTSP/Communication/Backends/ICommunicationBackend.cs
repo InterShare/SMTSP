@@ -1,4 +1,4 @@
-using SMTSP.Protocol.Discovery;
+using SMTSP.Discovery;
 
 namespace SMTSP.Communication.Backends;
 

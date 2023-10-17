@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using SMTSP.Discovery;
-using SMTSP.Protocol.Discovery;
 
 namespace SMTSP;
 

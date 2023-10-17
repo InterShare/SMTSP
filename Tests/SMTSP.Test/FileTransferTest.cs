@@ -1,8 +1,8 @@
 using System.Net;
 using Google.Protobuf;
 using NUnit.Framework;
-using SMTSP.Protocol.Communication;
-using SMTSP.Protocol.Discovery;
+using SMTSP.Communication;
+using SMTSP.Discovery;
 
 namespace SMTSP.Test;
 

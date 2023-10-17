@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using SMTSP.Protocol.Discovery;
+using SMTSP.Discovery;
 
 namespace SMTSP.Test;
 
@@ -19,7 +19,6 @@ public class Tests
 
         discovery.Register(42);
     }
-
 
     [Test]
     public void TestBonjourDiscovery()

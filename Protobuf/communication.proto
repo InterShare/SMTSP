@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package SMTSP.protocol.communication;
+package SMTSP.communication;
 import "discovery.proto";
 
 message EncryptionRequestResponse {
