@@ -1,3 +1,4 @@
+using System.Net;
 using NUnit.Framework;
 using SMTSP.Discovery;
 
@@ -14,10 +15,15 @@ public class Tests
         {
             Name = "Advertised [TEST]",
             Id = AdvertisedDeviceId,
-            Type = Device.Types.DeviceType.Mobile
+            Type = Device.Types.DeviceType.Mobile,
+            TcpConnectionInfo = new TcpConnectionInfo
+            {
+                IpAddress = IPAddress.Loopback.ToString(),
+                Port = 42420
+            }
         });
 
-        discovery.Register(42);
+        discovery.Register();
     }
 
     [Test]

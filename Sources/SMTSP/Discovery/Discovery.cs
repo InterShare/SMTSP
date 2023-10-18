@@ -24,15 +24,15 @@ namespace SMTSP.Discovery {
     static DiscoveryReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg9kaXNjb3ZlcnkucHJvdG8SD1NNVFNQLmRpc2NvdmVyeSKNAgoGRGV2aWNl",
+            "Cg9kaXNjb3ZlcnkucHJvdG8SD1NNVFNQLmRpc2NvdmVyeSKZAgoGRGV2aWNl",
             "EgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSMAoEdHlwZRgDIAEoDjIiLlNN",
             "VFNQLmRpc2NvdmVyeS5EZXZpY2UuRGV2aWNlVHlwZRI/ChN0Y3BfY29ubmVj",
             "dGlvbl9pbmZvGAQgASgLMiIuU01UU1AuZGlzY292ZXJ5LlRjcENvbm5lY3Rp",
-            "b25JbmZvEhgKEHByb3RvY29sX3ZlcnNpb24YBSABKAUiXAoKRGV2aWNlVHlw",
-            "ZRILCgdVTktOT1dOEAASCgoGTU9CSUxFEAESCwoHREVTS1RPUBACEgYKAlRW",
-            "EAMSBwoDQ0FSEAQSCQoFV0FUQ0gQBRIMCghFTUJFRERFRBAGIjUKEVRjcENv",
-            "bm5lY3Rpb25JbmZvEhIKCmlwX2FkZHJlc3MYASABKAkSDAoEcG9ydBgCIAEo",
-            "DWIGcHJvdG8z"));
+            "b25JbmZvEhgKEHByb3RvY29sX3ZlcnNpb24YBSABKAUiaAoKRGV2aWNlVHlw",
+            "ZRILCgdVTktOT1dOEAASCgoGTU9CSUxFEAESCgoGVEFCTEVUEAISCwoHREVT",
+            "S1RPUBADEgYKAlRWEAQSBwoDQ0FSEAUSCQoFV0FUQ0gQBhIMCghFTUJFRERF",
+            "RBAHIjUKEVRjcENvbm5lY3Rpb25JbmZvEhIKCmlwX2FkZHJlc3MYASABKAkS",
+            "DAoEcG9ydBgCIAEoDWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -396,11 +396,12 @@ namespace SMTSP.Discovery {
       public enum DeviceType {
         [pbr::OriginalName("UNKNOWN")] Unknown = 0,
         [pbr::OriginalName("MOBILE")] Mobile = 1,
-        [pbr::OriginalName("DESKTOP")] Desktop = 2,
-        [pbr::OriginalName("TV")] Tv = 3,
-        [pbr::OriginalName("CAR")] Car = 4,
-        [pbr::OriginalName("WATCH")] Watch = 5,
-        [pbr::OriginalName("EMBEDDED")] Embedded = 6,
+        [pbr::OriginalName("TABLET")] Tablet = 2,
+        [pbr::OriginalName("DESKTOP")] Desktop = 3,
+        [pbr::OriginalName("TV")] Tv = 4,
+        [pbr::OriginalName("CAR")] Car = 5,
+        [pbr::OriginalName("WATCH")] Watch = 6,
+        [pbr::OriginalName("EMBEDDED")] Embedded = 7,
       }
 
     }

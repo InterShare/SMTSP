@@ -12,11 +12,12 @@ message Device {
     enum DeviceType {
         UNKNOWN = 0;
         MOBILE = 1;
-        DESKTOP = 2;
-        TV = 3;
-        CAR = 4;
-        WATCH = 5;
-        EMBEDDED = 6;
+        TABLET = 2;
+        DESKTOP = 3;
+        TV = 4;
+        CAR = 5;
+        WATCH = 6;
+        EMBEDDED = 7;
     }
 }
 
