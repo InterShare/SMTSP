@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
-using ArkaneSystems.Arkane.Zeroconf;
+using SMTSP.Bonjour;
 using SMTSP.Core;
 using SMTSP.Extensions;
 
