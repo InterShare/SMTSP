@@ -1,4 +1,4 @@
-using ArkaneSystems.Arkane.Zeroconf;
+using SMTSP.Bonjour;
 
 namespace SMTSP.Extensions;
 
