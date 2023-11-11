@@ -1,39 +1,75 @@
 using System.Net;
-using Google.Protobuf;
+using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
 using SMTSP.Communication;
+using SMTSP.Communication.TransferTypes;
 using SMTSP.Discovery;
 
 namespace SMTSP.Test;
 
 public class FileTransferTest
 {
-    private static readonly Device ServerDevice = new Device
+    private const string ReceivedFilePath = "./ReceivedFile.txt";
+    private const string FileContent = "Hello, World\n";
+
+    private readonly X509Certificate2 _certificate = EncryptionHelper.GenerateSelfSignedCertificate();
+
+    private static readonly Device ServerDevice = new()
     {
         Name = "Server [TEST]",
         Id = "1",
         Type = Device.Types.DeviceType.Mobile,
         TcpConnectionInfo = new TcpConnectionInfo
         {
-            IpAddress = IPAddress.Loopback.ToString()
+            IpAddress = Dns.GetHostName()
         }
     };
 
-    [SetUp]
-    public async Task SetupServer()
+    private async void StartServer(TaskCompletionSource<bool> completionHandlerSource)
     {
-        var nearby = new NearbyCommunication(ServerDevice);
-        nearby.OnConnectionRequest += (_, transferRequest) =>
+        var nearbyServer = new NearbyCommunication(ServerDevice, _certificate);
+        nearbyServer.OnConnectionRequest += (_, transferRequest) =>
         {
-            transferRequest.Accept();
+            try
+            {
+                transferRequest.Accept();
+
+                if (transferRequest is FileTransfer fileTransfer)
+                {
+                    var fileStream = fileTransfer.GetFile();
+
+                    Console.WriteLine("Writing content to file...");
+                    using var newFile = File.OpenWrite(ReceivedFilePath);
+                    fileStream.CopyTo(newFile);
+                    newFile.Close();
+                    Console.WriteLine("Done writing content to file.");
+
+                    var fileContent = File.ReadAllText(ReceivedFilePath);
+
+                    completionHandlerSource.SetResult(fileContent == FileContent);
+
+                    return;
+                }
+
+                completionHandlerSource.SetResult(false);
+            }
+            catch (Exception exception)
+            {
+                Console.Error.WriteLine(exception);
+                completionHandlerSource.SetResult(false);
+            }
         };
 
-        await nearby.StartReceiving();
+        await nearbyServer.StartReceiving();
     }
 
     [Test]
     public async Task TestFileTransfer()
     {
+        var completionHandlerSource = new TaskCompletionSource<bool>();
+
+        StartServer(completionHandlerSource);
+
         var device = new Device
         {
             Name = "Sender [TEST]",
@@ -41,7 +77,7 @@ public class FileTransferTest
             Type = Device.Types.DeviceType.Mobile
         };
 
-        var nearby = new NearbyCommunication(device);
+        var nearby = new NearbyCommunication(device, _certificate);
 
         var fileStream = File.OpenRead("./TestFile.txt");
         var fileInfo = new SharedFileInfo
@@ -51,22 +87,9 @@ public class FileTransferTest
         };
 
         await nearby.SendFile(ServerDevice, fileInfo, fileStream);
-    }
 
-    [Test]
-    public void TestTest()
-    {
-        var array = new byte[]
-        {
-            0, 1, 2, 3
-        };
-        var encryptionRequest = new EncryptionRequest
-        {
-            PublicKey = ByteString.CopyFrom(array)
-        }.ToByteArray();
+        var result = await completionHandlerSource.Task;
 
-        var stream = new MemoryStream(encryptionRequest);
-
-        var test = EncryptionRequest.Parser.ParseFrom(stream);
+        Assert.That(result, Is.True);
     }
 }

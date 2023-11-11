@@ -17,21 +17,6 @@ public class DeviceDiscovery
         DiscoveredDevices = _innerDiscoveryService.DiscoveredDevices;
     }
 
-    public void Register()
-    {
-        if (_myDevice.TcpConnectionInfo == null || _myDevice.TcpConnectionInfo.Port == 0)
-        {
-            throw new NullReferenceException("TCP Port is unknown. Did you forget to start the NearbyCommunication server?");
-        }
-
-        _innerDiscoveryService.Register((ushort) _myDevice.TcpConnectionInfo.Port);
-    }
-
-    public void Unregister()
-    {
-        _innerDiscoveryService.Unregister();
-    }
-
     public void Browse()
     {
         _innerDiscoveryService.Browse();

@@ -1,3 +1,5 @@
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using SMTSP.Communication;
 using SMTSP.Communication.TransferTypes;
 using SMTSP.Core;
@@ -9,12 +11,16 @@ namespace SMTSP;
 public class NearbyCommunication
 {
     private readonly Device _device;
+    private readonly X509Certificate2 _certificate;
+    private readonly BonjourAdvertisement _bonjourAdvertisement;
 
     public event EventHandler<TransferBase> OnConnectionRequest = delegate { };
 
-    public NearbyCommunication(Device myDevice)
+    public NearbyCommunication(Device myDevice, X509Certificate2 certificate)
     {
         _device = myDevice;
+        _certificate = certificate;
+        _bonjourAdvertisement = new BonjourAdvertisement(_device);
     }
 
     /// <summary>
@@ -27,7 +33,7 @@ public class NearbyCommunication
         {
             foreach (var communicationService in ConnectionManager.CommunicationImplementations)
             {
-                await communicationService.Start(_device);
+                await communicationService.Start(_device, _certificate);
                 communicationService.OnReceive += OnReceive;
             }
         }
@@ -35,6 +41,21 @@ public class NearbyCommunication
         {
             Logger.Exception(exception);
         }
+    }
+
+    public void AdvertiseDevice()
+    {
+        if (_device.TcpConnectionInfo == null || _device.TcpConnectionInfo.Port == 0)
+        {
+            throw new NullReferenceException("TCP Port is unknown. Did you forget to start the NearbyCommunication server?");
+        }
+
+        _bonjourAdvertisement.Register((ushort) _device.TcpConnectionInfo.Port);
+    }
+
+    public void UnlistDevice()
+    {
+        _bonjourAdvertisement.Unregister();
     }
 
     // public async Task SendFiles(Device recipient, ZipArchive files, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
@@ -70,8 +91,7 @@ public class NearbyCommunication
     public async Task SendFile(Device recipient, SharedFileInfo fileInfo, Stream fileStream, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
     {
         var mostSuitableImplementation = ConnectionManager.GetMostSuitableImplementation();
-        var unencryptedStream = mostSuitableImplementation.ConnectToDevice(recipient);
-        var encryptedStream = await CommunicationHandler.EncryptStream(unencryptedStream, cancellationToken);
+        var (encryptedStream, client) = mostSuitableImplementation.ConnectToDevice(recipient);
 
         await CommunicationHandler.TransferFiles(
             _device,
@@ -81,6 +101,8 @@ public class NearbyCommunication
             progress,
             cancellationToken
         );
+
+        client.Dispose();
     }
 
     /// <summary>
@@ -95,9 +117,9 @@ public class NearbyCommunication
     }
 
     /// <exception cref="TransferDeniedException">Occurs, when the participant denied the transfer request.</exception>
-    private async void OnReceive(object? sender, Stream stream)
+    private void OnReceive(object? sender, SslStream stream)
     {
-        var request = await CommunicationHandler.EstablishSecureConnectionToIncomingDataStream(stream);
+        var request = CommunicationHandler.GetTransferRequest(stream);
         OnConnectionRequest.Invoke(this, request);
     }
 }

@@ -1,7 +1,7 @@
+using System.Net.Security;
 using Google.Protobuf;
 using SMTSP.Communication.TransferTypes;
 using SMTSP.Discovery;
-using SMTSP.Encryption;
 using SMTSP.Exceptions;
 using SMTSP.Extensions;
 
@@ -9,73 +9,28 @@ namespace SMTSP.Communication;
 
 public static class CommunicationHandler
 {
-    public static async Task<Stream> EncryptStream(Stream unencryptedStream, CancellationToken cancellationToken = default)
-    {
-        var sessionEncryption = new SessionEncryption();
-        var publicKey = sessionEncryption.GetMyPublicKey();
-
-        var encryptionRequest = new EncryptionRequest
-        {
-            PublicKey = ByteString.CopyFrom(publicKey)
-        }.ToByteArray();
-
-        await unencryptedStream.WriteAsync(encryptionRequest, cancellationToken);
-
-        var response = EncryptionRequestResponse.Parser.ParseFrom(unencryptedStream);
-
-        var aesKey = sessionEncryption.CalculateAesKey(response.PublicKey.ToByteArray());
-
-        Stream cryptoStream = SessionEncryption.CreateCryptoStream(unencryptedStream, aesKey, response.Iv.ToByteArray());
-
-        return cryptoStream;
-    }
-
-    private static async Task<Stream> EncryptForeignStream(Stream unencryptedStream, CancellationToken cancellationToken = default)
-    {
-        var sessionEncryption = new SessionEncryption();
-        var publicKey = sessionEncryption.GetMyPublicKey();
-        var iv = SessionEncryption.GenerateIvBytes();
-
-        var encryptionRequest = EncryptionRequest.Parser.ParseFrom(unencryptedStream);
-
-        var response = new EncryptionRequestResponse
-        {
-            PublicKey = ByteString.CopyFrom(publicKey),
-            Iv = ByteString.CopyFrom(iv)
-        }.ToByteArray();
-
-        await unencryptedStream.WriteAsync(response, cancellationToken);
-
-        var aesKey = sessionEncryption.CalculateAesKey(encryptionRequest.PublicKey.ToByteArray());
-
-        Stream cryptoStream = SessionEncryption.CreateCryptoStream(unencryptedStream, aesKey, iv);
-
-        return cryptoStream;
-    }
-
     private static FileTransfer HandleFileTransferRequest(TransferRequest transferRequest, Stream stream)
     {
-        var fileTransferIntent = FileTransferIntent.Parser.ParseFrom(stream);
+        var fileTransferIntent = FileTransferIntent.Parser.ParseDelimitedFrom(stream);
 
         return new FileTransfer(transferRequest.Device, stream, fileTransferIntent.FileInfo.ToArray());
     }
 
     private static ClipboardTransfer HandleClipboardTransferRequest(TransferRequest transferRequest, Stream stream)
     {
-        var clipboardTransferIntent = ClipboardTransferIntent.Parser.ParseFrom(stream);
+        var clipboardTransferIntent = ClipboardTransferIntent.Parser.ParseDelimitedFrom(stream);
 
         return new ClipboardTransfer(transferRequest.Device, stream, clipboardTransferIntent.ClipboardContent.ToString() ?? "");
     }
 
-    public static async Task<TransferBase> EstablishSecureConnectionToIncomingDataStream(Stream stream, CancellationToken cancellationToken = default)
+    public static TransferBase GetTransferRequest(SslStream stream, CancellationToken cancellationToken = default)
     {
-        await using var encryptedStream = await EncryptForeignStream(stream, cancellationToken);
-        var transferRequest = TransferRequest.Parser.ParseFrom(encryptedStream);
+        var transferRequest = TransferRequest.Parser.ParseDelimitedFrom(stream);
 
         TransferBase transferBase = transferRequest.Intent switch
         {
-            TransferRequest.Types.CommunicationIntents.FileTransfer => HandleFileTransferRequest(transferRequest, encryptedStream),
-            TransferRequest.Types.CommunicationIntents.ClipboardTransfer => HandleClipboardTransferRequest(transferRequest, encryptedStream),
+            TransferRequest.Types.CommunicationIntents.FileTransfer => HandleFileTransferRequest(transferRequest, stream),
+            TransferRequest.Types.CommunicationIntents.ClipboardTransfer => HandleClipboardTransferRequest(transferRequest, stream),
             _ => throw new ArgumentOutOfRangeException($"No suitable implementation found for connection intent {transferRequest.Intent}")
         };
 
@@ -92,7 +47,7 @@ public static class CommunicationHandler
     /// <param name="progress"></param>
     /// <param name="cancellationToken"></param>
     /// <exception cref="TransferDeniedException">Occurs, when the participant denied the transfer request.</exception>
-    public static async Task TransferFiles(Device myDevice, Stream encryptedPeerStream, IEnumerable<SharedFileInfo> fileInfos, Stream fileStream, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
+    public static async Task TransferFiles(Device myDevice, SslStream encryptedPeerStream, IEnumerable<SharedFileInfo> fileInfos, Stream fileStream, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
     {
         var transferRequest = new TransferRequest
         {
@@ -100,16 +55,16 @@ public static class CommunicationHandler
             Intent = TransferRequest.Types.CommunicationIntents.FileTransfer
         };
 
-        await encryptedPeerStream.WriteAsync(transferRequest.ToByteArray(), cancellationToken);
+        transferRequest.WriteDelimitedTo(encryptedPeerStream);
 
         var fileTransferIntent = new FileTransferIntent
         {
             FileInfo = { fileInfos }
         };
 
-        await encryptedPeerStream.WriteAsync(fileTransferIntent.ToByteArray(), cancellationToken);
+        fileTransferIntent.WriteDelimitedTo(encryptedPeerStream);
 
-        var response = TransferRequestResponse.Parser.ParseFrom(encryptedPeerStream);
+        var response = TransferRequestResponse.Parser.ParseDelimitedFrom(encryptedPeerStream);
 
         if (response.Answer == TransferRequestResponse.Types.Answers.Deny)
         {
@@ -117,5 +72,7 @@ public static class CommunicationHandler
         }
 
         await fileStream.CopyToAsyncWithProgress(encryptedPeerStream, progress, cancellationToken);
+        fileStream.Close();
+        await fileStream.DisposeAsync();
     }
 }

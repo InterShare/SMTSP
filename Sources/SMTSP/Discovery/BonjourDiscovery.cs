@@ -18,39 +18,14 @@ internal struct TxtProperties
 /// </summary>
 internal class BonjourDiscovery
 {
-    private const string ServiceName = "_smtsp._tcp";
+    public const string ServiceName = "_smtsp._tcp";
     private readonly Device _myDevice;
-
-    private RegisterService? _service;
 
     public ObservableCollection<Device> DiscoveredDevices { get; } = new();
 
     public BonjourDiscovery(Device device)
     {
         _myDevice = device;
-    }
-
-    public void Register(ushort port)
-    {
-        _service = new RegisterService();
-        _service.Name = _myDevice.Id;
-        _service.RegType = ServiceName;
-        _service.ReplyDomain = "local.";
-        _service.UPort = port;
-
-        var txtRecord = new TxtRecord();
-        txtRecord.Add(TxtProperties.Name, _myDevice.Name);
-        txtRecord.Add(TxtProperties.Type, _myDevice.Type.ToString());
-        txtRecord.Add(TxtProperties.Version, Config.ProtocolVersion.ToString());
-
-        _service.TxtRecord = txtRecord;
-
-        _service.Register();
-    }
-
-    public void Unregister()
-    {
-        _service?.Dispose();
     }
 
     public void Browse()
@@ -111,7 +86,7 @@ internal class BonjourDiscovery
                 var type = resolvableService.TxtRecord.GetValue(TxtProperties.Type)?.ToEnum<Device.Types.DeviceType>(Device.Types.DeviceType.Unknown);
 
                 var ipAddress = resolvableService.HostEntry.AddressList.FirstOrDefault();
-                var port = resolvableService.Port;
+                var port = (ushort) resolvableService.Port;
 
                 if (string.IsNullOrEmpty(id)
                     || string.IsNullOrEmpty(name)

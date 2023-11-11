@@ -1,17 +1,19 @@
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
 using SMTSP.Discovery;
 
 namespace SMTSP.Test;
 
-public class Tests
+public class DiscoveryTests
 {
     private const string AdvertisedDeviceId = "8F596F84-57AD-4D97-817D-D5ADECD2A9FF";
+    private readonly X509Certificate2 _certificate = EncryptionHelper.GenerateSelfSignedCertificate();
 
     [SetUp]
     public void Setup()
     {
-        var discovery = new DeviceDiscovery(new Device
+        var discovery = new NearbyCommunication(new Device
         {
             Name = "Advertised [TEST]",
             Id = AdvertisedDeviceId,
@@ -21,9 +23,9 @@ public class Tests
                 IpAddress = IPAddress.Loopback.ToString(),
                 Port = 42420
             }
-        });
+        }, _certificate);
 
-        discovery.Register();
+        discovery.AdvertiseDevice();
     }
 
     [Test]
@@ -40,7 +42,7 @@ public class Tests
 
         Device? foundDevice = null;
 
-        for (var i = 0; i < 10; i++)
+        for (var i = 0; i < 30; i++)
         {
             foundDevice = discovery.DiscoveredDevices.FirstOrDefault(device => device.Id == AdvertisedDeviceId);
 

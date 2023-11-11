@@ -1,3 +1,5 @@
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using SMTSP.Discovery;
 
 namespace SMTSP.Communication.Backends;
@@ -11,17 +13,17 @@ public interface ICommunicationBackend : IDisposable
     /// <summary>
     /// Is triggered, when a new connection is established.
     /// </summary>
-    event EventHandler<Stream> OnReceive;
+    event EventHandler<SslStream> OnReceive;
 
     /// <summary>
     /// Start the communication service.
     /// </summary>
     /// <returns></returns>
-    Task Start(Device deviceInfo);
+    Task Start(Device deviceInfo, X509Certificate2 certificate);
 
     /// <summary>
     /// Send data to a peripheral.
     /// </summary>
     /// <param name="receiver"></param>
-    Stream ConnectToDevice(Device receiver);
+    (SslStream, IDisposable) ConnectToDevice(Device receiver);
 }

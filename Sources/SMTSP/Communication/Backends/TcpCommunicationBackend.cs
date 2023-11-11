@@ -1,5 +1,8 @@
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using SMTSP.Core;
 using SMTSP.Discovery;
 
@@ -11,6 +14,7 @@ internal class TcpCommunicationBackend : ICommunicationBackend
 
     private const int DefaultPort = 80;
     private Device _myDevice = null!;
+    private X509Certificate2 _certificate = null!;
 
     private bool _running;
     private CancellationTokenSource? _cancellationTokenSource;
@@ -20,11 +24,12 @@ internal class TcpCommunicationBackend : ICommunicationBackend
     private ushort _port;
 
 
-    public event EventHandler<Stream> OnReceive = delegate {};
+    public event EventHandler<SslStream> OnReceive = delegate {};
 
-    public Task Start(Device myDevice)
+    public Task Start(Device myDevice, X509Certificate2 certificate)
     {
         _myDevice = myDevice;
+        _certificate = certificate;
 
         try
         {
@@ -89,13 +94,52 @@ internal class TcpCommunicationBackend : ICommunicationBackend
         return Task.CompletedTask;
     }
 
-    public Stream ConnectToDevice(Device receiver)
+    public (SslStream, IDisposable) ConnectToDevice(Device receiver)
     {
-        var ipAddress = IPAddress.Parse(receiver.TcpConnectionInfo.IpAddress);
+        var ipAddress = Dns.GetHostEntry(receiver.TcpConnectionInfo.IpAddress)
+            .AddressList
+            .First(addr => addr.AddressFamily == AddressFamily.InterNetwork);
+
         var client = new TcpClient(ipAddress.AddressFamily);
         client.Connect(ipAddress, Convert.ToInt32(receiver.TcpConnectionInfo.Port));
 
-        return client.GetStream();
+        var sslStream = new SslStream(
+            client.GetStream(),
+            false,
+            ValidateCertificate,
+            null
+        );
+
+        sslStream.AuthenticateAsClient(
+            targetHost: receiver.TcpConnectionInfo.IpAddress,
+            clientCertificates: new X509CertificateCollection { _certificate },
+            checkCertificateRevocation: true
+        );
+
+        if (!sslStream.IsEncrypted || !sslStream.IsAuthenticated || !sslStream.IsMutuallyAuthenticated)
+        {
+            throw new AuthenticationException($"Error. Stream is either not encrypted, or not authenticated.\nEncrypted: {sslStream.IsEncrypted}\nAuthenticated: {sslStream.IsAuthenticated}");
+        }
+
+        return (sslStream, client);
+    }
+
+    private static bool ValidateCertificate(object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslPolicyErrors)
+    {
+        if (sslPolicyErrors == SslPolicyErrors.None)
+        {
+            return true;
+        }
+
+        if (sslPolicyErrors is (SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateChainErrors)
+            or SslPolicyErrors.RemoteCertificateChainErrors)
+        {
+            return true;
+        }
+
+        Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
+
+        return false;
     }
 
     public void Dispose()
@@ -125,9 +169,22 @@ internal class TcpCommunicationBackend : ICommunicationBackend
                 }
 
                 var client = _tcpListener.AcceptTcpClient();
-                var stream = client.GetStream();
 
-                OnReceive.Invoke(this, stream);
+                var sslStream = new SslStream(
+                    client.GetStream(),
+                    false,
+                    ValidateCertificate,
+                    null
+                );
+
+                sslStream.AuthenticateAsServer(_certificate, clientCertificateRequired: true, checkCertificateRevocation: true);
+
+                if (!sslStream.IsEncrypted || !sslStream.IsAuthenticated || !sslStream.IsMutuallyAuthenticated)
+                {
+                    throw new AuthenticationException($"Error. Stream is either not encrypted, or not authenticated.\nEncrypted: {sslStream.IsEncrypted}\nAuthenticated: {sslStream.IsAuthenticated}");
+                }
+
+                OnReceive.Invoke(this, sslStream);
             }
         }
         catch (OperationCanceledException)
