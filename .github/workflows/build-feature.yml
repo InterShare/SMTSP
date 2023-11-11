@@ -6,7 +6,28 @@ on:
       - 'feature/**'
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Protoc
+      uses: zchee/setup-protoc@v1
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '7.0.x'
+
+    - name: Test
+      run: |
+        ./compile-protobuf.sh
+        dotnet test --verbosity=normal
+
   build:
+    name: Build feature
+    needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
