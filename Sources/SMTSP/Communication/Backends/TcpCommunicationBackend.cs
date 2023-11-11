@@ -39,16 +39,17 @@ internal class TcpCommunicationBackend : ICommunicationBackend
                 _tcpListener = new TcpListener(IPAddress.Any, DefaultPort);
                 _tcpListener.Start();
             }
-            catch (SocketException exception)
+            catch (SocketException socketException)
             {
-                // TODO: handle this exception better than "Contains"
-                if (exception.Message.ToLowerInvariant().Contains("already in use"))
+                Console.Error.WriteLine(socketException.Message);
+
+                try
                 {
                     Logger.Info("Default port is already in use, choosing another one");
                     _tcpListener = new TcpListener(IPAddress.Any, 0);
                     _tcpListener.Start();
                 }
-                else
+                catch (Exception exception)
                 {
                     Logger.Exception(exception);
                     _running = false;
