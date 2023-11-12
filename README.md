@@ -2,7 +2,7 @@
 
 > Very work in progress. Shouldn't be used in production just jet.
 
-[![Build](https://github.com/InterShare/SMTSP/actions/workflows/build.yml/badge.svg)](https://github.com/InterShare/SMTSP/actions/workflows/build.yml)
+[![Build](https://github.com/InterShare/SMTSP/actions/workflows/build-develop.yml/badge.svg)](https://github.com/InterShare/SMTSP/actions/workflows/build-develop.yml)
 
 Available on [NuGet](https://www.nuget.org/packages/SMTSP/).
 
