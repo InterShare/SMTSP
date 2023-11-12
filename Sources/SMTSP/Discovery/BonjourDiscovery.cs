@@ -104,7 +104,7 @@ internal class BonjourDiscovery
                     ProtocolVersion = protocolVersion,
                     TcpConnectionInfo = new TcpConnectionInfo
                     {
-                        IpAddress = ipAddress.ToString(),
+                        Hostname = ipAddress.ToString(),
                         Port = Convert.ToUInt32(port)
                     }
                 });

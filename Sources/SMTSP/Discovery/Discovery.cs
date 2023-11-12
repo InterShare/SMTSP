@@ -31,13 +31,13 @@ namespace SMTSP.Discovery {
             "b25JbmZvEhgKEHByb3RvY29sX3ZlcnNpb24YBSABKAUiaAoKRGV2aWNlVHlw",
             "ZRILCgdVTktOT1dOEAASCgoGTU9CSUxFEAESCgoGVEFCTEVUEAISCwoHREVT",
             "S1RPUBADEgYKAlRWEAQSBwoDQ0FSEAUSCQoFV0FUQ0gQBhIMCghFTUJFRERF",
-            "RBAHIjUKEVRjcENvbm5lY3Rpb25JbmZvEhIKCmlwX2FkZHJlc3MYASABKAkS",
-            "DAoEcG9ydBgCIAEoDWIGcHJvdG8z"));
+            "RBAHIjMKEVRjcENvbm5lY3Rpb25JbmZvEhAKCGhvc3RuYW1lGAEgASgJEgwK",
+            "BHBvcnQYAiABKA1iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Discovery.Device), global::SMTSP.Discovery.Device.Parser, new[]{ "Id", "Name", "Type", "TcpConnectionInfo", "ProtocolVersion" }, null, new[]{ typeof(global::SMTSP.Discovery.Device.Types.DeviceType) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Discovery.TcpConnectionInfo), global::SMTSP.Discovery.TcpConnectionInfo.Parser, new[]{ "IpAddress", "Port" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::SMTSP.Discovery.TcpConnectionInfo), global::SMTSP.Discovery.TcpConnectionInfo.Parser, new[]{ "Hostname", "Port" }, null, null, null, null)
           }));
     }
     #endregion
@@ -443,7 +443,7 @@ namespace SMTSP.Discovery {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public TcpConnectionInfo(TcpConnectionInfo other) : this() {
-      ipAddress_ = other.ipAddress_;
+      hostname_ = other.hostname_;
       port_ = other.port_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -454,15 +454,15 @@ namespace SMTSP.Discovery {
       return new TcpConnectionInfo(this);
     }
 
-    /// <summary>Field number for the "ip_address" field.</summary>
-    public const int IpAddressFieldNumber = 1;
-    private string ipAddress_ = "";
+    /// <summary>Field number for the "hostname" field.</summary>
+    public const int HostnameFieldNumber = 1;
+    private string hostname_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string IpAddress {
-      get { return ipAddress_; }
+    public string Hostname {
+      get { return hostname_; }
       set {
-        ipAddress_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        hostname_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -493,7 +493,7 @@ namespace SMTSP.Discovery {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (IpAddress != other.IpAddress) return false;
+      if (Hostname != other.Hostname) return false;
       if (Port != other.Port) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -502,7 +502,7 @@ namespace SMTSP.Discovery {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (IpAddress.Length != 0) hash ^= IpAddress.GetHashCode();
+      if (Hostname.Length != 0) hash ^= Hostname.GetHashCode();
       if (Port != 0) hash ^= Port.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -522,9 +522,9 @@ namespace SMTSP.Discovery {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (IpAddress.Length != 0) {
+      if (Hostname.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(IpAddress);
+        output.WriteString(Hostname);
       }
       if (Port != 0) {
         output.WriteRawTag(16);
@@ -540,9 +540,9 @@ namespace SMTSP.Discovery {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (IpAddress.Length != 0) {
+      if (Hostname.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(IpAddress);
+        output.WriteString(Hostname);
       }
       if (Port != 0) {
         output.WriteRawTag(16);
@@ -558,8 +558,8 @@ namespace SMTSP.Discovery {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (IpAddress.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(IpAddress);
+      if (Hostname.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Hostname);
       }
       if (Port != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Port);
@@ -576,8 +576,8 @@ namespace SMTSP.Discovery {
       if (other == null) {
         return;
       }
-      if (other.IpAddress.Length != 0) {
-        IpAddress = other.IpAddress;
+      if (other.Hostname.Length != 0) {
+        Hostname = other.Hostname;
       }
       if (other.Port != 0) {
         Port = other.Port;
@@ -598,7 +598,7 @@ namespace SMTSP.Discovery {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            IpAddress = input.ReadString();
+            Hostname = input.ReadString();
             break;
           }
           case 16: {
@@ -621,7 +621,7 @@ namespace SMTSP.Discovery {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            IpAddress = input.ReadString();
+            Hostname = input.ReadString();
             break;
           }
           case 16: {

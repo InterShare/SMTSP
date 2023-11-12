@@ -22,6 +22,6 @@ message Device {
 }
 
 message TcpConnectionInfo {
-    string ip_address = 1;
+    string hostname = 1;
     uint32 port = 2;
 }

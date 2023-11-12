@@ -25,5 +25,5 @@ public interface ICommunicationBackend : IDisposable
     /// Send data to a peripheral.
     /// </summary>
     /// <param name="receiver"></param>
-    (SslStream, IDisposable) ConnectToDevice(Device receiver);
+    Task<(SslStream, IDisposable)> ConnectToDevice(Device receiver);
 }

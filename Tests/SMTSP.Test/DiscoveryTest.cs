@@ -20,7 +20,7 @@ public class DiscoveryTests
             Type = Device.Types.DeviceType.Mobile,
             TcpConnectionInfo = new TcpConnectionInfo
             {
-                IpAddress = IPAddress.Loopback.ToString(),
+                Hostname = IPAddress.Loopback.ToString(),
                 Port = 42420
             }
         }, _certificate);

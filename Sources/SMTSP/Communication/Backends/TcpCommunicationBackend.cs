@@ -95,14 +95,15 @@ internal class TcpCommunicationBackend : ICommunicationBackend
         return Task.CompletedTask;
     }
 
-    public (SslStream, IDisposable) ConnectToDevice(Device receiver)
+    public async Task<(SslStream, IDisposable)> ConnectToDevice(Device receiver)
     {
-        var ipAddress = Dns.GetHostEntry(receiver.TcpConnectionInfo.IpAddress)
-            .AddressList
-            .First(addr => addr.AddressFamily == AddressFamily.InterNetwork);
+        // var ipAddress = Dns.GetHostEntry(receiver.TcpConnectionInfo.Hostname)
+        //     .AddressList
+        //     .First(addr => addr.AddressFamily == AddressFamily.InterNetwork);
 
-        var client = new TcpClient(ipAddress.AddressFamily);
-        client.Connect(ipAddress, Convert.ToInt32(receiver.TcpConnectionInfo.Port));
+        var client = new TcpClient();
+        // client.Connect(ipAddress, Convert.ToInt32(receiver.TcpConnectionInfo.Port));
+        await client.ConnectAsync(receiver.TcpConnectionInfo.Hostname, Convert.ToInt32(receiver.TcpConnectionInfo.Port), _cancellationToken);
 
         var sslStream = new SslStream(
             client.GetStream(),
@@ -111,15 +112,19 @@ internal class TcpCommunicationBackend : ICommunicationBackend
             null
         );
 
-        sslStream.AuthenticateAsClient(
-            targetHost: receiver.TcpConnectionInfo.IpAddress,
+        await sslStream.AuthenticateAsClientAsync(
+            targetHost: receiver.TcpConnectionInfo.Hostname,
             clientCertificates: new X509CertificateCollection { _certificate },
             checkCertificateRevocation: true
         );
 
         if (!sslStream.IsEncrypted || !sslStream.IsAuthenticated || !sslStream.IsMutuallyAuthenticated)
         {
-            throw new AuthenticationException($"Error. Stream is either not encrypted, or not authenticated.\nEncrypted: {sslStream.IsEncrypted}\nAuthenticated: {sslStream.IsAuthenticated}");
+            throw new AuthenticationException(
+                $"Error. Stream is either not encrypted, or not authenticated." +
+                $"\nEncrypted: {sslStream.IsEncrypted}" +
+                $"\nAuthenticated: {sslStream.IsAuthenticated}" +
+                $"\nIsMutuallyAuthenticated: {sslStream.IsMutuallyAuthenticated}");
         }
 
         return (sslStream, client);
@@ -182,7 +187,11 @@ internal class TcpCommunicationBackend : ICommunicationBackend
 
                 if (!sslStream.IsEncrypted || !sslStream.IsAuthenticated || !sslStream.IsMutuallyAuthenticated)
                 {
-                    throw new AuthenticationException($"Error. Stream is either not encrypted, or not authenticated.\nEncrypted: {sslStream.IsEncrypted}\nAuthenticated: {sslStream.IsAuthenticated}");
+                    throw new AuthenticationException(
+                        $"Error. Stream is either not encrypted, or not authenticated." +
+                        $"\nEncrypted: {sslStream.IsEncrypted}" +
+                        $"\nAuthenticated: {sslStream.IsAuthenticated}" +
+                        $"\nIsMutuallyAuthenticated: {sslStream.IsMutuallyAuthenticated}");
                 }
 
                 OnReceive.Invoke(this, sslStream);

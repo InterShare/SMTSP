@@ -21,13 +21,14 @@ public class FileTransferTest
         Type = Device.Types.DeviceType.Mobile,
         TcpConnectionInfo = new TcpConnectionInfo
         {
-            IpAddress = Dns.GetHostName()
+            Hostname = Dns.GetHostName()
         }
     };
 
     private async void StartServer(TaskCompletionSource<bool> completionHandlerSource)
     {
         var nearbyServer = new NearbyCommunication(ServerDevice, _certificate);
+
         nearbyServer.OnConnectionRequest += (_, transferRequest) =>
         {
             try
@@ -38,11 +39,9 @@ public class FileTransferTest
                 {
                     var fileStream = fileTransfer.GetFile();
 
-                    Console.WriteLine("Writing content to file...");
                     using var newFile = File.OpenWrite(ReceivedFilePath);
                     fileStream.CopyTo(newFile);
                     newFile.Close();
-                    Console.WriteLine("Done writing content to file.");
 
                     var fileContent = File.ReadAllText(ReceivedFilePath);
 

@@ -91,7 +91,7 @@ public class NearbyCommunication
     public async Task SendFile(Device recipient, SharedFileInfo fileInfo, Stream fileStream, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
     {
         var mostSuitableImplementation = ConnectionManager.GetMostSuitableImplementation();
-        var (encryptedStream, client) = mostSuitableImplementation.ConnectToDevice(recipient);
+        var (encryptedStream, client) = await mostSuitableImplementation.ConnectToDevice(recipient);
 
         await CommunicationHandler.TransferFiles(
             _device,

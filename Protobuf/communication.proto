@@ -3,15 +3,6 @@ syntax = "proto3";
 package SMTSP.communication;
 import "discovery.proto";
 
-message EncryptionRequestResponse {
-    bytes public_key = 1;
-    bytes iv = 2;
-}
-
-message EncryptionRequest {
-    bytes public_key = 1;
-}
-
 message TransferRequest {
     discovery.Device device = 1;
     CommunicationIntents intent = 2;
