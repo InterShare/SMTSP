@@ -21,7 +21,7 @@ public class FileTransferTest
         Type = Device.Types.DeviceType.Mobile,
         TcpConnectionInfo = new TcpConnectionInfo
         {
-            Hostname = Dns.GetHostName()
+            Hostname = IPAddress.Loopback.ToString()
         }
     };
 
