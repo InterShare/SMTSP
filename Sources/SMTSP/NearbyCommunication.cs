@@ -1,6 +1,5 @@
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using SMTSP.BluetoothLowEnergy;
 using SMTSP.Communication;
 using SMTSP.Communication.TransferTypes;
 using SMTSP.Core;
