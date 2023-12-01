@@ -16,17 +16,12 @@ internal struct TxtProperties
 /// This uses the native underlying bonjour libraries to advertise/discover mDNS services.
 /// Uses Avahi or Bonjour/mDNSResponder.
 /// </summary>
-internal class BonjourDiscovery
+internal class BonjourDiscovery(Device device)
 {
     public const string ServiceName = "_smtsp._tcp";
-    private readonly Device _myDevice;
+    private readonly Device _myDevice = device;
 
     public ObservableCollection<Device> DiscoveredDevices { get; } = new();
-
-    public BonjourDiscovery(Device device)
-    {
-        _myDevice = device;
-    }
 
     public void Browse()
     {

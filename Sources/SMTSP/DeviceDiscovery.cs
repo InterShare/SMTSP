@@ -7,6 +7,7 @@ public class DeviceDiscovery
 {
     private readonly Device _myDevice;
     private readonly BonjourDiscovery _innerDiscoveryService;
+    private readonly BleDiscovery _bleDiscovery = new();
 
     public ObservableCollection<Device> DiscoveredDevices { get; }
 

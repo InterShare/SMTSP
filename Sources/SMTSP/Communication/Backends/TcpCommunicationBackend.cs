@@ -97,12 +97,7 @@ internal class TcpCommunicationBackend : ICommunicationBackend
 
     public async Task<(SslStream, IDisposable)> ConnectToDevice(Device receiver)
     {
-        // var ipAddress = Dns.GetHostEntry(receiver.TcpConnectionInfo.Hostname)
-        //     .AddressList
-        //     .First(addr => addr.AddressFamily == AddressFamily.InterNetwork);
-
         var client = new TcpClient();
-        // client.Connect(ipAddress, Convert.ToInt32(receiver.TcpConnectionInfo.Port));
         await client.ConnectAsync(receiver.TcpConnectionInfo.Hostname, Convert.ToInt32(receiver.TcpConnectionInfo.Port), _cancellationToken);
 
         var sslStream = new SslStream(

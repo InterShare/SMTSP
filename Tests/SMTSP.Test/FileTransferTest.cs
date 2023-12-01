@@ -12,7 +12,7 @@ public class FileTransferTest
     private const string ReceivedFilePath = "./ReceivedFile.txt";
     private const string FileContent = "Hello, World\n";
 
-    private readonly X509Certificate2 _certificate = EncryptionHelper.GenerateSelfSignedCertificate();
+    private readonly X509Certificate2 _certificate = CertificateHelper.GenerateSelfSignedCertificate();
 
     private static readonly Device ServerDevice = new()
     {

@@ -8,7 +8,7 @@ namespace SMTSP.Test;
 public class DiscoveryTests
 {
     private const string AdvertisedDeviceId = "8F596F84-57AD-4D97-817D-D5ADECD2A9FF";
-    private readonly X509Certificate2 _certificate = EncryptionHelper.GenerateSelfSignedCertificate();
+    private readonly X509Certificate2 _certificate = CertificateHelper.GenerateSelfSignedCertificate();
 
     [SetUp]
     public void Setup()
@@ -25,7 +25,7 @@ public class DiscoveryTests
             }
         }, _certificate);
 
-        discovery.AdvertiseDevice();
+        discovery.StartAdvertising();
     }
 
     [Test]

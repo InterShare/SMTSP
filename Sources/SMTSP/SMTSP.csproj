@@ -1,19 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFrameworks>net8.0;net8.0-ios</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\SMTSP.BluetoothLowEnergy\SMTSP.BluetoothLowEnergy.csproj" />
       <ProjectReference Include="..\SMTSP.Bonjour\SMTSP.Bonjour.csproj" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
-        <PackageReference Include="Google.Protobuf" Version="3.25.0-rc1" />
-        <PackageReference Include="Plugin.BLE" Version="3.0.0" />
+        <PackageReference Include="Google.Protobuf" Version="3.25.1" />
     </ItemGroup>
 
     <PropertyGroup>

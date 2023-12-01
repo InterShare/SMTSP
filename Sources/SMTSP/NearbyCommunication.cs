@@ -1,5 +1,6 @@
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using SMTSP.BluetoothLowEnergy;
 using SMTSP.Communication;
 using SMTSP.Communication.TransferTypes;
 using SMTSP.Core;
@@ -12,7 +13,8 @@ public class NearbyCommunication
 {
     private readonly Device _device;
     private readonly X509Certificate2 _certificate;
-    private readonly BonjourAdvertisement _bonjourAdvertisement;
+    // private readonly BonjourAdvertisement _bonjourAdvertisement;
+    private readonly BleAdvertisement _bleAdvertisement;
 
     public event EventHandler<TransferBase> OnConnectionRequest = delegate { };
 
@@ -20,7 +22,8 @@ public class NearbyCommunication
     {
         _device = myDevice;
         _certificate = certificate;
-        _bonjourAdvertisement = new BonjourAdvertisement(_device);
+        // _bonjourAdvertisement = new BonjourAdvertisement(_device);
+        _bleAdvertisement = new BleAdvertisement(_device);
     }
 
     /// <summary>
@@ -43,19 +46,21 @@ public class NearbyCommunication
         }
     }
 
-    public void AdvertiseDevice()
+    public void StartAdvertising()
     {
-        if (_device.TcpConnectionInfo == null || _device.TcpConnectionInfo.Port == 0)
-        {
-            throw new NullReferenceException("TCP Port is unknown. Did you forget to start the NearbyCommunication server?");
-        }
+        _bleAdvertisement.StartAdvertising();
+        // if (_device.TcpConnectionInfo == null || _device.TcpConnectionInfo.Port == 0)
+        // {
+        //     throw new NullReferenceException("TCP Port is unknown. Did you forget to start the NearbyCommunication server?");
+        // }
 
-        _bonjourAdvertisement.Register((ushort) _device.TcpConnectionInfo.Port);
+        // _bonjourAdvertisement.Register((ushort) _device.TcpConnectionInfo.Port);
     }
 
-    public void UnlistDevice()
+    public void StopAdvertising()
     {
-        _bonjourAdvertisement.Unregister();
+        _bleAdvertisement.StopAdvertising();
+        // _bonjourAdvertisement.Unregister();
     }
 
     // public async Task SendFiles(Device recipient, ZipArchive files, IProgress<long>? progress = null, CancellationToken cancellationToken = default)
