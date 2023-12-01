@@ -25,6 +25,8 @@ jobs:
     - name: Build
       run: |
         ./compile-protobuf.sh
+
+        dotnet workload restore
         dotnet build -c Release
 
     - name: Get Previous tag
