@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SMTSP.BluetoothLowEnergy\SMTSP.BluetoothLowEnergy.csproj" />
+      <ProjectReference Include="..\SMTSP.BluetoothLowEnergy\SMTSP.BluetoothLowEnergy.csproj" PrivateAssets="All" />
       <ProjectReference Include="..\SMTSP.Bonjour\SMTSP.Bonjour.csproj" PrivateAssets="All" />
     </ItemGroup>
 
