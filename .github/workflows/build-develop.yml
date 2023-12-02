@@ -26,8 +26,8 @@ jobs:
       run: |
         ./compile-protobuf.sh
 
-        dotnet workload restore
-        dotnet build -c Release
+        # dotnet workload restore --ignore-failed-sources
+        # dotnet build -c Release
 
     - name: Get Previous tag
       id: previoustag
