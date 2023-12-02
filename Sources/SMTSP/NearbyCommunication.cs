@@ -44,7 +44,8 @@ public class NearbyCommunication
                 communicationService.OnReceive += OnReceive;
             }
 
-            BleDiscovery.StartServer();
+            var psm = await BleDiscovery.StartServer();
+            Logger.Success($"Started BLE L2CAP server. PSM: {psm}");
         }
         catch (Exception exception)
         {

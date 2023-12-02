@@ -19,9 +19,9 @@ public class BleDiscovery
         return BleServer.RequestAccess();
     }
 
-    public static void StartServer()
+    public static Task<ushort> StartServer()
     {
-        BleServer.StartServer();
+        return BleServer.StartServer();
     }
 
     public static void StopServer()
