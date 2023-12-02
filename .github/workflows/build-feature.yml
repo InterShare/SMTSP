@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build feature
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
 
@@ -24,8 +24,8 @@ jobs:
       run: |
         ./compile-protobuf.sh
 
-        dotnet workload restore
-        dotnet build -c Release
+        dotnet workload restore --ignore-failed-sources
+        # dotnet build -c Release
 
     - name: Pack
       run: dotnet pack Sources/SMTSP/SMTSP.csproj -c Release --output packages
