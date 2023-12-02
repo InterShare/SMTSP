@@ -25,6 +25,11 @@ public class NearbyCommunication
         _bleAdvertisement = new BleAdvertisement(_device);
     }
 
+    public Task RequestAccess()
+    {
+        return _bleAdvertisement.RequestAccess();
+    }
+
     /// <summary>
     /// Start offering this peripheral as data receiver.
     /// </summary>

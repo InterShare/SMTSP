@@ -19,6 +19,12 @@ public class DeviceDiscovery
         DiscoveredDevices = _bleDiscovery.DiscoveredDevices;
     }
 
+    public Task RequestAccess()
+    {
+        return _bleDiscovery.RequestAccess();
+    }
+
+
     public void Browse()
     {
         _bleDiscovery.Browse();
