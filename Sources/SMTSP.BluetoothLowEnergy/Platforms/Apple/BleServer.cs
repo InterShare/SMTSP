@@ -63,7 +63,7 @@ public partial class BleServer
         try
         {
             Manager.PublishL2CapChannel(secure);
-            return await taskCompletionSource.Task.ConfigureAwait(false);
+            return await taskCompletionSource.Task;
         }
         finally
         {
