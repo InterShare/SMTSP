@@ -27,16 +27,12 @@ internal static class Logger
             return;
         }
 
-        Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(FormatMessage("GOOD", message));
-        Console.ResetColor();
     }
 
     public static void Error(string message)
     {
-        Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine(FormatMessage("ERR", message));
-        Console.ResetColor();
     }
 
     public static void Warning(string message)
@@ -46,9 +42,7 @@ internal static class Logger
             return;
         }
 
-        Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(FormatMessage("WARN", message));
-        Console.ResetColor();
     }
 
     public static void System(string message)
@@ -58,9 +52,7 @@ internal static class Logger
             return;
         }
 
-        Console.ForegroundColor = ConsoleColor.Blue;
         Console.WriteLine(FormatMessage("SYS", message));
-        Console.ResetColor();
     }
 
     public static void Exception(Exception exception)
