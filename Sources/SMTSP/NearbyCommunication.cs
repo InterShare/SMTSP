@@ -43,6 +43,8 @@ public class NearbyCommunication
                 await communicationService.Start(_device, _certificate);
                 communicationService.OnReceive += OnReceive;
             }
+
+            BleDiscovery.StartServer();
         }
         catch (Exception exception)
         {
@@ -123,6 +125,8 @@ public class NearbyCommunication
         {
             communicationService.Dispose();
         }
+
+        BleDiscovery.StopServer();
     }
 
     /// <exception cref="TransferDeniedException">Occurs, when the participant denied the transfer request.</exception>

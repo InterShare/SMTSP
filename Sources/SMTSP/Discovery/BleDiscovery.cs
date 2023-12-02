@@ -5,23 +5,38 @@ namespace SMTSP.Discovery;
 
 public class BleDiscovery
 {
-    private readonly BleServer _bleServer = new();
+    private static readonly BleServer BleServer = new();
 
     public ObservableCollection<Device> DiscoveredDevices { get; } = [];
 
     public BleDiscovery()
     {
-        _bleServer.PeripheralDataDiscovered += OnPeripheralDataDiscovered;
+        BleServer.PeripheralDataDiscovered += OnPeripheralDataDiscovered;
     }
 
     public Task<bool> RequestAccess()
     {
-        return _bleServer.RequestAccess();
+        return BleServer.RequestAccess();
     }
 
-    public void Browse()
+    public static void StartServer()
     {
-        _bleServer.StartDiscovering();
+        BleServer.StartServer();
+    }
+
+    public static void StopServer()
+    {
+        BleServer.StopServer();
+    }
+
+    public static void Browse()
+    {
+        BleServer.StartDiscovering();
+    }
+
+    public static void StopBrowsing()
+    {
+        BleServer.StopDiscovering();
     }
 
     private void OnPeripheralDataDiscovered(object? sender, byte[] rawDeviceData)

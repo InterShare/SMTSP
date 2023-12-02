@@ -24,9 +24,23 @@ public class DeviceDiscovery
         return _bleDiscovery.RequestAccess();
     }
 
-
     public void Browse()
     {
-        _bleDiscovery.Browse();
+        BleDiscovery.Browse();
+    }
+
+    public void StartServer()
+    {
+        BleDiscovery.StartServer();
+    }
+
+    public void StopServer()
+    {
+        BleDiscovery.StopServer();
+    }
+
+    public void StopBrowsing()
+    {
+        BleDiscovery.StopBrowsing();
     }
 }
