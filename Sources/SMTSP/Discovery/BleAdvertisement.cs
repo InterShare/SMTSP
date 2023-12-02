@@ -7,7 +7,7 @@ public class BleAdvertisement(Device myDevice)
 {
     private readonly BleClient _bleClient = new(myDevice.ToByteArray());
 
-    public Task RequestAccess()
+    public Task<bool> RequestAccess()
     {
         return _bleClient.RequestAccess();
     }

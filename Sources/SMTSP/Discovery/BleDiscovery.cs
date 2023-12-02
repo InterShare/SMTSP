@@ -14,7 +14,7 @@ public class BleDiscovery
         _bleServer.PeripheralDataDiscovered += OnPeripheralDataDiscovered;
     }
 
-    public Task RequestAccess()
+    public Task<bool> RequestAccess()
     {
         return _bleServer.RequestAccess();
     }

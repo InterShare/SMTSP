@@ -19,7 +19,7 @@ public class DeviceDiscovery
         DiscoveredDevices = _bleDiscovery.DiscoveredDevices;
     }
 
-    public Task RequestAccess()
+    public Task<bool> RequestAccess()
     {
         return _bleDiscovery.RequestAccess();
     }

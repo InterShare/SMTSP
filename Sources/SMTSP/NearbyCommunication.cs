@@ -25,7 +25,7 @@ public class NearbyCommunication
         _bleAdvertisement = new BleAdvertisement(_device);
     }
 
-    public Task RequestAccess()
+    public Task<bool> RequestAccess()
     {
         return _bleAdvertisement.RequestAccess();
     }
