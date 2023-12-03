@@ -66,48 +66,64 @@ public partial class BleClient : CBCentralManagerDelegate
 
     public override void DiscoveredPeripheral(CBCentralManager central, CBPeripheral peripheral, NSDictionary advertisementData, NSNumber rssi)
     {
-        if (!IsResponding)
+        Task.Run(() =>
         {
-            return;
-        }
-
-        Manager.ConnectPeripheral(peripheral);
-    }
-
-    private void PeripheralOnDiscoveredService(object? sender, NSErrorEventArgs e)
-    {
-        if (sender is not CBPeripheral cbPeripheral) { return; }
-
-        var service = cbPeripheral.Services?.FirstOrDefault(
-            element => element.UUID == _nativeServiceUuid
-        );
-
-        if (service == null)
-        {
-            return;
-        }
-
-        cbPeripheral.DiscoverCharacteristics([_nativeCharacteristicUuid], service);
-    }
-
-    private void PeripheralOnDiscoveredCharacteristics(object? sender, CBServiceEventArgs args)
-    {
-        if (IsResponding)
-        {
-            var characteristic = args.Service.Characteristics?.FirstOrDefault(element =>
-                element.UUID == _nativeCharacteristicUuid);
-
-            if (characteristic == null)
+            if (!IsResponding)
             {
                 return;
             }
 
-            args.Service.Peripheral?.WriteValue(_deviceData, characteristic, CBCharacteristicWriteType.WithoutResponse);
-        }
+            Manager.ConnectPeripheral(peripheral);
+        });
+    }
+
+    private void PeripheralOnDiscoveredService(object? sender, NSErrorEventArgs e)
+    {
+        Console.WriteLine("Discovered service!");
+        Task.Run(() =>
+        {
+            if (sender is not CBPeripheral cbPeripheral)
+            {
+                return;
+            }
+
+            var service = cbPeripheral.Services?.FirstOrDefault(
+                element => element.UUID == _nativeServiceUuid
+            );
+
+            if (service == null)
+            {
+                return;
+            }
+
+            cbPeripheral.DiscoverCharacteristics([_nativeCharacteristicUuid], service);
+        });
+    }
+
+    private void PeripheralOnDiscoveredCharacteristics(object? sender, CBServiceEventArgs args)
+    {
+        Console.WriteLine("Discovered characteristics!");
+
+        Task.Run(() =>
+        {
+            if (IsResponding)
+            {
+                var characteristic = args.Service.Characteristics?.FirstOrDefault(element =>
+                    element.UUID == _nativeCharacteristicUuid);
+
+                if (characteristic == null)
+                {
+                    return;
+                }
+
+                args.Service.Peripheral?.WriteValue(_deviceData, characteristic, CBCharacteristicWriteType.WithoutResponse);
+            }
+        });
     }
 
     public override void ConnectedPeripheral(CBCentralManager central, CBPeripheral nativePeripheral)
     {
+        Console.WriteLine("Connected to peripheral");
         nativePeripheral.DiscoveredService += PeripheralOnDiscoveredService;
         nativePeripheral.DiscoveredCharacteristics += PeripheralOnDiscoveredCharacteristics;
 

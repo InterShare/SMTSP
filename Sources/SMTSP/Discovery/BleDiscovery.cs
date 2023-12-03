@@ -41,7 +41,9 @@ public class BleDiscovery
 
     private void OnPeripheralDataDiscovered(object? sender, byte[] rawDeviceData)
     {
+        Console.WriteLine("Parsing device info...");
         var device = Device.Parser.ParseFrom(rawDeviceData);
+        Console.WriteLine($"Parsed device info {device}");
         AddOrReplaceDevice(device);
     }
 

@@ -105,20 +105,24 @@ public partial class BleServer
 
     private void ManagerOnWriteRequestsReceived(object? sender, CBATTRequestsEventArgs args)
     {
-        foreach (var request in args.Requests)
+        Console.WriteLine("[Server] received write request!");
+        Task.Run(() =>
         {
-            var value = request.Value;
-
-            if (value == null)
+            foreach (var request in args.Requests)
             {
-                return;
+                var value = request.Value;
+
+                if (value == null)
+                {
+                    return;
+                }
+
+                var valueAsByteArray = new byte[value.Length];
+                System.Runtime.InteropServices.Marshal.Copy(value.Bytes, valueAsByteArray, 0, Convert.ToInt32(value.Length));
+
+                PeripheralDataDiscovered.Invoke(this, valueAsByteArray);
             }
-
-            var valueAsByteArray = new byte[value.Length];
-            System.Runtime.InteropServices.Marshal.Copy(value.Bytes, valueAsByteArray, 0, Convert.ToInt32(value.Length));
-
-            PeripheralDataDiscovered.Invoke(this, valueAsByteArray);
-        }
+        });
     }
 
     public partial async Task<ushort> StartServer()
