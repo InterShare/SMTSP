@@ -3,9 +3,16 @@ using SMTSP.BluetoothLowEnergy;
 
 namespace SMTSP.Discovery;
 
-public class BleAdvertisement(Device myDevice)
+public class BleAdvertisement
 {
-    private readonly BleClient _bleClient = new(myDevice.ToByteArray());
+    private readonly BleClient _bleClient;
+
+    public BleAdvertisement(Device myDevice)
+    {
+        using var output = new MemoryStream();
+        myDevice.WriteDelimitedTo(output);
+        _bleClient = new BleClient(output.ToArray());
+    }
 
     public Task<bool> RequestAccess()
     {
