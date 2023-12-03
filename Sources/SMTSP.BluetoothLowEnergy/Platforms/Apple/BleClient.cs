@@ -9,6 +9,7 @@ public partial class BleClient : CBCentralManagerDelegate
     private readonly NSData _deviceData = NSData.FromArray(deviceData);
     private readonly CBUUID _nativeServiceUuid = CBUUID.FromString(Core.ServiceUuid);
     private readonly CBUUID _nativeCharacteristicUuid = CBUUID.FromString(Core.CharacteristicUuid);
+    private readonly Dictionary<CBPeripheral, DateTime> _alreadyAnsweredPeripherals;
 
     public CBCentralManager Manager
     {
@@ -66,12 +67,28 @@ public partial class BleClient : CBCentralManagerDelegate
 
     public override void DiscoveredPeripheral(CBCentralManager central, CBPeripheral peripheral, NSDictionary advertisementData, NSNumber rssi)
     {
+        var knownPeripheral = _alreadyAnsweredPeripherals.ContainsKey(peripheral);
+
+        if (knownPeripheral)
+        {
+            var elapsed = DateTime.Now - _alreadyAnsweredPeripherals[peripheral];
+
+            if (elapsed.TotalSeconds < 30)
+            {
+                return;
+            }
+        }
+
+        Console.WriteLine("Discovered peripheral");
+
         Task.Run(() =>
         {
             if (!IsResponding)
             {
                 return;
             }
+
+            _alreadyAnsweredPeripherals.Add(peripheral, DateTime.Now);
 
             Manager.ConnectPeripheral(peripheral);
         });
